@@ -233,6 +233,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
         <select class="input-styled" id="pt-sel" onchange="updatePreview()">
           <option value="">患者を選んでください</option>
         </select>
+        <div id="measure-reminder" style="display:none;margin-top:8px;padding:8px 12px;background:#fff3cd;border:1.5px solid #ffc107;border-radius:8px;font-size:12px;color:#856404;font-weight:600;"></div>
       </div>
       <div class="field">
         <label>訪問日</label>
@@ -376,6 +377,34 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
       </div>
     </div>
   </div><!-- /#santel-tab -->
+
+  <!-- 日報タブ -->
+  <div id="report-tab" style="display:none; padding-bottom:80px;">
+    <div class="section">
+      <div class="section-label">日報</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+        <select class="input-styled" id="report-fac-sel">
+          <option value="izumi">いすみ苑</option>
+          <option value="nagaiki">長生き邑</option>
+          <option value="ichimiya">一宮喜楽園</option>
+        </select>
+        <input type="date" class="input-styled" id="report-date" style="flex:1">
+        <button onclick="loadReport()" style="white-space:nowrap;padding:10px 14px;background:var(--green);color:white;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;">表示</button>
+      </div>
+      <div id="report-loading" style="display:none;text-align:center;padding:20px;color:var(--gray)">読み込み中...</div>
+      <div id="report-empty" style="display:none;text-align:center;padding:20px;color:var(--gray);font-size:13px">記録がありません</div>
+      <!-- 日報本体（スクショ対象） -->
+      <div id="report-body" style="display:none;">
+        <div id="report-header" style="text-align:center;padding:12px 0 8px;border-bottom:2px solid var(--green);margin-bottom:12px;">
+          <div id="report-title" style="font-size:18px;font-weight:700;color:var(--green)"></div>
+          <div id="report-subtitle" style="font-size:13px;color:var(--gray);margin-top:4px;"></div>
+        </div>
+        <div id="report-staff-blocks"></div>
+        <div style="text-align:center;padding:10px 0 4px;font-size:11px;color:var(--gray)">🦷 茂原みのり歯科クリニック</div>
+      </div>
+    </div>
+  </div><!-- /#report-tab -->
+
 </div><!-- /#app -->
 
 <!-- タブバー -->
@@ -387,6 +416,10 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   <button class="tab-btn" id="tab-santel" onclick="showTab('santel')">
     <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
     算定確認
+  </button>
+  <button class="tab-btn" id="tab-report" onclick="showTab('report')">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    日報
   </button>
 </div>
 
@@ -449,6 +482,11 @@ function showApp() {
     const t = new Date();
     csv.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
   }
+  const rep = document.getElementById('report-date');
+  if(rep) {
+    const t = new Date();
+    rep.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  }
 }
 if (sessionStorage.getItem('minori_auth') === '1') showApp();
 
@@ -510,6 +548,15 @@ function buildPatientSelect(sel, patients) {
   });
   updatePreview();
 }
+
+// 患者選択変更時
+document.getElementById('pt-sel')?.addEventListener('change', () => {
+  updatePreview();
+  // リマインダーをリセット
+  const reminderEl = document.getElementById('measure-reminder');
+  if (reminderEl) reminderEl.style.display = 'none';
+  checkMeasureReminder();
+});
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  終了時刻自動計算（開始 + 20分）
@@ -580,6 +627,70 @@ function updatePreview() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  測定値リマインド（患者選択時）
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function checkMeasureReminder() {
+  const sel = document.getElementById('pt-sel');
+  if (!sel.value) return;
+  const ptId   = sel.options[sel.selectedIndex]?.dataset.id || '';
+  const ptName = sel.options[sel.selectedIndex]?.dataset.name || '';
+  if (!ptId) return;
+  try {
+    const resp = await fetch(GAS_URLS[currentFac] + '?action=measures');
+    const data = await resp.json();
+    const measures = data.measures || [];
+    const rec = measures.find(m => String(m.id).trim() === String(ptId).trim());
+    if (!rec) return; // 過去記録なし → リマインド不要
+    // 最後の測定日を確認（舌圧・ムーカスのどちらか新しい方）
+    const parseDate = (s) => {
+      if (!s) return null;
+      const m = String(s).match(/^(\d{1,2})\/(\d{1,2})$/);
+      if (!m) return null;
+      const now = new Date();
+      return new Date(now.getFullYear(), parseInt(m[1])-1, parseInt(m[2]));
+    };
+    const d1 = parseDate(rec.tongueDate);
+    const d2 = parseDate(rec.dryDate);
+    const lastDate = (!d1 && !d2) ? null : (!d1 ? d2 : (!d2 ? d1 : (d1 > d2 ? d1 : d2)));
+    if (!lastDate) return;
+    const diffDays = Math.floor((new Date() - lastDate) / (1000*60*60*24));
+    if (diffDays >= 90) {
+      const reminderEl = document.getElementById('measure-reminder');
+      if (reminderEl) {
+        reminderEl.textContent = `⚠️ ${ptName}：前回測定から${diffDays}日経過しています（舌圧・ムーカスの測定をご確認ください）`;
+        reminderEl.style.display = 'block';
+      }
+    } else {
+      const reminderEl = document.getElementById('measure-reminder');
+      if (reminderEl) reminderEl.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  同日重複チェック
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function checkDuplicate(patientName, dateStr, type) {
+  try {
+    const [yyyy, mm, dd] = dateStr.split('-');
+    const dateParam = `${parseInt(mm)}/${parseInt(dd)}`;
+    const resp = await fetch(GAS_URLS[currentFac] + `?action=today&date=${encodeURIComponent(dateParam)}`);
+    const data = await resp.json();
+    const records = (data.records || []).map(parseContentFront);
+    // 同じ患者の記録を抽出
+    const same = records.filter(r => r.name === patientName);
+    if (type === 'kea') {
+      // 口腔ケアが既にある → NG
+      if (same.some(r => r.type === '口腔ケア')) return '同日に口腔ケアが既に記録されています';
+    } else if (type === 'riha') {
+      // 口腔リハが既にある → NG
+      if (same.some(r => r.type === '口腔リハ')) return '同日に口腔リハが既に記録されています';
+    }
+    return null; // OK
+  } catch(e) { return null; }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  保存
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function saveRecord() {
@@ -588,6 +699,11 @@ async function saveRecord() {
   if (!row) { alert('患者を選択してください'); return; }
   const dateVal = document.getElementById('visit-date').value;
   if (!dateVal) { alert('訪問日を入力してください'); return; }
+
+  // 同日重複チェック
+  const ptName = sel.options[sel.selectedIndex]?.dataset.name || '';
+  const dupErr = await checkDuplicate(ptName, dateVal, currentType);
+  if (dupErr) { alert('⚠️ ' + dupErr); return; }
 
   const btn = document.getElementById('save-btn');
   const msg = document.getElementById('save-msg');
@@ -724,7 +840,13 @@ async function fetchCsvPreview() {
     const resp = await fetch(GAS_URLS[fac] + `?action=today&date=${encodeURIComponent(dateStr)}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
-    const records = (data.records || []).map(parseContentFront);
+    const records = (data.records || [])
+      .filter(r => {
+        const raw = r.content || r.raw || '';
+        return raw.trim() !== ''; // 空・削除済みを除外
+      })
+      .map(parseContentFront)
+      .filter(r => r.type); // 種別不明（口腔ケア・口腔リハ以外）も除外
     csvRecords = records; csvDateStr = dateInput; csvFac = fac;
     if (records.length === 0) { document.getElementById('csv-empty').style.display = 'block'; return; }
     renderStaffBlocks(records);
@@ -832,11 +954,105 @@ function downloadCSV() {
 //  タブ切り替え
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function showTab(tab) {
-  document.getElementById('input-tab').style.display  = tab === 'input'  ? 'block' : 'none';
-  document.getElementById('santel-tab').style.display = tab === 'santel' ? 'block' : 'none';
+  document.getElementById('input-tab').style.display   = tab === 'input'   ? 'block' : 'none';
+  document.getElementById('santel-tab').style.display  = tab === 'santel'  ? 'block' : 'none';
+  document.getElementById('report-tab').style.display  = tab === 'report'  ? 'block' : 'none';
   document.getElementById('tab-input').classList.toggle('active',  tab === 'input');
   document.getElementById('tab-santel').classList.toggle('active', tab === 'santel');
+  document.getElementById('tab-report').classList.toggle('active', tab === 'report');
   if (tab === 'santel') loadSantel();
+  if (tab === 'report') {
+    // 日報の日付を今日にデフォルト設定
+    const d = document.getElementById('report-date');
+    if (d && !d.value) {
+      const t = new Date();
+      d.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+    }
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  日報表示
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadReport() {
+  const dateInput = document.getElementById('report-date').value;
+  if (!dateInput) { alert('日付を選択してください'); return; }
+  const fac = document.getElementById('report-fac-sel').value;
+  const [yyyy, mm, dd] = dateInput.split('-');
+  const dateStr = `${parseInt(mm)}/${parseInt(dd)}`;
+  const facName = FAC_CONFIG[fac].name;
+
+  document.getElementById('report-loading').style.display = 'block';
+  document.getElementById('report-empty').style.display   = 'none';
+  document.getElementById('report-body').style.display    = 'none';
+
+  try {
+    const resp = await fetch(GAS_URLS[fac] + `?action=today&date=${encodeURIComponent(dateStr)}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+
+    const records = (data.records || [])
+      .filter(r => (r.content || r.raw || '').trim() !== '')
+      .map(parseContentFront)
+      .filter(r => r.type);
+
+    if (records.length === 0) {
+      document.getElementById('report-empty').style.display = 'block';
+      return;
+    }
+
+    // ヘッダー
+    document.getElementById('report-title').textContent    = `${facName}　日報`;
+    document.getElementById('report-subtitle').textContent = `${yyyy}年${parseInt(mm)}月${parseInt(dd)}日　計${records.length}名`;
+
+    // 担当者別・時間順でレンダリング
+    const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+    const groups = {};
+    records.forEach(r => {
+      const key = r.staff || '（担当者未記録）';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(r);
+    });
+    const orderedKeys = [
+      ...STAFF_ORDER.filter(s => groups[s]),
+      ...Object.keys(groups).filter(k => !STAFF_ORDER.includes(k))
+    ];
+
+    const wrap = document.getElementById('report-staff-blocks');
+    wrap.innerHTML = '';
+    orderedKeys.forEach(staffName => {
+      const recs = groups[staffName].slice().sort((a,b) => timeToMin(a.timeStr) - timeToMin(b.timeStr));
+      const rows = recs.map(r => {
+        const badge = r.type === '口腔ケア'
+          ? '<span style="background:#e8f5f0;color:#4a9b7f;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;">ケア</span>'
+          : '<span style="background:#fdf0ec;color:#e07b5a;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;">リハ</span>';
+        const cont = r.contents && r.contents.length ? r.contents.join('・') : (r.raw || '');
+        return `<tr>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;font-size:12px;color:#8a9e96;">${r.timeStr || '—'}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:13px;font-weight:600;">${r.name}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;">${badge}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;color:#555;">${cont}</td>
+        </tr>`;
+      }).join('');
+
+      wrap.innerHTML += `
+        <div style="margin-bottom:14px;border:1.5px solid #dde8e4;border-radius:10px;overflow:hidden;">
+          <div style="background:#4a9b7f;color:white;padding:7px 12px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;">
+            <span>👤 ${staffName}</span>
+            <span style="opacity:.85;font-weight:400;font-size:11px;">${recs.length}名</span>
+          </div>
+          <table style="width:100%;border-collapse:collapse;">
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    });
+
+    document.getElementById('report-body').style.display = 'block';
+  } catch(e) {
+    alert('エラー: ' + e.message);
+  } finally {
+    document.getElementById('report-loading').style.display = 'none';
+  }
 }
 </script>
 </body>
