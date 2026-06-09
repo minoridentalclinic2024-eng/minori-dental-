@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>みのり歯科 記録</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #4a9b7f;
+  --green-light: #e8f5f0;
+  --green-mid: #6ab090;
+  --border: #dde8e4;
+  --text: #2d4a3e;
+  --gray: #8a9e96;
+  --warn: #e07b5a;
+  --warn-bg: #fdf0ec;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+       background: #f4f8f6; color: var(--text); font-size: 15px; min-height: 100vh; }
+header { background: var(--green); color: white; padding: 12px 16px;
+         display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+header h1 { font-size: 18px; font-weight: 700; }
+header p  { font-size: 11px; opacity: .8; margin-top: 2px; }
+#logout-btn { background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.4);
+              color: white; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; }
+#logout-btn:hover { background: rgba(255,255,255,.35); }
+
+/* ログイン */
+#login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.login-box { background: white; border-radius: 16px; padding: 40px 32px; width: 340px;
+             box-shadow: 0 4px 24px rgba(0,0,0,.1); text-align: center; }
+.login-box h2 { color: var(--green); font-size: 22px; margin-bottom: 8px; }
+.login-box p  { color: var(--gray); font-size: 13px; margin-bottom: 28px; }
+.login-box input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border);
+                   border-radius: 10px; font-size: 16px; outline: none; transition: border .2s; }
+.login-box input:focus { border-color: var(--green); }
+.login-box button { width: 100%; padding: 13px; background: var(--green); color: white;
+                    border: none; border-radius: 10px; font-size: 16px; font-weight: 600;
+                    cursor: pointer; margin-top: 16px; transition: background .2s; }
+.login-box button:hover { background: var(--green-mid); }
+.login-err { color: var(--warn); font-size: 13px; margin-top: 8px; }
+
+/* メインアプリ */
+#app { display: none; padding-bottom: 80px; }
+.section { background: white; margin: 12px; border-radius: 14px; padding: 16px;
+           box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+.section-label { font-size: 11px; color: var(--gray); font-weight: 600; letter-spacing: .06em;
+                 text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.section-label::before { content: ''; width: 3px; height: 12px; background: var(--green); border-radius: 2px; display: block; }
+
+/* 施設ボタン */
+.fac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fac-btn { border: 1.5px solid var(--border); background: white; border-radius: 12px;
+           padding: 14px 12px; cursor: pointer; text-align: center; transition: all .2s; }
+.fac-btn .fac-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.fac-btn .fac-sub  { font-size: 11px; color: var(--gray); margin-top: 3px; }
+.fac-btn.active { background: var(--green-light); border-color: var(--green); }
+.fac-btn.active .fac-name { color: var(--green); }
+.fac-btn:hover:not(.active) { border-color: var(--green-mid); background: #f8fdfb; }
+
+/* フォーム要素 */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+label { display: block; font-size: 12px; color: var(--gray); font-weight: 600; margin-bottom: 5px; }
+.input-styled { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+                border-radius: 10px; font-size: 15px; color: var(--text); background: white;
+                outline: none; transition: border .2s; appearance: none; -webkit-appearance: none; }
+.input-styled:focus { border-color: var(--green); }
+select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a9e96' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+                      background-repeat: no-repeat; background-position: right 12px center;
+                      padding-right: 36px; cursor: pointer; }
+.time-row { display: flex; align-items: center; gap: 8px; }
+.time-row .tilde { color: var(--gray); font-size: 18px; }
+.time-row .input-styled { flex: 1; }
+
+/* 患者ローディング */
+#pt-loading { display: none; text-align: center; padding: 8px; color: var(--gray); font-size: 13px; }
+
+/* 算定区分 */
+.type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.type-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 14px;
+             cursor: pointer; text-align: center; transition: all .2s; }
+.type-card .type-icon { font-size: 22px; margin-bottom: 4px; }
+.type-card .type-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.type-card .type-sub  { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.type-card.active { background: var(--green-light); border-color: var(--green); }
+.type-card.active .type-name { color: var(--green); }
+.type-card:hover:not(.active) { border-color: var(--green-mid); }
+
+/* チェックボックス */
+.check-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.check-item { display: flex; align-items: center; gap: 6px; background: #f7faf9;
+              border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 11px;
+              cursor: pointer; font-size: 13px; transition: all .2s; }
+.check-item input { display: none; }
+.check-item.checked { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 600; }
+
+/* 担当者 */
+.radio-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.radio-item { display: flex; align-items: center; gap: 6px; background: #f7faf9;
+              border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 11px;
+              cursor: pointer; font-size: 13px; transition: all .2s; }
+.radio-item input { display: none; }
+.radio-item.checked { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 600; }
+
+/* プレビュー */
+#preview-box { background: var(--green-light); border: 1.5px solid var(--green);
+               border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px; color: var(--text); }
+#save-btn { width: 100%; padding: 15px; background: var(--green); color: white;
+            border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: background .2s; }
+#save-btn:hover:not(:disabled) { background: var(--green-mid); }
+#save-btn:disabled { opacity: .5; cursor: not-allowed; }
+#save-msg { text-align: center; margin-top: 10px; font-size: 14px; font-weight: 600;
+            min-height: 22px; }
+#save-msg.ok   { color: var(--green); }
+#save-msg.err  { color: var(--warn); }
+
+/* 測定値 */
+.measure-row { display: flex; align-items: center; gap: 10px; }
+.measure-row .input-styled { flex: 1; }
+.measure-prev { font-size: 12px; color: var(--gray); margin-top: 3px; }
+.measure-check { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; cursor: pointer; }
+.measure-check input { accent-color: var(--green); width: 16px; height: 16px; }
+
+/* タブバー */
+#tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white;
+           border-top: 1px solid var(--border); display: flex; z-index: 100; }
+.tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center;
+           padding: 10px; cursor: pointer; border: none; background: none;
+           color: var(--gray); font-size: 11px; gap: 3px; transition: color .2s; }
+.tab-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.tab-btn.active { color: var(--green); }
+
+/* 算定確認タブ */
+#santel-tab { display: none; padding-bottom: 80px; }
+.santel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.santel-header select { flex: 1; }
+.santel-header button { padding: 10px 14px; background: var(--green); color: white;
+                        border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; }
+#santel-table-wrap { overflow-x: auto; }
+#santel-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+#santel-table th { background: var(--green); color: white; padding: 8px 10px; text-align: left; white-space: nowrap; }
+#santel-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+#santel-table tr:hover td { background: var(--green-light); }
+.count-ok   { color: var(--green); font-weight: 700; }
+.count-over { color: var(--warn); font-weight: 700; background: var(--warn-bg); padding: 2px 6px; border-radius: 4px; }
+
+/* CSV出力エリア */
+.csv-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+.csv-section .section-label { margin-bottom: 12px; }
+.csv-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.csv-controls input[type="date"] { flex: 1; }
+.csv-controls button { white-space: nowrap; padding: 10px 16px; background: var(--green); color: white;
+                       border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.csv-controls button:disabled { opacity: .5; cursor: not-allowed; }
+
+/* CSV プレビュー */
+#csv-preview { display: none; }
+.staff-block { margin-bottom: 14px; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
+.staff-block-title { font-size: 13px; font-weight: 700; color: white;
+                     background: var(--green); padding: 7px 12px;
+                     display: flex; justify-content: space-between; align-items: center; }
+.staff-block-title span { font-size: 11px; font-weight: 400; opacity: .85; }
+.csv-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.csv-table th { background: #f4f8f6; color: var(--gray); padding: 6px 8px;
+                text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.csv-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
+.csv-table tr:last-child td { border-bottom: none; }
+.badge-kea  { display:inline-block; background:#e8f5f0; color:var(--green); border-radius:4px; padding:1px 5px; font-size:11px; }
+.badge-riha { display:inline-block; background:#fdf0ec; color:var(--warn);  border-radius:4px; padding:1px 5px; font-size:11px; }
+.no-staff-block { text-align:center; color:var(--gray); font-size:12px; padding:10px; }
+.csv-dl-btn { width: 100%; padding: 12px; background: #3a7a64; color: white;
+              border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+              cursor: pointer; margin-top: 8px; }
+.csv-dl-btn:hover { background: var(--green); }
+#csv-empty { text-align: center; color: var(--gray); padding: 20px; font-size: 13px; display: none; }
+
+@media (max-width: 480px) {
+  .fac-grid { grid-template-columns: 1fr 1fr; }
+  .type-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ログイン画面 -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>🦷 みのり歯科</h2>
+    <p>記録システムへようこそ</p>
+    <input type="password" id="pw-input" placeholder="パスワードを入力" autocomplete="current-password">
+    <div class="login-err" id="pw-err"></div>
+    <button onclick="doLogin()">ログイン</button>
+  </div>
+</div>
+
+<!-- メインアプリ -->
+<header id="main-header" style="display:none">
+  <div><h1>みのり歯科 記録</h1><p id="user-label">スタッフ</p></div>
+  <button id="logout-btn" onclick="doLogout()">ログアウト</button>
+</header>
+
+<div id="app">
+  <!-- 記録入力タブ -->
+  <div id="input-tab">
+    <!-- 施設選択 -->
+    <div class="section">
+      <div class="section-label">施設</div>
+      <div class="fac-grid">
+        <button class="fac-btn active" data-fac="izumi" onclick="switchFacility('izumi')">
+          <div class="fac-name">いすみ苑</div>
+          <div class="fac-sub">ケア月2回 / リハ月4回</div>
+        </button>
+        <button class="fac-btn" data-fac="nagaiki" onclick="switchFacility('nagaiki')">
+          <div class="fac-name">長生き邑</div>
+          <div class="fac-sub">ケア月4回 / リハ月4回</div>
+        </button>
+        <button class="fac-btn" data-fac="ichimiya" onclick="switchFacility('ichimiya')">
+          <div class="fac-name">一宮喜楽園</div>
+          <div class="fac-sub">ケア月2回 / リハ月4回</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="section">
+      <div class="section-label">基本情報</div>
+      <div class="field">
+        <label>患者</label>
+        <div id="pt-loading">患者リストを読み込み中...</div>
+        <select class="input-styled" id="pt-sel" onchange="updatePreview()">
+          <option value="">患者を選んでください</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>訪問日</label>
+        <input type="date" class="input-styled" id="visit-date" onchange="updatePreview()">
+      </div>
+      <div class="field">
+        <label>時間</label>
+        <div class="time-row">
+          <input type="time" class="input-styled" id="time-from" value="10:00" onchange="autoSetTimeTo(); updatePreview()">
+          <span class="tilde">〜</span>
+          <input type="time" class="input-styled" id="time-to" value="10:20" onchange="updatePreview()">
+        </div>
+      </div>
+    </div>
+
+    <!-- 算定区分 -->
+    <div class="section">
+      <div class="section-label">算定区分</div>
+      <div class="type-grid">
+        <div class="type-card active" data-type="kea" onclick="selectType('kea')">
+          <div class="type-icon">🦷</div>
+          <div class="type-name">口腔ケア</div>
+          <div class="type-sub">訪問衛生指導料</div>
+        </div>
+        <div class="type-card" data-type="riha" onclick="selectType('riha')">
+          <div class="type-icon">💪</div>
+          <div class="type-name">口腔リハ</div>
+          <div class="type-sub">訪問口腔リハ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 実施内容 -->
+    <div class="section">
+      <div class="section-label">実施内容（複数選択可）</div>
+      <div class="check-grid" id="content-checks">
+        <div class="check-item" onclick="toggleCheck(this)" data-value="スポンジブラシ">スポンジブラシ</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="歯ブラシ">歯ブラシ</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="歯間ブラシ">歯間ブラシ</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="保湿">保湿</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="ぶくぶく">ぶくぶく</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="舌回し">舌回し</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="マッサージ">マッサージ</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="ROM">ROM</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="舌圧排">舌圧排</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="水飲み訓練">水飲み訓練</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="発語訓練">発語訓練</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="シャキアー法">シャキアー法</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="シャキアー変法">シャキアー変法</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="握手">握手</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="唾液腺マッサージ">唾液腺マッサージ</div>
+      </div>
+    </div>
+
+    <!-- 担当者 -->
+    <div class="section">
+      <div class="section-label">担当者</div>
+      <div class="radio-grid" id="staff-radios">
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="佐藤Dr">佐藤Dr</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="南雲DH">南雲DH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="吉岡DH">吉岡DH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="末吉DH">末吉DH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="高梨DH">高梨DH</label>
+      </div>
+    </div>
+
+    <!-- 備考 -->
+    <div class="section">
+      <div class="section-label">備考・特記事項（任意）</div>
+      <textarea class="input-styled" id="memo" rows="3" placeholder="自由記述" style="resize:vertical" oninput="updatePreview()"></textarea>
+    </div>
+
+    <!-- 測定値 -->
+    <div class="section">
+      <div class="section-label">測定値（3ヶ月ごと）</div>
+      <div class="field">
+        <label>舌圧</label>
+        <div class="measure-row">
+          <input type="number" class="input-styled" id="tongue-val" placeholder="数値" step="0.1" min="0" oninput="updatePreview()">
+          <span style="color:var(--gray);white-space:nowrap">kPa</span>
+        </div>
+        <div class="measure-prev" id="tongue-prev">前回: 未測定</div>
+        <label class="measure-check"><input type="checkbox" id="tongue-check" onchange="updatePreview()">今回測定した（記録シートに保存）</label>
+      </div>
+      <div class="field">
+        <label>口腔乾燥（ムーカス）</label>
+        <div class="measure-row">
+          <input type="number" class="input-styled" id="dry-val" placeholder="数値" step="0.1" min="0" oninput="updatePreview()">
+        </div>
+        <div class="measure-prev" id="dry-prev">前回: 未測定</div>
+        <label class="measure-check"><input type="checkbox" id="dry-check" onchange="updatePreview()">今回測定した（記録シートに保存）</label>
+      </div>
+    </div>
+
+    <!-- 保存 -->
+    <div class="section">
+      <div class="section-label">スプレッドシートへの書き込み内容</div>
+      <div id="preview-box">—</div>
+      <button id="save-btn" onclick="saveRecord()">スプレッドシートに保存</button>
+      <div id="save-msg"></div>
+    </div>
+  </div><!-- /#input-tab -->
+
+  <!-- 算定確認タブ -->
+  <div id="santel-tab">
+    <!-- 月間集計 -->
+    <div class="section">
+      <div class="section-label">算定確認</div>
+      <div class="santel-header">
+        <select class="input-styled" id="santel-fac-sel" onchange="loadSantel()">
+          <option value="izumi">いすみ苑</option>
+          <option value="nagaiki">長生き邑</option>
+          <option value="ichimiya">一宮喜楽園</option>
+        </select>
+        <button onclick="loadSantel()">更新</button>
+      </div>
+      <div id="santel-table-wrap">
+        <div id="santel-loading" style="text-align:center;padding:20px;color:var(--gray)">読み込み中...</div>
+        <table id="santel-table" style="display:none">
+          <thead><tr><th>患者名</th><th>ケア</th><th>リハ</th></tr></thead>
+          <tbody id="santel-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- CSV出力エリア -->
+      <div class="csv-section">
+        <div class="section-label">日別CSV出力</div>
+        <div class="csv-controls">
+          <input type="date" class="input-styled" id="csv-date">
+          <button id="csv-fetch-btn" onclick="fetchCsvPreview()">📋 取得</button>
+        </div>
+
+        <!-- 空メッセージ -->
+        <div id="csv-empty">選択した日付の記録がありません</div>
+
+        <!-- プレビュー -->
+        <div id="csv-preview">
+          <div id="staff-blocks-wrap"></div>
+          <button class="csv-dl-btn" onclick="downloadCSV()">📥 CSVダウンロード</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#santel-tab -->
+</div><!-- /#app -->
+
+<!-- タブバー -->
+<div id="tab-bar" style="display:none">
+  <button class="tab-btn active" id="tab-input" onclick="showTab('input')">
+    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    記録入力
+  </button>
+  <button class="tab-btn" id="tab-santel" onclick="showTab('santel')">
+    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    算定確認
+  </button>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  設定
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const APP_PASSWORD = 'minori2024';
+const GAS_URLS = {
+  izumi:    'https://script.google.com/macros/s/AKfycbw0hWzDcrVyxjEo5TS-qy3ZyYNgV5jGuplTpYv1Sq7_cUoJyHNBkNj2dlZnchlCfNl8/exec',
+  nagaiki:  'https://script.google.com/macros/s/AKfycbxswU6UPfoz4Y_OQFI8Gn_0dd13LnllVJw9m_Nqm6kQ6QPryYgTnzKuZGkrH1FYyQQW/exec',
+  ichimiya: 'https://script.google.com/macros/s/AKfycbyAhvzWm9f5D3m52_1dyoPAK-y-QBe_jgw7pxJXeQ8kD0XNH5gUWDH69N8HB4oM9gNQwQ/exec',
+};
+const FAC_CONFIG = {
+  izumi:    { name:'いすみ苑',    limitKea:2, limitRiha:4 },
+  nagaiki:  { name:'長生き邑',    limitKea:4, limitRiha:4 },
+  ichimiya: { name:'一宮喜楽園',  limitKea:2, limitRiha:4 },
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  状態
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let currentFac   = 'izumi';
+let currentType  = 'kea';
+let patientCache = {};
+let csvRecords   = [];   // 最後に取得したCSV用データ
+let csvDateStr   = '';
+let csvFac       = '';
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  ログイン
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  if (pw === APP_PASSWORD) {
+    sessionStorage.setItem('minori_auth', '1');
+    showApp();
+  } else {
+    document.getElementById('pw-err').textContent = 'パスワードが違います';
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+function doLogout() {
+  sessionStorage.removeItem('minori_auth');
+  location.reload();
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-header').style.display = 'flex';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('tab-bar').style.display = 'flex';
+  setTodayDate();
+  loadPatients('izumi');
+  loadSantel();
+  const csv = document.getElementById('csv-date');
+  if(csv) {
+    const t = new Date();
+    csv.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  }
+}
+if (sessionStorage.getItem('minori_auth') === '1') showApp();
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  日付
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function setTodayDate() {
+  const t = new Date();
+  document.getElementById('visit-date').value =
+    `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  施設切り替え
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function switchFacility(fac) {
+  currentFac = fac;
+  document.querySelectorAll('.fac-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.fac === fac));
+  loadPatients(fac);
+  updatePreview();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  患者リスト
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadPatients(fac) {
+  const sel = document.getElementById('pt-sel');
+  const loading = document.getElementById('pt-loading');
+  if (patientCache[fac]) { buildPatientSelect(sel, patientCache[fac]); return; }
+  loading.style.display = 'block';
+  sel.style.display = 'none';
+  sel.innerHTML = '<option value="">読み込み中...</option>';
+  try {
+    const resp = await fetch(GAS_URLS[fac] + '?action=patients');
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    const patients = (data.patients || []).filter(p =>
+      p.name && !/^(患者氏名|患者名|氏名|名前|患者)$/.test(p.name.trim()));
+    patientCache[fac] = patients;
+    buildPatientSelect(sel, patients);
+  } catch(e) {
+    sel.innerHTML = '<option value="">読み込みに失敗しました</option>';
+  } finally {
+    loading.style.display = 'none';
+    sel.style.display = 'block';
+  }
+}
+
+function buildPatientSelect(sel, patients) {
+  sel.innerHTML = '<option value="">患者を選んでください</option>';
+  patients.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.row;
+    opt.dataset.id = p.id;
+    opt.dataset.name = p.name;
+    opt.textContent = p.name;
+    sel.appendChild(opt);
+  });
+  updatePreview();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  終了時刻自動計算（開始 + 20分）
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function autoSetTimeTo() {
+  const fromVal = document.getElementById('time-from').value;
+  if (!fromVal) return;
+  const [h, m] = fromVal.split(':').map(Number);
+  const total = h * 60 + m + 20;
+  const nh = Math.floor(total / 60) % 24;
+  const nm = total % 60;
+  document.getElementById('time-to').value =
+    String(nh).padStart(2,'0') + ':' + String(nm).padStart(2,'0');
+}
+
+
+function selectType(type) {
+  currentType = type;
+  document.querySelectorAll('.type-card').forEach(c =>
+    c.classList.toggle('active', c.dataset.type === type));
+  updatePreview();
+}
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  updatePreview();
+}
+function selectStaff(el) {
+  document.querySelectorAll('.radio-item').forEach(r => r.classList.remove('checked'));
+  el.classList.add('checked');
+  updatePreview();
+}
+function getSelectedStaff() {
+  const checked = document.querySelector('.radio-item.checked input');
+  return checked ? checked.value : '';
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  プレビュー更新
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function getCheckedContents() {
+  return Array.from(document.querySelectorAll('#content-checks .check-item.checked'))
+    .map(el => el.dataset.value).filter(Boolean);
+}
+
+function updatePreview() {
+  const sel = document.getElementById('pt-sel');
+  const from = document.getElementById('time-from').value;
+  const to   = document.getElementById('time-to').value;
+  const staff    = getSelectedStaff();
+  const typeName = currentType === 'kea' ? '口腔ケア' : '口腔リハ';
+  const timeStr  = from && to ? ` ${from}〜${to}` : '';
+  const contents = getCheckedContents();
+  const contentStr = contents.length > 0 ? ' ' + contents.join('・') : '';
+  const staffStr = staff ? staff + ' ' : '';
+
+  // 測定値プレビュー
+  const tongueCheck = document.getElementById('tongue-check')?.checked;
+  const dryCheck    = document.getElementById('dry-check')?.checked;
+  const tongueVal   = document.getElementById('tongue-val')?.value;
+  const dryVal      = document.getElementById('dry-val')?.value;
+  const measureParts = [];
+  if (tongueCheck && tongueVal) measureParts.push(`舌圧:${tongueVal}kPa`);
+  if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
+  const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
+
+  const preview = `${staffStr}${typeName}${timeStr}${contentStr}${measureStr}`;
+  document.getElementById('preview-box').textContent = sel.value ? preview : '患者を選択してください';
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  保存
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function saveRecord() {
+  const sel  = document.getElementById('pt-sel');
+  const row  = sel.value;
+  if (!row) { alert('患者を選択してください'); return; }
+  const dateVal = document.getElementById('visit-date').value;
+  if (!dateVal) { alert('訪問日を入力してください'); return; }
+
+  const btn = document.getElementById('save-btn');
+  const msg = document.getElementById('save-msg');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+  msg.textContent = '';
+  msg.className = '';
+
+  try {
+    const from = document.getElementById('time-from').value;
+    const to   = document.getElementById('time-to').value;
+    const timeStr    = from && to ? `${from}〜${to}` : '';
+    const contents   = getCheckedContents();
+    const staff      = getSelectedStaff();
+
+    // 測定値をcontentStrに追記
+    const tongueCheck = document.getElementById('tongue-check').checked;
+    const dryCheck    = document.getElementById('dry-check').checked;
+    const tongueVal   = document.getElementById('tongue-val').value;
+    const dryVal      = document.getElementById('dry-val').value;
+    const measureParts = [];
+    if (tongueCheck && tongueVal) measureParts.push(`舌圧:${tongueVal}kPa`);
+    if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
+    const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
+
+    const contentStr = contents.join('・') + measureStr;
+
+    const params = new URLSearchParams({
+      action:      'write',
+      patientRow:  row,
+      visitDate:   dateVal,
+      type:        currentType,
+      timeStr:     timeStr,
+      contentStr:  contentStr,
+      staff:       staff,
+    });
+    const resp = await fetch(GAS_URLS[currentFac] + '?' + params.toString());
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    msg.textContent = `✅ 保存しました（${data.wrote}）`;
+    msg.className = 'ok';
+
+    // 測定記録シートにも保存
+    const ptId   = sel.options[sel.selectedIndex]?.dataset.id || '';
+    const ptName = sel.options[sel.selectedIndex]?.dataset.name || '';
+    if (tongueCheck && tongueVal) await saveMeasure(ptId, ptName, 'tongue', tongueVal);
+    if (dryCheck    && dryVal)    await saveMeasure(ptId, ptName, 'dry',    dryVal);
+  } catch(e) {
+    msg.textContent = '❌ エラー: ' + e.message;
+    msg.className = 'err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'スプレッドシートに保存';
+  }
+}
+
+async function saveMeasure(id, name, type, value) {
+  const params = new URLSearchParams({ action:'writeMeasure', id, name, type, value });
+  await fetch(GAS_URLS[currentFac] + '?' + params.toString());
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  算定確認（月間）
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadSantel() {
+  const fac = document.getElementById('santel-fac-sel').value;
+  const loading = document.getElementById('santel-loading');
+  const table   = document.getElementById('santel-table');
+  const tbody   = document.getElementById('santel-tbody');
+  loading.style.display = 'block';
+  table.style.display   = 'none';
+  tbody.innerHTML = '';
+  try {
+    const resp = await fetch(GAS_URLS[fac] + '?action=count');
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    const cfg = FAC_CONFIG[fac];
+    (data.patients || []).forEach(p => {
+      const tr = document.createElement('tr');
+      const keaCls  = p.keaCount  > cfg.limitKea  ? 'count-over' : 'count-ok';
+      const rihaCls = p.rihaCount > cfg.limitRiha ? 'count-over' : 'count-ok';
+      tr.innerHTML = `<td>${p.name}</td>
+        <td><span class="${keaCls}">${p.keaCount}/${cfg.limitKea}</span></td>
+        <td><span class="${rihaCls}">${p.rihaCount}/${cfg.limitRiha}</span></td>`;
+      tbody.appendChild(tr);
+    });
+    loading.style.display = 'none';
+    table.style.display   = '';
+  } catch(e) {
+    loading.textContent = '読み込み失敗: ' + e.message;
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  contentパース（フロント側・旧形式対応）
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function parseContentFront(r) {
+  // GASがすでに構造化して返している場合はそのまま使う
+  if (r.type) return r;
+  // 旧形式: contentのみの場合はフロントでパース
+  const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+  let staff = '', rest = (r.content || r.raw || '').trim();
+  for (const s of STAFF_LIST) {
+    if (rest.startsWith(s + ' ') || rest === s) { staff = s; rest = rest.slice(s.length).trim(); break; }
+  }
+  let type = '';
+  if (rest.startsWith('口腔ケア'))      { type = '口腔ケア'; rest = rest.slice(4).trim(); }
+  else if (rest.startsWith('口腔リハ')) { type = '口腔リハ'; rest = rest.slice(4).trim(); }
+  let timeStr = '';
+  const tm = rest.match(/^(\d{1,2}:\d{2}[〜~]\d{1,2}:\d{2})/);
+  if (tm) { timeStr = tm[1]; rest = rest.slice(timeStr.length).trim(); }
+  const contents = rest ? rest.split('・').filter(Boolean) : [];
+  return { ...r, staff, type, timeStr, contents, raw: r.content || r.raw || '' };
+}
+
+
+function timeToMin(t) {
+  if(!t) return 9999;
+  const m = t.match(/(\d{1,2}):(\d{2})/);
+  return m ? parseInt(m[1])*60 + parseInt(m[2]) : 9999;
+}
+
+async function fetchCsvPreview() {
+  const dateInput = document.getElementById('csv-date').value;
+  if (!dateInput) { alert('日付を選択してください'); return; }
+  const fac = document.getElementById('santel-fac-sel').value;
+  const [yyyy, mm, dd] = dateInput.split('-');
+  const dateStr = `${parseInt(mm)}/${parseInt(dd)}`;
+  const btn = document.getElementById('csv-fetch-btn');
+  btn.textContent = '取得中...'; btn.disabled = true;
+  document.getElementById('csv-preview').style.display = 'none';
+  document.getElementById('csv-empty').style.display   = 'none';
+  try {
+    const resp = await fetch(GAS_URLS[fac] + `?action=today&date=${encodeURIComponent(dateStr)}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    const records = (data.records || []).map(parseContentFront);
+    csvRecords = records; csvDateStr = dateInput; csvFac = fac;
+    if (records.length === 0) { document.getElementById('csv-empty').style.display = 'block'; return; }
+    renderStaffBlocks(records);
+    document.getElementById('csv-preview').style.display = 'block';
+  } catch(e) {
+    alert('エラー: ' + e.message);
+  } finally {
+    btn.textContent = '📋 取得'; btn.disabled = false;
+  }
+}
+
+// 担当者別ブロックをレンダリング
+function renderStaffBlocks(records) {
+  const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+  const wrap = document.getElementById('staff-blocks-wrap');
+  wrap.innerHTML = '';
+
+  // 担当者ごとにグループ化
+  const groups = {};
+  records.forEach(r => {
+    const key = r.staff || '（担当者未記録）';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+
+  // 表示順：既知の担当者 → 未記録
+  const orderedKeys = [
+    ...STAFF_ORDER.filter(s => groups[s]),
+    ...Object.keys(groups).filter(k => !STAFF_ORDER.includes(k))
+  ];
+
+  orderedKeys.forEach(staffName => {
+    const recs = groups[staffName].slice().sort((a,b) => timeToMin(a.timeStr) - timeToMin(b.timeStr));
+    const rows = recs.map(r => {
+      const badge = r.type === '口腔ケア'
+        ? '<span class="badge-kea">口腔ケア</span>'
+        : r.type === '口腔リハ' ? '<span class="badge-riha">口腔リハ</span>' : r.type || '';
+      const cont = r.contents && r.contents.length ? r.contents.join('・') : (r.raw || '');
+      return `<tr>
+        <td>${r.timeStr || '—'}</td>
+        <td>${r.name}</td>
+        <td>${badge}</td>
+        <td>${cont}</td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML += `
+      <div class="staff-block">
+        <div class="staff-block-title">
+          👤 ${staffName}
+          <span>${recs.length}件</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="csv-table">
+            <thead><tr><th>時間</th><th>患者名</th><th>種別</th><th>実施内容</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  });
+}
+
+function downloadCSV() {
+  if (!csvRecords.length) { alert('データがありません'); return; }
+  const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+  const facName = FAC_CONFIG[csvFac].name;
+
+  // 担当者別・時系列でグループ化
+  const groups = {};
+  csvRecords.forEach(r => {
+    const key = r.staff || '（担当者未記録）';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+  const orderedKeys = [
+    ...STAFF_ORDER.filter(s => groups[s]),
+    ...Object.keys(groups).filter(k => !STAFF_ORDER.includes(k))
+  ];
+
+  const q = v => `"${String(v||'').replace(/"/g,'""')}"`;
+  const rows = [];
+
+  orderedKeys.forEach(staffName => {
+    // 担当者ヘッダー行
+    rows.push([`【${staffName}】`, '', '', '', '', '', '']);
+    rows.push(['時間', '患者名', '種別', '実施内容', '施設', '日付', '担当者']);
+    const recs = groups[staffName].slice().sort((a,b) => timeToMin(a.timeStr) - timeToMin(b.timeStr));
+    recs.forEach(r => {
+      const cont = r.contents && r.contents.length ? r.contents.join('・') : (r.raw || '');
+      rows.push([r.timeStr || '', r.name, r.type || '', cont, facName, csvDateStr, staffName]);
+    });
+    rows.push(['', '', '', '', '', '', '']); // 空行で区切り
+  });
+
+  const csv  = rows.map(r => r.map(q).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href     = URL.createObjectURL(blob);
+  link.download = `みのり歯科_${facName}_${csvDateStr}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  タブ切り替え
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function showTab(tab) {
+  document.getElementById('input-tab').style.display  = tab === 'input'  ? 'block' : 'none';
+  document.getElementById('santel-tab').style.display = tab === 'santel' ? 'block' : 'none';
+  document.getElementById('tab-input').classList.toggle('active',  tab === 'input');
+  document.getElementById('tab-santel').classList.toggle('active', tab === 'santel');
+  if (tab === 'santel') loadSantel();
+}
+</script>
+</body>
+</html>
