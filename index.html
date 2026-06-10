@@ -702,6 +702,7 @@ async function saveRecord() {
   if (!dateVal) { alert('訪問日を入力してください'); return; }
 
   // 同日重複チェック
+  const ptName = sel.options[sel.selectedIndex]?.dataset.name || '';
   const dupErr = await checkDuplicate(ptName, dateVal, currentType);
   if (dupErr) { alert('⚠️ ' + dupErr); return; }
 
