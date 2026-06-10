@@ -621,8 +621,9 @@ function updatePreview() {
   if (tongueCheck && tongueVal) measureParts.push(`舌圧:${tongueVal}kPa`);
   if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
   const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
-
-  const preview = `${staffStr}${typeName}${timeStr}${contentStr}${measureStr}`;
+  const memoVal = document.getElementById('memo')?.value.trim() || '';
+  const memoStr = memoVal ? ` ／備考:${memoVal}` : '';
+  const preview = `${staffStr}${typeName}${timeStr}${contentStr}${measureStr}${memoStr}`;
   document.getElementById('preview-box').textContent = sel.value ? preview : '患者を選択してください';
 }
 
@@ -729,16 +730,21 @@ async function saveRecord() {
     if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
     const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
 
-    const contentStr = contents.join('・') + measureStr;
+    // 備考を追記
+    const memoVal = document.getElementById('memo').value.trim();
+    const memoStr = memoVal ? ` ／備考:${memoVal}` : '';
+
+    const contentStr = contents.join('・') + measureStr + memoStr;
 
     const params = new URLSearchParams({
-      action:      'write',
-      patientRow:  row,
-      visitDate:   dateVal,
-      type:        currentType,
-      timeStr:     timeStr,
-      contentStr:  contentStr,
-      staff:       staff,
+      action:       'write',
+      patientRow:   row,
+      patientName:  ptName,
+      visitDate:    dateVal,
+      type:         currentType,
+      timeStr:      timeStr,
+      contentStr:   contentStr,
+      staff:        staff,
     });
     const resp = await fetch(GAS_URLS[currentFac] + '?' + params.toString());
     const data = await resp.json();
@@ -816,7 +822,25 @@ function parseContentFront(r) {
   const tm = rest.match(/^(\d{1,2}:\d{2}[〜~]\d{1,2}:\d{2})/);
   if (tm) { timeStr = tm[1]; rest = rest.slice(timeStr.length).trim(); }
   const contents = rest ? rest.split('・').filter(Boolean) : [];
-  return { ...r, staff, type, timeStr, contents, raw: r.content || r.raw || '' };
+
+  // 備考を抽出（最後の実施内容から ／備考:〇〇 を分離）
+  let memo = '';
+  if (contents.length > 0) {
+    const last = contents[contents.length - 1];
+    const memoMatch = last.match(/^(.*)／備考:(.+)$/);
+    if (memoMatch) {
+      contents[contents.length - 1] = memoMatch[1].trim();
+      memo = memoMatch[2].trim();
+      if (!contents[contents.length - 1]) contents.pop();
+    }
+  }
+  // rawから直接備考を抽出（contents処理前の場合も）
+  if (!memo) {
+    const rawMemo = (r.content || r.raw || '').match(/／備考:(.+?)($|／)/);
+    if (rawMemo) memo = rawMemo[1].trim();
+  }
+
+  return { ...r, staff, type, timeStr, contents, memo, raw: r.content || r.raw || '' };
 }
 
 
@@ -1022,26 +1046,44 @@ async function loadReport() {
     wrap.innerHTML = '';
     orderedKeys.forEach(staffName => {
       const recs = groups[staffName].slice().sort((a,b) => timeToMin(a.timeStr) - timeToMin(b.timeStr));
+      const isDr = staffName === '佐藤Dr';
+
       const rows = recs.map(r => {
         const badge = r.type === '口腔ケア'
-          ? '<span style="background:#e8f5f0;color:#4a9b7f;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;">ケア</span>'
-          : '<span style="background:#fdf0ec;color:#e07b5a;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;">リハ</span>';
-        const cont = r.contents && r.contents.length ? r.contents.join('・') : (r.raw || '');
-        return `<tr>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;font-size:12px;color:#8a9e96;">${r.timeStr || '—'}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:13px;font-weight:600;">${r.name}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;">${badge}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;color:#555;">${cont}</td>
-        </tr>`;
+          ? '<span style="background:#e8f5f0;color:#4a9b7f;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:600;">ケア</span>'
+          : '<span style="background:#fdf0ec;color:#e07b5a;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:600;">リハ</span>';
+        const cont = r.contents && r.contents.length ? r.contents.join('・') : '';
+        const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">📝 ${r.memo}</div>` : '';
+
+        if (isDr) {
+          // Dr：時間・患者名・種別・実施内容・備考
+          return `<tr>
+            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;white-space:nowrap;font-size:11px;color:#8a9e96;">${r.timeStr || '—'}</td>
+            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600;">${r.name}</td>
+            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;">${badge}</td>
+            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;font-size:11px;color:#555;">${cont}${memo}</td>
+          </tr>`;
+        } else {
+          // DH：時間・患者名・備考のみ
+          return `<tr>
+            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;white-space:nowrap;font-size:11px;color:#8a9e96;">${r.timeStr || '—'}</td>
+            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600;" colspan="3">${r.name}${memo}</td>
+          </tr>`;
+        }
       }).join('');
 
+      const thead = isDr
+        ? `<tr style="background:#f4f8f6;"><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">時間</th><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">患者名</th><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">種別</th><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">実施内容</th></tr>`
+        : `<tr style="background:#f4f8f6;"><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">時間</th><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;" colspan="3">患者名</th></tr>`;
+
       wrap.innerHTML += `
-        <div style="margin-bottom:14px;border:1.5px solid #dde8e4;border-radius:10px;overflow:hidden;">
-          <div style="background:#4a9b7f;color:white;padding:7px 12px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;">
+        <div style="margin-bottom:8px;border:1px solid #dde8e4;border-radius:8px;overflow:hidden;">
+          <div style="background:#4a9b7f;color:white;padding:5px 10px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;">
             <span>👤 ${staffName}</span>
-            <span style="opacity:.85;font-weight:400;font-size:11px;">${recs.length}名</span>
+            <span style="opacity:.85;font-weight:400;font-size:10px;">${recs.length}名</span>
           </div>
           <table style="width:100%;border-collapse:collapse;">
+            <thead>${thead}</thead>
             <tbody>${rows}</tbody>
           </table>
         </div>`;
