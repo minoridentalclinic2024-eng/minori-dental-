@@ -756,8 +756,8 @@ async function saveRecord() {
     if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
     const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
 
-    // 備考を追記
-    const memoVal = document.getElementById('memo').value.trim();
+    // 備考を追記（改行はスペースに置換してセルの改行分割と衝突しない）
+    const memoVal = document.getElementById('memo').value.trim().replace(/\n/g, ' ');
     const memoStr = memoVal ? ` ／備考:${memoVal}` : '';
 
     const contentStr = contents.join('・') + measureStr + memoStr;
