@@ -573,11 +573,54 @@ function autoSetTimeTo() {
 }
 
 
-function selectType(type) {
+async function selectType(type) {
   currentType = type;
   document.querySelectorAll('.type-card').forEach(c =>
     c.classList.toggle('active', c.dataset.type === type));
+
+  // 佐藤Dr + 口腔リハ の場合、同日の最後のリハ終了時刻+3分を開始時刻に自動セット
+  if (type === 'riha') {
+    await autoSetRihaTime();
+  }
+
   updatePreview();
+}
+
+async function autoSetRihaTime() {
+  const staff = getSelectedStaff();
+  if (staff !== '佐藤Dr') return; // 佐藤Dr以外はスキップ
+
+  const dateVal = document.getElementById('visit-date').value;
+  if (!dateVal) return;
+
+  try {
+    const [yyyy, mm, dd] = dateVal.split('-');
+    const dateParam = `${parseInt(mm)}/${parseInt(dd)}`;
+    const resp = await fetch(GAS_URLS[currentFac] + `?action=today&date=${encodeURIComponent(dateParam)}`);
+    const data = await resp.json();
+    const records = (data.records || []).filter(r => {
+      const c = r.content || r.raw || '';
+      return c.includes('口腔リハ') && c.includes('佐藤Dr');
+    });
+    if (records.length === 0) return;
+
+    // 最後のリハの終了時刻を取得
+    const parseEnd = (c) => {
+      const m = (c.content || c.raw || '').match(/\d{1,2}:\d{2}[〜~](\d{1,2}):(\d{2})/);
+      if (!m) return null;
+      return parseInt(m[1]) * 60 + parseInt(m[2]);
+    };
+    const endTimes = records.map(parseEnd).filter(Boolean);
+    if (endTimes.length === 0) return;
+
+    const lastEnd = Math.max(...endTimes);
+    const nextStart = lastEnd + 3; // 3分後
+    const nextEnd = nextStart + 20; // +20分
+
+    const toTimeStr = (min) => `${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`;
+    document.getElementById('time-from').value = toTimeStr(nextStart);
+    document.getElementById('time-to').value   = toTimeStr(nextEnd);
+  } catch(e) {}
 }
 function toggleCheck(el) {
   el.classList.toggle('checked');
