@@ -669,25 +669,48 @@ async function checkMeasureReminder() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  同日重複チェック
+//  同日重複チェック（種別重複 + 時間重複）
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function checkDuplicate(patientName, dateStr, type) {
+function parseTimeRange(timeStr) {
+  // 例: "10:00〜10:20" → {start: 600, end: 620} (分単位)
+  if (!timeStr) return null;
+  const m = timeStr.match(/(\d{1,2}):(\d{2})[〜~](\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  return {
+    start: parseInt(m[1]) * 60 + parseInt(m[2]),
+    end:   parseInt(m[3]) * 60 + parseInt(m[4])
+  };
+}
+
+function isTimeOverlap(a, b) {
+  if (!a || !b) return false;
+  return a.start < b.end && b.start < a.end;
+}
+
+async function checkDuplicate(patientName, dateStr, type, newTimeStr) {
   try {
     const [yyyy, mm, dd] = dateStr.split('-');
     const dateParam = `${parseInt(mm)}/${parseInt(dd)}`;
     const resp = await fetch(GAS_URLS[currentFac] + `?action=today&date=${encodeURIComponent(dateParam)}`);
     const data = await resp.json();
     const records = (data.records || []).map(parseContentFront);
-    // 同じ患者の記録を抽出
     const same = records.filter(r => r.name === patientName);
-    if (type === 'kea') {
-      // 口腔ケアが既にある → NG
-      if (same.some(r => r.type === '口腔ケア')) return '同日に口腔ケアが既に記録されています';
-    } else if (type === 'riha') {
-      // 口腔リハが既にある → NG
-      if (same.some(r => r.type === '口腔リハ')) return '同日に口腔リハが既に記録されています';
+
+    // 同種別の重複チェック
+    if (type === 'kea' && same.some(r => r.type === '口腔ケア')) return '同日に口腔ケアが既に記録されています';
+    if (type === 'riha' && same.some(r => r.type === '口腔リハ')) return '同日に口腔リハが既に記録されています';
+
+    // 時間重複チェック
+    const newRange = parseTimeRange(newTimeStr);
+    if (newRange) {
+      for (const r of same) {
+        const existRange = parseTimeRange(r.timeStr);
+        if (isTimeOverlap(newRange, existRange)) {
+          return `時間が重複しています（既存: ${r.type} ${r.timeStr}）`;
+        }
+      }
     }
-    return null; // OK
+    return null;
   } catch(e) { return null; }
 }
 
@@ -701,9 +724,12 @@ async function saveRecord() {
   const dateVal = document.getElementById('visit-date').value;
   if (!dateVal) { alert('訪問日を入力してください'); return; }
 
-  // 同日重複チェック
+  // 同日重複チェック（種別 + 時間）
   const ptName = sel.options[sel.selectedIndex]?.dataset.name || '';
-  const dupErr = await checkDuplicate(ptName, dateVal, currentType);
+  const fromTime = document.getElementById('time-from').value;
+  const toTime   = document.getElementById('time-to').value;
+  const newTimeStr = fromTime && toTime ? `${fromTime}〜${toTime}` : '';
+  const dupErr = await checkDuplicate(ptName, dateVal, currentType, newTimeStr);
   if (dupErr) { alert('⚠️ ' + dupErr); return; }
 
   const btn = document.getElementById('save-btn');
