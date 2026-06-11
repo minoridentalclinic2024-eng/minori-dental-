@@ -622,7 +622,7 @@ function updatePreview() {
   if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
   const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
   const memoVal = document.getElementById('memo')?.value.trim() || '';
-  const memoStr = memoVal ? ` ／備考:${memoVal}` : '';
+  const memoStr = memoVal ? ` ／備考:${memoVal.replace(/\n/g,' ')}` : '';
   const preview = `${staffStr}${typeName}${timeStr}${contentStr}${measureStr}${memoStr}`;
   document.getElementById('preview-box').textContent = sel.value ? preview : '患者を選択してください';
 }
@@ -756,11 +756,11 @@ async function saveRecord() {
     if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
     const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
 
-    // 備考を追記（改行はスペースに置換してセルの改行分割と衝突しない）
+    // 備考を追記（改行はスペースに置換）
     const memoVal = document.getElementById('memo').value.trim().replace(/\n/g, ' ');
     const memoStr = memoVal ? ` ／備考:${memoVal}` : '';
 
-    const contentStr = contents.join('・') + measureStr + memoStr;
+    const contentStr = contents.join('・') + measureStr;
 
     const params = new URLSearchParams({
       action:       'write',
@@ -771,6 +771,7 @@ async function saveRecord() {
       timeStr:      timeStr,
       contentStr:   contentStr,
       staff:        staff,
+      memo:         memoVal,
     });
     const resp = await fetch(GAS_URLS[currentFac] + '?' + params.toString());
     const data = await resp.json();
