@@ -1132,9 +1132,7 @@ async function loadReport() {
         const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">📝 ${r.memo}</div>` : '';
 
         // 患者番号＋時間コピーボタン
-        const cpNumId  = 'cpn' + Math.random().toString(36).slice(2, 8);
-        const cpNumTxt = r.timeStr ? r.timeStr.replace(/'/g, "\\'") : '';
-        const cpNumBtn = cpNumTxt ? `<button id="${cpNumId}" onclick="navigator.clipboard.writeText('${cpNumTxt}').then(()=>{const b=document.getElementById('${cpNumId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-left:4px;padding:2px 5px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
+
 
         // ③ コピーボタン（実施内容用）
         const copyId  = 'cp' + Math.random().toString(36).slice(2, 8);
@@ -1144,14 +1142,14 @@ async function loadReport() {
         if (isDr) {
           // Dr：時間・患者名・実施内容（④種別列削除）
           return `<tr style="background:${rowBg};">
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}${cpNumBtn}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span></td>
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${memo}${copyBtn}</td>
           </tr>`;
         } else {
           // DH：時間・患者名のみ
           return `<tr style="background:${rowBg};">
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}${cpNumBtn}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${memo}</td>
           </tr>`;
         }
