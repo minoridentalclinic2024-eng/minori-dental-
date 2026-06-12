@@ -1125,7 +1125,8 @@ async function loadReport() {
         const nameMatch = r.name.match(/^(\d+)\s+(.+)$/);
         const patNum   = nameMatch ? nameMatch[1] : '';
         const nameText = nameMatch ? nameMatch[2] : r.name;
-        const numHtml  = patNum ? `<span style="font-size:11px;color:#4a9b7f;font-weight:700;margin-right:5px;">${patNum}</span>` : '';
+        const cpPatId  = 'cpp' + Math.random().toString(36).slice(2, 8);
+        const numHtml  = patNum ? `<span style="font-size:11px;color:#4a9b7f;font-weight:700;margin-right:2px;">${patNum}</span><button id="${cpPatId}" onclick="navigator.clipboard.writeText('${patNum}').then(()=>{const b=document.getElementById('${cpPatId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-right:5px;padding:1px 4px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
 
         const cont = r.contents && r.contents.length ? r.contents.join('・') : '';
         const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">📝 ${r.memo}</div>` : '';
