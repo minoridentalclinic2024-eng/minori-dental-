@@ -1133,7 +1133,7 @@ async function loadReport() {
 
         // 患者番号＋時間コピーボタン
         const cpNumId  = 'cpn' + Math.random().toString(36).slice(2, 8);
-        const cpNumTxt = (patNum && r.timeStr) ? `${patNum} ${r.timeStr}`.replace(/'/g, "\\'") : '';
+        const cpNumTxt = r.timeStr ? r.timeStr.replace(/'/g, "\\'") : '';
         const cpNumBtn = cpNumTxt ? `<button id="${cpNumId}" onclick="navigator.clipboard.writeText('${cpNumTxt}').then(()=>{const b=document.getElementById('${cpNumId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-left:4px;padding:2px 5px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
 
         // ③ コピーボタン（実施内容用）
