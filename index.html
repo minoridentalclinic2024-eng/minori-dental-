@@ -1117,33 +1117,42 @@ async function loadReport() {
       const recs = groups[staffName].slice().sort((a,b) => timeToMin(a.timeStr) - timeToMin(b.timeStr));
       const isDr = staffName === '佐藤Dr';
 
-      const rows = recs.map(r => {
-        const badge = r.type === '口腔ケア'
-          ? '<span style="background:#e8f5f0;color:#4a9b7f;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:600;">ケア</span>'
-          : '<span style="background:#fdf0ec;color:#e07b5a;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:600;">リハ</span>';
+      const rows = recs.map((r, idx) => {
+        // ⑤ 1行おきに背景色
+        const rowBg = idx % 2 === 0 ? '#ffffff' : '#f0f7f4';
+
+        // ② 患者番号と名前を分離
+        const nameMatch = r.name.match(/^(\d+)\s+(.+)$/);
+        const numHtml  = nameMatch ? `<span style="font-size:10px;color:#b0bfba;font-weight:400;margin-right:4px;">${nameMatch[1]}</span>` : '';
+        const nameText = nameMatch ? nameMatch[2] : r.name;
+
         const cont = r.contents && r.contents.length ? r.contents.join('・') : '';
         const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">📝 ${r.memo}</div>` : '';
 
+        // ③ コピーボタン（実施内容用）
+        const copyId  = 'cp' + Math.random().toString(36).slice(2, 8);
+        const copyTxt = (cont + (r.memo ? ' 備考:' + r.memo : '')).replace(/'/g, "\\'");
+        const copyBtn = cont ? `<button id="${copyId}" onclick="navigator.clipboard.writeText('${copyTxt}').then(()=>{const b=document.getElementById('${copyId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-left:6px;padding:2px 6px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
+
         if (isDr) {
-          // Dr：時間・患者名・種別・実施内容・備考
-          return `<tr>
-            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;white-space:nowrap;font-size:11px;color:#8a9e96;">${r.timeStr || '—'}</td>
-            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600;">${r.name}</td>
-            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;">${badge}</td>
-            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;font-size:11px;color:#555;">${cont}${memo}</td>
+          // Dr：時間・患者名・実施内容（④種別列削除）
+          return `<tr style="background:${rowBg};">
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span></td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${memo}${copyBtn}</td>
           </tr>`;
         } else {
-          // DH：時間・患者名・備考のみ
-          return `<tr>
-            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;white-space:nowrap;font-size:11px;color:#8a9e96;">${r.timeStr || '—'}</td>
-            <td style="padding:3px 6px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600;" colspan="3">${r.name}${memo}</td>
+          // DH：時間・患者名のみ
+          return `<tr style="background:${rowBg};">
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${memo}</td>
           </tr>`;
         }
       }).join('');
 
       const thead = isDr
-        ? `<tr style="background:#f4f8f6;"><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">時間</th><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">患者名</th><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">種別</th><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">実施内容</th></tr>`
-        : `<tr style="background:#f4f8f6;"><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;">時間</th><th style="padding:3px 6px;font-size:10px;color:#8a9e96;font-weight:600;text-align:left;" colspan="3">患者名</th></tr>`;
+        ? `<tr style="background:#e4f0eb;"><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">時間</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">患者名</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">実施内容</th></tr>`
+        : `<tr style="background:#e4f0eb;"><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">時間</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;" colspan="2">患者名</th></tr>`;
 
       wrap.innerHTML += `
         <div style="margin-bottom:8px;border:1px solid #dde8e4;border-radius:8px;overflow:hidden;">
