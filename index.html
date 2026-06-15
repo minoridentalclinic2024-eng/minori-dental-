@@ -1162,7 +1162,7 @@ async function loadReport() {
           // DH：時間・患者名のみ
           return `<tr style="background:${rowBg};">
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${memo}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${measureLine}${memo}</td>
           </tr>`;
         }
       }).join('');
