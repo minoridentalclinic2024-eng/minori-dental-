@@ -1128,7 +1128,19 @@ async function loadReport() {
         const cpPatId  = 'cpp' + Math.random().toString(36).slice(2, 8);
         const numHtml  = patNum ? `<span style="font-size:11px;color:#4a9b7f;font-weight:700;margin-right:2px;">${patNum}</span><button id="${cpPatId}" onclick="navigator.clipboard.writeText('${patNum}').then(()=>{const b=document.getElementById('${cpPatId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-right:5px;padding:1px 4px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
 
-        const cont = r.contents && r.contents.length ? r.contents.join('・') : '';
+        const rawCont = r.contents && r.contents.length ? r.contents.join('・') : '';
+
+        // 測定値を抽出して別表示
+        const tongueMatch = rawCont.match(/舌圧:([\d.]+)kPa/);
+        const dryMatch    = rawCont.match(/ムーカス:([\d.]+)/);
+        const measureHtml = [
+          tongueMatch ? `<span style="background:#e8f5f0;color:#2e7d5e;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">舌圧 ${tongueMatch[1]}kPa</span>` : '',
+          dryMatch    ? `<span style="background:#fdf0ec;color:#c0613a;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">ムーカス ${dryMatch[1]}</span>` : ''
+        ].filter(Boolean).join('');
+        const measureLine = measureHtml ? `<div style="margin-top:3px;">${measureHtml}</div>` : '';
+
+        // 測定値部分を除いた実施内容
+        const cont = rawCont.replace(/\s*／?(舌圧:[\d.]+kPa|ムーカス:[\d.]+)/g, '').replace(/\s*／\s*$/, '').trim();
         const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">📝 ${r.memo}</div>` : '';
 
         // 患者番号＋時間コピーボタン
@@ -1144,7 +1156,7 @@ async function loadReport() {
           return `<tr style="background:${rowBg};">
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span></td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${memo}${copyBtn}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${measureLine}${memo}${copyBtn}</td>
           </tr>`;
         } else {
           // DH：時間・患者名のみ
