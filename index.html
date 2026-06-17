@@ -297,6 +297,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
         <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="吉岡DH">吉岡DH</label>
         <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="末吉DH">末吉DH</label>
         <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="高梨DH">高梨DH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="古阪DH">古阪DH</label>
       </div>
     </div>
 
@@ -879,7 +880,7 @@ function parseContentFront(r) {
   // GASがすでに構造化して返している場合はそのまま使う
   if (r.type) return r;
   // 旧形式: contentのみの場合はフロントでパース
-  const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+  const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
   let staff = '', rest = (r.content || r.raw || '').trim();
   for (const s of STAFF_LIST) {
     if (rest.startsWith(s + ' ') || rest === s) { staff = s; rest = rest.slice(s.length).trim(); break; }
@@ -953,7 +954,7 @@ async function fetchCsvPreview() {
 
 // 担当者別ブロックをレンダリング
 function renderStaffBlocks(records) {
-  const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+  const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
   const wrap = document.getElementById('staff-blocks-wrap');
   wrap.innerHTML = '';
 
@@ -1004,7 +1005,7 @@ function renderStaffBlocks(records) {
 
 function downloadCSV() {
   if (!csvRecords.length) { alert('データがありません'); return; }
-  const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+  const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
   const facName = FAC_CONFIG[csvFac].name;
 
   // 担当者別・時系列でグループ化
@@ -1099,7 +1100,7 @@ async function loadReport() {
     document.getElementById('report-subtitle').textContent = `${yyyy}年${parseInt(mm)}月${parseInt(dd)}日　計${records.length}名`;
 
     // 担当者別・時間順でレンダリング
-    const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+    const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
     const groups = {};
     records.forEach(r => {
       const key = r.staff || '（担当者未記録）';
