@@ -38,7 +38,7 @@ function normDisp(s) {
 // 形式2（旧）: 「口腔ケア 10:00〜10:30 スポンジブラシ・歯ブラシ」
 function parseContent(raw) {
   if(!raw) return null;
-  const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+  const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
   let staff = '';
   let rest = raw.trim();
 
@@ -127,7 +127,7 @@ function getTodayRecords(dateStr) {
     if(!cell) continue;
     // 改行で複数件入っている場合は分割して処理
     const lines = cell.split('\n').map(l => l.trim()).filter(l => l);
-    const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH'];
+    const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
     for(const line of lines){
       // 先頭が担当者名または口腔ケア/リハで始まる行のみ新レコードとして処理
       const isRecord = STAFF_LIST.some(s => line.startsWith(s + ' ') || line === s)
