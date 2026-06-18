@@ -18,6 +18,10 @@ const MEASURE_COLS = { facility:0, id:1, name:2, tongueDate:3, tongueVal:4, dryD
 function getSheetName(date) { const d=date||new Date(); return 'R'+(d.getFullYear()-2018)+'.'+( d.getMonth()+1); }
 function toMD(d) { return (d.getMonth()+1)+'/'+d.getDate(); }
 function toYMD(d) { return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate(); }
+function formatDateCell(v) {
+  if (v instanceof Date) return toYMD(v);
+  return String(v||'').trim();
+}
 function getSheetNameYM(year, month) { return 'R'+(year-2018)+'.'+month; }
 function parseMeasureDate(s) {
   if(!s) return null; s=String(s).trim();
@@ -171,6 +175,43 @@ function getMeasureTargets(year, month) {
   return{facility:cfg.name,year,month,tongueTargets,dryTargets};
 }
 
+
+function getMonthCalendar(year, month) {
+  const cfg=FACILITY_CONFIG[THIS_FACILITY]; const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sheetName=getSheetNameYM(year, month); const sheet=ss.getSheetByName(sheetName);
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const dayMap = {};
+  for(let d=1; d<=daysInMonth; d++) dayMap[d] = { day:d, hasVisit:false, hasDr:false, count:0, staffList:[] };
+  if(!sheet) return { facility:cfg.name, year, month, days:Object.values(dayMap), sheetExists:false };
+  const lastRow=sheet.getLastRow(); const lastCol=sheet.getLastColumn();
+  if(lastRow>cfg.headerRows && lastCol>=cfg.dataStartCol){
+    const allData=sheet.getRange(1,1,lastRow,lastCol).getValues();
+    const headerRow=allData[cfg.headerRows-1];
+    const STAFF_LIST=['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
+    for(let c=cfg.dataStartCol-1;c<headerRow.length;c++){
+      const label=normDateStr(headerRow[c]); if(!label) continue;
+      const dm=label.match(/^(\d{1,2})\/(\d{1,2})$/); if(!dm) continue;
+      const mm=parseInt(dm[1]), dd=parseInt(dm[2]);
+      if(mm!==month || !dayMap[dd]) continue;
+      const dayInfo = dayMap[dd];
+      const staffSet = new Set();
+      for(let r=cfg.headerRows;r<allData.length;r++){
+        const cell=String(allData[r][c]).trim();
+        if(!cell) continue;
+        const lines=cell.split('\n').map(l=>l.trim()).filter(l=>l);
+        for(const line of lines){
+          const isRecord = STAFF_LIST.some(s=>line.startsWith(s+' ')||line===s) || line.startsWith('口腔ケア')||line.startsWith('口腔リハ');
+          if(!isRecord) continue;
+          dayInfo.hasVisit = true; dayInfo.count++;
+          for(const s of STAFF_LIST){ if(line.startsWith(s)){ staffSet.add(s); if(s==='佐藤Dr') dayInfo.hasDr=true; break; } }
+        }
+      }
+      dayInfo.staffList = Array.from(staffSet);
+    }
+  }
+  return { facility:cfg.name, year, month, days:Object.values(dayMap), sheetExists:true };
+}
+
 function getTodayRecords(dateStr) {
   const cfg=FACILITY_CONFIG[THIS_FACILITY]; const ss=SpreadsheetApp.getActiveSpreadsheet();
   const sheetName=getSheetName(); const sheet=ss.getSheetByName(sheetName);
@@ -269,7 +310,7 @@ function getMeasures() {
   const ss=SpreadsheetApp.getActiveSpreadsheet(); const sheet=ss.getSheetByName(MEASURE_SHEET_NAME);
   if(!sheet)return[]; const data=sheet.getDataRange().getValues(); const cfg=FACILITY_CONFIG[THIS_FACILITY];
   return data.slice(1).filter(row=>String(row[MEASURE_COLS.facility]).trim()===cfg.name)
-    .map(row=>({id:String(row[MEASURE_COLS.id]).trim(),name:String(row[MEASURE_COLS.name]).trim(),tongueDate:String(row[MEASURE_COLS.tongueDate]).trim(),tongueVal:String(row[MEASURE_COLS.tongueVal]).trim(),dryDate:String(row[MEASURE_COLS.dryDate]).trim(),dryVal:String(row[MEASURE_COLS.dryVal]).trim()}));
+    .map(row=>({id:String(row[MEASURE_COLS.id]).trim(),name:String(row[MEASURE_COLS.name]).trim(),tongueDate:formatDateCell(row[MEASURE_COLS.tongueDate]),tongueVal:String(row[MEASURE_COLS.tongueVal]).trim(),dryDate:formatDateCell(row[MEASURE_COLS.dryDate]),dryVal:String(row[MEASURE_COLS.dryVal]).trim()}));
 }
 
 function writeMeasure(params) {
@@ -307,6 +348,7 @@ function doGet(e) {
     else if(action==='write')result=writeRecord(e.parameter);
     else if(action==='monthCount')result=countByMonth(parseInt(e.parameter.year), parseInt(e.parameter.month));
     else if(action==='measureTargets')result=getMeasureTargets(parseInt(e.parameter.year), parseInt(e.parameter.month));
+    else if(action==='calendar')result=getMonthCalendar(parseInt(e.parameter.year), parseInt(e.parameter.month));
     else if(action==='writeMeasure')result=writeMeasure(e.parameter);
     else if(action==='writeMemo')result=writeMemoRecord(e.parameter);
     else result=countThisMonth();
