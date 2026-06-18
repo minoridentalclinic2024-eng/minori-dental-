@@ -17,6 +17,20 @@ const MEASURE_COLS = { facility:0, id:1, name:2, tongueDate:3, tongueVal:4, dryD
 
 function getSheetName(date) { const d=date||new Date(); return 'R'+(d.getFullYear()-2018)+'.'+( d.getMonth()+1); }
 function toMD(d) { return (d.getMonth()+1)+'/'+d.getDate(); }
+function toYMD(d) { return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate(); }
+function getSheetNameYM(year, month) { return 'R'+(year-2018)+'.'+month; }
+function parseMeasureDate(s) {
+  if(!s) return null; s=String(s).trim();
+  let m=s.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+  if(m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+  m=s.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if(m){
+    const now=new Date(); let year=now.getFullYear(); const mm=parseInt(m[1]);
+    if(mm > now.getMonth()+2) year-=1; // 大幅未来月なら前年と判断（年情報なし旧データ対応）
+    return new Date(year, mm-1, parseInt(m[2]));
+  }
+  return null;
+}
 function normDateStr(v) {
   if(v instanceof Date){return (v.getMonth()+1)+'/'+v.getDate();}
   if(!v&&v!==0)return''; const s=String(v).trim();
@@ -107,6 +121,54 @@ function countThisMonth() {
     results.push({name:raw,keaCount,rihaCount,keaLimit:cfg.limitKea,rihaLimit:cfg.limitRiha,keaOver:keaCount>cfg.limitKea,rihaOver:rihaCount>cfg.limitRiha});
   }
   return{facility:cfg.name,sheetName,patients:results};
+}
+
+
+function countByMonth(year, month) {
+  const cfg=FACILITY_CONFIG[THIS_FACILITY]; const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sheetName=getSheetNameYM(year, month); const sheet=ss.getSheetByName(sheetName);
+  if(!sheet)return{error:`シート「${sheetName}」が見つかりません`,facility:cfg.name,sheetName,year,month,patients:[]};
+  const lastRow=sheet.getLastRow(); const lastCol=sheet.getLastColumn();
+  if(lastRow<=cfg.headerRows||lastCol<cfg.dataStartCol)return{facility:cfg.name,sheetName,year,month,patients:[]};
+  const allData=sheet.getRange(1,1,lastRow,lastCol).getValues();
+  const headerRow=allData[cfg.headerRows-1]; const dateCols=[];
+  for(let c=cfg.dataStartCol-1;c<headerRow.length;c++){const label=normDateStr(headerRow[c]);if(label)dateCols.push({col:c,label});}
+  const results=[];
+  for(let r=cfg.headerRows;r<allData.length;r++){
+    const raw=String(allData[r][cfg.patientCol-1]).trim();
+    if(!raw||/^(患者氏名|患者名|氏名|名前|患者|本館|分館|c|C)$/.test(raw))continue;
+    let keaCount=0,rihaCount=0;
+    for(const{col}of dateCols){const cell=String(allData[r][col]).trim();if(cell.includes('口腔ケア'))keaCount++;if(cell.includes('口腔リハ'))rihaCount++;}
+    results.push({name:raw,keaCount,rihaCount,keaLimit:cfg.limitKea,rihaLimit:cfg.limitRiha,keaOver:keaCount>cfg.limitKea,rihaOver:rihaCount>cfg.limitRiha});
+  }
+  return{facility:cfg.name,sheetName,year,month,patients:results};
+}
+
+function getMeasureTargets(year, month) {
+  const cfg=FACILITY_CONFIG[THIS_FACILITY];
+  const plist=getPatientList(); if(plist.error) return {error:plist.error};
+  const patients=plist.patients||[];
+  const measures=getMeasures();
+  const measureMap={};
+  measures.forEach(m=>{ measureMap[String(m.id).trim()]=m; });
+  const targetDate=new Date(year, month-1, 1);
+  function monthsGap(lastStr){
+    const d=parseMeasureDate(lastStr); if(!d) return null;
+    return (targetDate.getFullYear()-d.getFullYear())*12+(targetDate.getMonth()-d.getMonth());
+  }
+  const tongueTargets=[]; const dryTargets=[];
+  patients.forEach(p=>{
+    const m=measureMap[String(p.id).trim()];
+    const tGap = m ? monthsGap(m.tongueDate) : null;
+    const dGap = m ? monthsGap(m.dryDate)    : null;
+    if(tGap===null || tGap>=3){
+      tongueTargets.push({id:p.id, name:p.name, lastDate:(m&&m.tongueDate)||'', gap: tGap===null?'未測定':tGap+'ヶ月経過'});
+    }
+    if(dGap===null || dGap>=3){
+      dryTargets.push({id:p.id, name:p.name, lastDate:(m&&m.dryDate)||'', gap: dGap===null?'未測定':dGap+'ヶ月経過'});
+    }
+  });
+  return{facility:cfg.name,year,month,tongueTargets,dryTargets};
 }
 
 function getTodayRecords(dateStr) {
@@ -215,7 +277,7 @@ function writeMeasure(params) {
   if(!sheet){sheet=ss.insertSheet(MEASURE_SHEET_NAME);sheet.appendRow(['施設','患者ID','患者名','舌圧日','舌圧値','口腔乾燥日','口腔乾燥値']);}
   const cfg=FACILITY_CONFIG[THIS_FACILITY]; const data=sheet.getDataRange().getValues(); let targetRow=-1;
   for(let r=1;r<data.length;r++){if(String(data[r][MEASURE_COLS.facility]).trim()===cfg.name&&String(data[r][MEASURE_COLS.id]).trim()===String(params.id).trim()){targetRow=r+1;break;}}
-  const now=toMD(new Date()); if(targetRow===-1){sheet.appendRow([cfg.name,params.id,params.name,'','','','']);targetRow=sheet.getLastRow();}
+  const now=toYMD(new Date()); if(targetRow===-1){sheet.appendRow([cfg.name,params.id,params.name,'','','','']);targetRow=sheet.getLastRow();}
   if(params.type==='tongue'){sheet.getRange(targetRow,MEASURE_COLS.tongueDate+1).setValue(now);sheet.getRange(targetRow,MEASURE_COLS.tongueVal+1).setValue(params.value);}
   else if(params.type==='dry'){sheet.getRange(targetRow,MEASURE_COLS.dryDate+1).setValue(now);sheet.getRange(targetRow,MEASURE_COLS.dryVal+1).setValue(params.value);}
   return{ok:true};
@@ -243,6 +305,8 @@ function doGet(e) {
     else if(action==='measures')result={measures:getMeasures()};
     else if(action==='today')result=getTodayRecords(e&&e.parameter&&e.parameter.date?e.parameter.date:null);
     else if(action==='write')result=writeRecord(e.parameter);
+    else if(action==='monthCount')result=countByMonth(parseInt(e.parameter.year), parseInt(e.parameter.month));
+    else if(action==='measureTargets')result=getMeasureTargets(parseInt(e.parameter.year), parseInt(e.parameter.month));
     else if(action==='writeMeasure')result=writeMeasure(e.parameter);
     else if(action==='writeMemo')result=writeMemoRecord(e.parameter);
     else result=countThisMonth();
