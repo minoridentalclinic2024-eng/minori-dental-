@@ -1310,7 +1310,7 @@ async function loadCalendar() {
         if (d.hasDr || d.countDr > 0) {
           dayMap[d.day].push({type: 'dr', label: facLabels[fac]});
         }
-        if (d.countDH > 0 || (d.hasVisit && !(d.hasDr || d.countDr > 0))) {
+        if (d.countDH > 0) {
           dayMap[d.day].push({type: 'dh', label: facLabels[fac]});
         }
       });
