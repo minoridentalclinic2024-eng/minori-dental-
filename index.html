@@ -411,19 +411,10 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 
       <!-- CSV出力エリア -->
       <div class="csv-section">
-        <div class="section-label">日別CSV出力</div>
+        <div class="section-label">月次CSV出力</div>
         <div class="csv-controls">
-          <input type="date" class="input-styled" id="csv-date">
-          <button id="csv-fetch-btn" onclick="fetchCsvPreview()">📋 取得</button>
-        </div>
-
-        <!-- 空メッセージ -->
-        <div id="csv-empty">選択した日付の記録がありません</div>
-
-        <!-- プレビュー -->
-        <div id="csv-preview">
-          <div id="staff-blocks-wrap"></div>
-          <button class="csv-dl-btn" onclick="downloadCSV()">📥 CSVダウンロード</button>
+          <input type="month" class="input-styled" id="csv-month">
+          <button class="csv-dl-btn" onclick="downloadMonthlyCSV()">📥 月次CSVダウンロード</button>
         </div>
       </div>
     </div>
@@ -930,7 +921,10 @@ async function saveMeasure(id, name, type, value) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  算定確認（月間）
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let _santelLoading = false;
 async function loadSantel() {
+  if (_santelLoading) return;
+  _santelLoading = true;
   const fac = document.getElementById('santel-fac-sel').value;
   const monthInput = document.getElementById('santel-month-sel');
   if (!monthInput.value) {
@@ -963,6 +957,8 @@ async function loadSantel() {
     table.style.display   = '';
   } catch(e) {
     loading.textContent = '読み込み失敗: ' + e.message;
+  } finally {
+    _santelLoading = false;
   }
 
   loadMeasureTargets(fac, yy, mm);
@@ -996,13 +992,19 @@ function renderTargetList(key, list) {
   }
   empty.style.display = 'none';
   list.forEach(p => {
+    const isOver = p.gapNum === null || p.gapNum >= 3;
     const tr = document.createElement('tr');
     const lastDateText = p.lastDate ? '前回: ' + p.lastDate : '未測定';
-    tr.innerHTML = `<td style="font-weight:600;">${p.name}</td>
-      <td style="font-size:12px;color:var(--gray);white-space:nowrap;">${lastDateText}</td>
-      <td style="text-align:right;white-space:nowrap;">
-        <span style="background:#fdeaea;color:#c62828;font-weight:700;border-radius:5px;padding:3px 9px;font-size:12px;">⚠ ${p.gap}</span>
-      </td>`;
+    const nameStyle = isOver ? 'font-weight:600;color:#c62828;' : 'font-weight:600;';
+    const dateStyle = isOver
+      ? 'font-size:12px;color:#c62828;white-space:nowrap;'
+      : 'font-size:12px;color:var(--gray);white-space:nowrap;';
+    const badgeHtml = isOver
+      ? `<span style="background:#fdeaea;color:#c62828;font-weight:700;border-radius:5px;padding:3px 9px;font-size:12px;">⚠ ${p.gap}</span>`
+      : '';
+    tr.innerHTML = `<td style="${nameStyle}">${p.name}</td>
+      <td style="${dateStyle}">${lastDateText}</td>
+      <td style="text-align:right;white-space:nowrap;">${badgeHtml}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -1176,6 +1178,68 @@ function downloadCSV() {
   link.download = `みのり歯科_${facName}_${csvDateStr}.csv`;
   link.click();
   URL.revokeObjectURL(link.href);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  月次CSVダウンロード
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function downloadMonthlyCSV() {
+  const monthInput = document.getElementById('csv-month');
+  if (!monthInput || !monthInput.value) { alert('年月を選択してください'); return; }
+  const fac = document.getElementById('santel-fac-sel').value || 'izumi';
+  const [year, month] = monthInput.value.split('-').map(Number);
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  const btn = document.querySelector('[onclick="downloadMonthlyCSV()"]');
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = '取得中...'; btn.disabled = true; }
+
+  try {
+    const promises = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = encodeURIComponent(month + '/' + d);
+      promises.push(
+        fetch(GAS_URLS[fac] + `?action=today&date=${dateStr}`)
+          .then(r => r.json())
+          .catch(() => ({ records: [] }))
+      );
+    }
+    const results = await Promise.all(promises);
+
+    const allRecords = [];
+    results.forEach((data, i) => {
+      const dateLabel = month + '/' + (i + 1);
+      (data.records || []).forEach(r => allRecords.push({ ...r, date: dateLabel }));
+    });
+
+    if (!allRecords.length) { alert('この月の記録はありません'); return; }
+
+    const facName = FAC_CONFIG[fac].name;
+    const q = v => `"${String(v||'').replace(/"/g,'""')}"`;
+
+    allRecords.sort((a, b) => {
+      const [, ad] = a.date.split('/').map(Number);
+      const [, bd] = b.date.split('/').map(Number);
+      if (ad !== bd) return ad - bd;
+      return timeToMin(a.timeStr) - timeToMin(b.timeStr);
+    });
+
+    const rows = [['日付', '時間', '患者名', '種別', '実施内容', '施設', '担当者']];
+    allRecords.forEach(r => {
+      const cont = r.contents && r.contents.length ? r.contents.join('・') : (r.raw || '');
+      rows.push([r.date, r.timeStr||'', r.name, r.type||'', cont, facName, r.staff||'']);
+    });
+
+    const csv = rows.map(r => r.map(q).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `みのり歯科_${facName}_${year}年${month}月.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  } finally {
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
+  }
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
