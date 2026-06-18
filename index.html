@@ -147,6 +147,15 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .count-ok   { color: var(--green); font-weight: 700; }
 .count-over { color: var(--warn); font-weight: 700; background: var(--warn-bg); padding: 2px 6px; border-radius: 4px; }
 
+/* 測定対象者セクション */
+.measure-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+.measure-section .section-label { margin-bottom: 12px; }
+.measure-block { margin-bottom: 14px; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
+.measure-block-title { font-size: 13px; font-weight: 700; color: white; background: var(--green); padding: 7px 12px; }
+.measure-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.measure-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.measure-table tr:last-child td { border-bottom: none; }
+
 /* CSV出力エリア */
 .csv-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
 .csv-section .section-label { margin-bottom: 12px; }
@@ -349,6 +358,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
           <option value="nagaiki">長生き邑</option>
           <option value="ichimiya">一宮喜楽園</option>
         </select>
+        <input type="month" class="input-styled" id="santel-month-sel" onchange="loadSantel()">
         <button onclick="loadSantel()">更新</button>
       </div>
       <div id="santel-table-wrap">
@@ -357,6 +367,24 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
           <thead><tr><th>患者名</th><th>ケア</th><th>リハ</th></tr></thead>
           <tbody id="santel-tbody"></tbody>
         </table>
+      </div>
+
+      <!-- 測定対象者（3ヶ月ごと） -->
+      <div class="measure-section">
+        <div class="section-label">測定対象者（3ヶ月ごと）</div>
+        <div id="measure-loading" style="text-align:center;padding:14px;color:var(--gray);font-size:13px;">読み込み中...</div>
+        <div id="measure-body" style="display:none;">
+          <div class="measure-block">
+            <div class="measure-block-title">👅 舌圧 対象者</div>
+            <table class="measure-table"><tbody id="tongue-target-tbody"></tbody></table>
+            <div id="tongue-target-empty" style="display:none;padding:10px;color:var(--gray);font-size:12px;">対象者はいません</div>
+          </div>
+          <div class="measure-block">
+            <div class="measure-block-title">💧 口腔乾燥（ムーカス） 対象者</div>
+            <table class="measure-table"><tbody id="dry-target-tbody"></tbody></table>
+            <div id="dry-target-empty" style="display:none;padding:10px;color:var(--gray);font-size:12px;">対象者はいません</div>
+          </div>
+        </div>
       </div>
 
       <!-- CSV出力エリア -->
@@ -689,7 +717,9 @@ async function checkMeasureReminder() {
     // 最後の測定日を確認（舌圧・ムーカスのどちらか新しい方）
     const parseDate = (s) => {
       if (!s) return null;
-      const m = String(s).match(/^(\d{1,2})\/(\d{1,2})$/);
+      let m = String(s).match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+      if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+      m = String(s).match(/^(\d{1,2})\/(\d{1,2})$/);
       if (!m) return null;
       const now = new Date();
       return new Date(now.getFullYear(), parseInt(m[1])-1, parseInt(m[2]));
@@ -846,6 +876,13 @@ async function saveMeasure(id, name, type, value) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function loadSantel() {
   const fac = document.getElementById('santel-fac-sel').value;
+  const monthInput = document.getElementById('santel-month-sel');
+  if (!monthInput.value) {
+    const now = new Date();
+    monthInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  }
+  const [yy, mm] = monthInput.value.split('-').map(Number);
+
   const loading = document.getElementById('santel-loading');
   const table   = document.getElementById('santel-table');
   const tbody   = document.getElementById('santel-tbody');
@@ -853,7 +890,7 @@ async function loadSantel() {
   table.style.display   = 'none';
   tbody.innerHTML = '';
   try {
-    const resp = await fetch(GAS_URLS[fac] + '?action=count');
+    const resp = await fetch(GAS_URLS[fac] + `?action=monthCount&year=${yy}&month=${mm}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     const cfg = FAC_CONFIG[fac];
@@ -871,6 +908,42 @@ async function loadSantel() {
   } catch(e) {
     loading.textContent = '読み込み失敗: ' + e.message;
   }
+
+  loadMeasureTargets(fac, yy, mm);
+}
+
+async function loadMeasureTargets(fac, year, month) {
+  const loadingEl = document.getElementById('measure-loading');
+  const bodyEl    = document.getElementById('measure-body');
+  loadingEl.style.display = 'block';
+  bodyEl.style.display = 'none';
+  try {
+    const resp = await fetch(GAS_URLS[fac] + `?action=measureTargets&year=${year}&month=${month}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    renderTargetList('tongue', data.tongueTargets || []);
+    renderTargetList('dry', data.dryTargets || []);
+    loadingEl.style.display = 'none';
+    bodyEl.style.display = '';
+  } catch(e) {
+    loadingEl.textContent = '読み込み失敗: ' + e.message;
+  }
+}
+
+function renderTargetList(key, list) {
+  const tbody = document.getElementById(key + '-target-tbody');
+  const empty = document.getElementById(key + '-target-empty');
+  tbody.innerHTML = '';
+  if (!list.length) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="font-weight:600;">${p.name}</td><td style="color:var(--gray);font-size:12px;white-space:nowrap;">${p.lastDate ? '前回:'+p.lastDate+'　' : ''}${p.gap}</td>`;
+    tbody.appendChild(tr);
+  });
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
