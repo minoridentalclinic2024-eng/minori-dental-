@@ -174,12 +174,8 @@ function getMeasureTargets(year, month) {
     const m = measureMapById[String(p.id).trim()] || measureMapByName[String(p.name).trim()];
     const tGap = m ? monthsGap(m.tongueDate) : null;
     const dGap = m ? monthsGap(m.dryDate)    : null;
-    if(tGap===null || tGap>=3){
-      tongueTargets.push({id:p.id, name:p.name, lastDate:(m&&m.tongueDate)||'', gap: tGap===null?'未測定':tGap+'ヶ月経過'});
-    }
-    if(dGap===null || dGap>=3){
-      dryTargets.push({id:p.id, name:p.name, lastDate:(m&&m.dryDate)||'', gap: dGap===null?'未測定':dGap+'ヶ月経過'});
-    }
+    tongueTargets.push({id:p.id, name:p.name, lastDate:(m&&m.tongueDate)||'', gap: tGap===null?'未測定':tGap+'ヶ月経過', gapNum: tGap});
+    dryTargets.push({id:p.id, name:p.name, lastDate:(m&&m.dryDate)||'', gap: dGap===null?'未測定':dGap+'ヶ月経過', gapNum: dGap});
   });
   return{facility:cfg.name,year,month,tongueTargets,dryTargets};
 }
