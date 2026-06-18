@@ -1244,10 +1244,19 @@ async function loadCalendar() {
       cell.className = cls;
 
       let badgeHtml = '';
-      if (d.hasDr) badgeHtml = `<div class="cal-day-badge dr">Dr</div>`;
+      if (d.hasDr && d.countDH > 0) badgeHtml = `<div class="cal-day-badge dr">Dr</div><div class="cal-day-badge dh">DH</div>`;
+      else if (d.hasDr) badgeHtml = `<div class="cal-day-badge dr">Dr</div>`;
       else if (d.hasVisit) badgeHtml = `<div class="cal-day-badge dh">DH</div>`;
 
-      const countHtml = d.count > 0 ? `<div class="cal-day-count">${d.count}件</div>` : '';
+      let countHtml = '';
+      if (d.countDr > 0 || d.countDH > 0) {
+        const parts = [];
+        if (d.countDr > 0) parts.push('Dr ' + d.countDr + '件');
+        if (d.countDH > 0) parts.push('DH ' + d.countDH + '件');
+        countHtml = `<div class="cal-day-count">${parts.join('/')}</div>`;
+      } else if (d.count > 0) {
+        countHtml = `<div class="cal-day-count">${d.count}件</div>`;
+      }
 
       cell.innerHTML = `<div class="cal-day-num">${d.day}</div>${badgeHtml}${countHtml}`;
       grid.appendChild(cell);
