@@ -165,6 +165,28 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
                        border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; }
 .csv-controls button:disabled { opacity: .5; cursor: not-allowed; }
 
+/* カレンダータブ */
+.cal-legend { display: flex; gap: 16px; margin-bottom: 14px; font-size: 12px; color: var(--gray); }
+.cal-legend-item { display: flex; align-items: center; gap: 5px; }
+.cal-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.cal-dot-dr { background: #2e7d5e; }
+.cal-dot-dh { background: #c0613a; }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 4px; }
+.cal-wd { text-align: center; font-size: 11px; color: var(--gray); font-weight: 700; padding: 4px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-cell { aspect-ratio: 1; border-radius: 8px; border: 1px solid var(--border); padding: 4px;
+            display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+.cal-cell.empty { border: none; background: none; }
+.cal-cell.has-dr { background: #e8f5f0; border-color: #4a9b7f; }
+.cal-cell.has-dh-only { background: #fdf3ee; border-color: #e0a98a; }
+.cal-day-num { font-size: 11px; color: var(--gray); font-weight: 600; }
+.cal-cell.has-dr .cal-day-num,
+.cal-cell.has-dh-only .cal-day-num { color: var(--dark); }
+.cal-day-badge { font-size: 10px; font-weight: 700; text-align: center; border-radius: 4px; padding: 1px 0; }
+.cal-day-badge.dr { background: #4a9b7f; color: white; }
+.cal-day-badge.dh { background: #e0a98a; color: white; }
+.cal-day-count { font-size: 9px; color: var(--gray); text-align: right; }
+
 /* CSV プレビュー */
 #csv-preview { display: none; }
 .staff-block { margin-bottom: 14px; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
@@ -434,6 +456,36 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
     </div>
   </div><!-- /#report-tab -->
 
+  <!-- カレンダータブ -->
+  <div id="calendar-tab" style="display:none; padding-bottom:80px;">
+    <div class="section">
+      <div class="section-label">訪問カレンダー</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;">
+        <select class="input-styled" id="cal-fac-sel" onchange="loadCalendar()">
+          <option value="izumi">いすみ苑</option>
+          <option value="nagaiki">長生き邑</option>
+          <option value="ichimiya">一宮喜楽園</option>
+        </select>
+        <input type="month" class="input-styled" id="cal-month-sel" onchange="loadCalendar()">
+        <button onclick="loadCalendar()" style="white-space:nowrap;padding:10px 14px;background:var(--green);color:white;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;">更新</button>
+      </div>
+
+      <div class="cal-legend">
+        <span class="cal-legend-item"><span class="cal-dot cal-dot-dr"></span>佐藤Dr訪問</span>
+        <span class="cal-legend-item"><span class="cal-dot cal-dot-dh"></span>DHのみ訪問</span>
+      </div>
+
+      <div id="cal-loading" style="text-align:center;padding:20px;color:var(--gray);font-size:13px;">読み込み中...</div>
+      <div id="cal-grid-wrap" style="display:none;">
+        <div class="cal-weekdays">
+          <div class="cal-wd">日</div><div class="cal-wd">月</div><div class="cal-wd">火</div>
+          <div class="cal-wd">水</div><div class="cal-wd">木</div><div class="cal-wd">金</div><div class="cal-wd">土</div>
+        </div>
+        <div id="cal-grid" class="cal-grid"></div>
+      </div>
+    </div>
+  </div><!-- /#calendar-tab -->
+
 </div><!-- /#app -->
 
 <!-- タブバー -->
@@ -449,6 +501,10 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   <button class="tab-btn" id="tab-report" onclick="showTab('report')">
     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     日報
+  </button>
+  <button class="tab-btn" id="tab-calendar" onclick="showTab('calendar')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    カレンダー
   </button>
 </div>
 
@@ -941,7 +997,12 @@ function renderTargetList(key, list) {
   empty.style.display = 'none';
   list.forEach(p => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="font-weight:600;">${p.name}</td><td style="color:var(--gray);font-size:12px;white-space:nowrap;">${p.lastDate ? '前回:'+p.lastDate+'　' : ''}${p.gap}</td>`;
+    const lastDateText = p.lastDate ? '前回: ' + p.lastDate : '未測定';
+    tr.innerHTML = `<td style="font-weight:600;">${p.name}</td>
+      <td style="font-size:12px;color:var(--gray);white-space:nowrap;">${lastDateText}</td>
+      <td style="text-align:right;white-space:nowrap;">
+        <span style="background:#fdeaea;color:#c62828;font-weight:700;border-radius:5px;padding:3px 9px;font-size:12px;">⚠ ${p.gap}</span>
+      </td>`;
     tbody.appendChild(tr);
   });
 }
@@ -1121,12 +1182,14 @@ function downloadCSV() {
 //  タブ切り替え
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function showTab(tab) {
-  document.getElementById('input-tab').style.display   = tab === 'input'   ? 'block' : 'none';
-  document.getElementById('santel-tab').style.display  = tab === 'santel'  ? 'block' : 'none';
-  document.getElementById('report-tab').style.display  = tab === 'report'  ? 'block' : 'none';
+  document.getElementById('input-tab').style.display    = tab === 'input'    ? 'block' : 'none';
+  document.getElementById('santel-tab').style.display   = tab === 'santel'   ? 'block' : 'none';
+  document.getElementById('report-tab').style.display   = tab === 'report'   ? 'block' : 'none';
+  document.getElementById('calendar-tab').style.display = tab === 'calendar' ? 'block' : 'none';
   document.getElementById('tab-input').classList.toggle('active',  tab === 'input');
   document.getElementById('tab-santel').classList.toggle('active', tab === 'santel');
   document.getElementById('tab-report').classList.toggle('active', tab === 'report');
+  document.getElementById('tab-calendar').classList.toggle('active', tab === 'calendar');
   if (tab === 'santel') loadSantel();
   if (tab === 'report') {
     // 日報の日付を今日にデフォルト設定
@@ -1135,6 +1198,65 @@ function showTab(tab) {
       const t = new Date();
       d.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
     }
+  }
+  if (tab === 'calendar') loadCalendar();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  訪問カレンダー
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadCalendar() {
+  const fac = document.getElementById('cal-fac-sel').value;
+  const monthInput = document.getElementById('cal-month-sel');
+  if (!monthInput.value) {
+    const now = new Date();
+    monthInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  }
+  const [yy, mm] = monthInput.value.split('-').map(Number);
+
+  const loading = document.getElementById('cal-loading');
+  const gridWrap = document.getElementById('cal-grid-wrap');
+  const grid = document.getElementById('cal-grid');
+  loading.style.display = 'block';
+  gridWrap.style.display = 'none';
+  grid.innerHTML = '';
+
+  try {
+    const resp = await fetch(GAS_URLS[fac] + `?action=calendar&year=${yy}&month=${mm}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+
+    const days = data.days || [];
+    const firstWeekday = new Date(yy, mm - 1, 1).getDay(); // 0=日,...,6=土
+
+    // 月初までの空白セル
+    for (let i = 0; i < firstWeekday; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell empty';
+      grid.appendChild(cell);
+    }
+
+    days.forEach(d => {
+      const cell = document.createElement('div');
+      let cls = 'cal-cell';
+      if (d.hasDr) cls += ' has-dr';
+      else if (d.hasVisit) cls += ' has-dh-only';
+      cell.className = cls;
+
+      let badgeHtml = '';
+      if (d.hasDr) badgeHtml = `<div class="cal-day-badge dr">Dr</div>`;
+      else if (d.hasVisit) badgeHtml = `<div class="cal-day-badge dh">DH</div>`;
+
+      const countHtml = d.count > 0 ? `<div class="cal-day-count">${d.count}件</div>` : '';
+
+      cell.innerHTML = `<div class="cal-day-num">${d.day}</div>${badgeHtml}${countHtml}`;
+      grid.appendChild(cell);
+    });
+
+    loading.style.display = 'none';
+    gridWrap.style.display = '';
+  } catch (e) {
+    loading.textContent = '読み込み失敗: ' + e.message;
   }
 }
 
