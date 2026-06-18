@@ -153,8 +153,11 @@ function getMeasureTargets(year, month) {
   const plist=getPatientList(); if(plist.error) return {error:plist.error};
   const patients=plist.patients||[];
   const measures=getMeasures();
-  const measureMap={};
-  measures.forEach(m=>{ measureMap[String(m.id).trim()]=m; });
+  const measureMapById={}; const measureMapByName={};
+  measures.forEach(m=>{
+    measureMapById[String(m.id).trim()]=m;
+    if(m.name) measureMapByName[String(m.name).trim()]=m;
+  });
   const targetDate=new Date(year, month-1, 1);
   function monthsGap(lastStr){
     const d=parseMeasureDate(lastStr); if(!d) return null;
@@ -162,7 +165,8 @@ function getMeasureTargets(year, month) {
   }
   const tongueTargets=[]; const dryTargets=[];
   patients.forEach(p=>{
-    const m=measureMap[String(p.id).trim()];
+    // ID一致を優先し、見つからなければ患者名で照合（ID不一致対策）
+    const m = measureMapById[String(p.id).trim()] || measureMapByName[String(p.name).trim()];
     const tGap = m ? monthsGap(m.tongueDate) : null;
     const dGap = m ? monthsGap(m.dryDate)    : null;
     if(tGap===null || tGap>=3){
