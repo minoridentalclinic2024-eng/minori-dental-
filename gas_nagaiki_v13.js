@@ -190,7 +190,7 @@ function getMonthCalendar(year, month) {
   const sheetName=getSheetNameYM(year, month); const sheet=ss.getSheetByName(sheetName);
   const daysInMonth = new Date(year, month, 0).getDate();
   const dayMap = {};
-  for(let d=1; d<=daysInMonth; d++) dayMap[d] = { day:d, hasVisit:false, hasDr:false, count:0, staffList:[] };
+  for(let d=1; d<=daysInMonth; d++) dayMap[d] = { day:d, hasVisit:false, hasDr:false, count:0, countDr:0, countDH:0, staffList:[] };
   if(!sheet) return { facility:cfg.name, year, month, days:Object.values(dayMap), sheetExists:false };
   const lastRow=sheet.getLastRow(); const lastCol=sheet.getLastColumn();
   if(lastRow>cfg.headerRows && lastCol>=cfg.dataStartCol){
@@ -212,7 +212,7 @@ function getMonthCalendar(year, month) {
           const isRecord = STAFF_LIST.some(s=>line.startsWith(s+' ')||line===s) || line.startsWith('口腔ケア')||line.startsWith('口腔リハ');
           if(!isRecord) continue;
           dayInfo.hasVisit = true; dayInfo.count++;
-          for(const s of STAFF_LIST){ if(line.startsWith(s)){ staffSet.add(s); if(s==='佐藤Dr') dayInfo.hasDr=true; break; } }
+          for(const s of STAFF_LIST){ if(line.startsWith(s)){ staffSet.add(s); if(s.endsWith('Dr')){ dayInfo.hasDr=true; dayInfo.countDr++; } else { dayInfo.countDH++; } break; } }
         }
       }
       dayInfo.staffList = Array.from(staffSet);
