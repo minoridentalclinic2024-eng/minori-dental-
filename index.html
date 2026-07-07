@@ -1190,7 +1190,7 @@ function downloadCSV() {
   });
 
   const csv  = rows.map(r => r.map(q).join(',')).join('\n');
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8; } });
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   link.href     = URL.createObjectURL(btob);
   link.download = `みのり歯科_${facName}_${csvDateStr}.csv`;
