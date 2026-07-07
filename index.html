@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>みのり歯科 記録</title>
+<title>ã¿ã®ãæ­¯ç§ è¨é²</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -26,7 +26,7 @@ header p  { font-size: 11px; opacity: .8; margin-top: 2px; }
               color: white; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; }
 #logout-btn:hover { background: rgba(255,255,255,.35); }
 
-/* ログイン */
+/* ã­ã°ã¤ã³ */
 #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
 .login-box { background: white; border-radius: 16px; padding: 40px 32px; width: 340px;
              box-shadow: 0 4px 24px rgba(0,0,0,.1); text-align: center; }
@@ -41,7 +41,7 @@ header p  { font-size: 11px; opacity: .8; margin-top: 2px; }
 .login-box button:hover { background: var(--green-mid); }
 .login-err { color: var(--warn); font-size: 13px; margin-top: 8px; }
 
-/* メインアプリ */
+/* ã¡ã¤ã³ã¢ããª */
 #app { display: none; padding-bottom: 80px; }
 .section { background: white; margin: 12px; border-radius: 14px; padding: 16px;
            box-shadow: 0 1px 6px rgba(0,0,0,.06); }
@@ -49,7 +49,7 @@ header p  { font-size: 11px; opacity: .8; margin-top: 2px; }
                  text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 .section-label::before { content: ''; width: 3px; height: 12px; background: var(--green); border-radius: 2px; display: block; }
 
-/* 施設ボタン */
+/* æ½è¨­ãã¿ã³ */
 .fac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fac-btn { border: 1.5px solid var(--border); background: white; border-radius: 12px;
            padding: 14px 12px; cursor: pointer; text-align: center; transition: all .2s; }
@@ -59,7 +59,7 @@ header p  { font-size: 11px; opacity: .8; margin-top: 2px; }
 .fac-btn.active .fac-name { color: var(--green); }
 .fac-btn:hover:not(.active) { border-color: var(--green-mid); background: #f8fdfb; }
 
-/* フォーム要素 */
+/* ãã©ã¼ã è¦ç´  */
 .field { margin-bottom: 14px; }
 .field:last-child { margin-bottom: 0; }
 label { display: block; font-size: 12px; color: var(--gray); font-weight: 600; margin-bottom: 5px; }
@@ -74,10 +74,10 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .time-row .tilde { color: var(--gray); font-size: 18px; }
 .time-row .input-styled { flex: 1; }
 
-/* 患者ローディング */
+/* æ£èã­ã¼ãã£ã³ã° */
 #pt-loading { display: none; text-align: center; padding: 8px; color: var(--gray); font-size: 13px; }
 
-/* 算定区分 */
+/* ç®å®åºå */
 .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .type-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 14px;
              cursor: pointer; text-align: center; transition: all .2s; }
@@ -88,7 +88,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .type-card.active .type-name { color: var(--green); }
 .type-card:hover:not(.active) { border-color: var(--green-mid); }
 
-/* チェックボックス */
+/* ãã§ãã¯ããã¯ã¹ */
 .check-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .check-item { display: flex; align-items: center; gap: 6px; background: #f7faf9;
               border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 11px;
@@ -96,7 +96,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .check-item input { display: none; }
 .check-item.checked { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 600; }
 
-/* 担当者 */
+/* æå½è */
 .radio-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .radio-item { display: flex; align-items: center; gap: 6px; background: #f7faf9;
               border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 11px;
@@ -104,7 +104,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .radio-item input { display: none; }
 .radio-item.checked { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 600; }
 
-/* プレビュー */
+/* ãã¬ãã¥ã¼ */
 #preview-box { background: var(--green-light); border: 1.5px solid var(--green);
                border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px; color: var(--text); }
 #save-btn { width: 100%; padding: 15px; background: var(--green); color: white;
@@ -117,14 +117,14 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 #save-msg.ok   { color: var(--green); }
 #save-msg.err  { color: var(--warn); }
 
-/* 測定値 */
+/* æ¸¬å®å¤ */
 .measure-row { display: flex; align-items: center; gap: 10px; }
 .measure-row .input-styled { flex: 1; }
 .measure-prev { font-size: 12px; color: var(--gray); margin-top: 3px; }
 .measure-check { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; cursor: pointer; }
 .measure-check input { accent-color: var(--green); width: 16px; height: 16px; }
 
-/* タブバー */
+/* ã¿ããã¼ */
 #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white;
            border-top: 1px solid var(--border); display: flex; z-index: 100; }
 .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center;
@@ -133,7 +133,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .tab-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 .tab-btn.active { color: var(--green); }
 
-/* 算定確認タブ */
+/* ç®å®ç¢ºèªã¿ã */
 #santel-tab { display: none; padding-bottom: 80px; }
 .santel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .santel-header select { flex: 1; }
@@ -147,7 +147,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .count-ok   { color: var(--green); font-weight: 700; }
 .count-over { color: var(--warn); font-weight: 700; background: var(--warn-bg); padding: 2px 6px; border-radius: 4px; }
 
-/* 測定対象者セクション */
+/* æ¸¬å®å¯¾è±¡èã»ã¯ã·ã§ã³ */
 .measure-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
 .measure-section .section-label { margin-bottom: 12px; }
 .measure-block { margin-bottom: 14px; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
@@ -156,7 +156,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .measure-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
 .measure-table tr:last-child td { border-bottom: none; }
 
-/* CSV出力エリア */
+/* CSVåºåã¨ãªã¢ */
 .csv-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
 .csv-section .section-label { margin-bottom: 12px; }
 .csv-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
@@ -165,7 +165,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
                        border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; }
 .csv-controls button:disabled { opacity: .5; cursor: not-allowed; }
 
-/* カレンダータブ */
+/* ã«ã¬ã³ãã¼ã¿ã */
 .cal-legend { display: flex; gap: 16px; margin-bottom: 14px; font-size: 12px; color: var(--gray); }
 .cal-legend-item { display: flex; align-items: center; gap: 5px; }
 .cal-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
@@ -190,7 +190,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .cal-day-badge.fac-dh { background: #f0b429; color: #333; }
 .cal-day-count { font-size: 9px; color: var(--gray); text-align: right; }
 
-/* CSV プレビュー */
+/* CSV ãã¬ãã¥ã¼ */
 #csv-preview { display: none; }
 .staff-block { margin-bottom: 14px; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
 .staff-block-title { font-size: 13px; font-weight: 700; color: white;
@@ -215,260 +215,280 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   .fac-grid { grid-template-columns: 1fr 1fr; }
   .type-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ===== è¨é²ç·¨éã¢ã¼ãã« ===== */
+#edit-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:2000; overflow-y:auto; }
+.edit-modal-inner { background:white; border-radius:16px; margin:16px auto 32px; padding:20px 16px 24px; max-width:480px; }
+.edit-modal-inner h3 { color:var(--green); font-size:17px; font-weight:700; margin-bottom:16px; text-align:center; }
+.edit-section-label { font-size:11px; color:var(--gray); font-weight:700; letter-spacing:.05em; margin:14px 0 6px; text-transform:uppercase; }
+.edit-staff-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.edit-staff-btn { padding:8px 4px; border:1.5px solid var(--border); border-radius:8px; background:white; font-size:12px; cursor:pointer; transition:.15s; }
+.edit-staff-btn.active { background:var(--green); color:white; border-color:var(--green); font-weight:700; }
+.edit-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.edit-type-btn { padding:10px; border:1.5px solid var(--border); border-radius:10px; background:white; font-size:13px; cursor:pointer; text-align:center; }
+.edit-type-btn.active { background:var(--green-light); border-color:var(--green); color:var(--green); font-weight:700; }
+.edit-check-grid { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+.edit-check-item { padding:5px 10px; border:1.5px solid var(--border); border-radius:20px; font-size:12px; cursor:pointer; }
+.edit-check-item.checked { background:var(--green); color:white; border-color:var(--green); }
+.edit-btn-row { display:flex; gap:10px; margin-top:20px; }
+.edit-btn-save { flex:1; padding:13px; background:var(--green); color:white; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; }
+.edit-btn-cancel { flex:1; padding:13px; background:#f0f0f0; color:#555; border:none; border-radius:12px; font-size:15px; cursor:pointer; }
+.edit-btn-delete { width:100%; padding:12px; background:white; color:var(--warn); border:1.5px solid var(--warn); border-radius:12px; font-size:14px; cursor:pointer; margin-top:10px; }
+.edit-record-btn { margin-left:5px; padding:2px 6px; font-size:11px; background:#fff8e1; border:1px solid #ffd54f; border-radius:4px; cursor:pointer; color:#795548; vertical-align:middle; }
 </style>
 </head>
 <body>
 
-<!-- ログイン画面 -->
+<!-- ã­ã°ã¤ã³ç»é¢ -->
 <div id="login-screen">
   <div class="login-box">
-    <h2>🦷 みのり歯科</h2>
-    <p>記録システムへようこそ</p>
-    <input type="password" id="pw-input" placeholder="パスワードを入力" autocomplete="current-password">
+    <h2>ð¦· ã¿ã®ãæ­¯ç§</h2>
+    <p>è¨é²ã·ã¹ãã ã¸ãããã</p>
+    <input type="password" id="pw-input" placeholder="ãã¹ã¯ã¼ããå¥å" autocomplete="current-password">
     <div class="login-err" id="pw-err"></div>
-    <button onclick="doLogin()">ログイン</button>
+    <button onclick="doLogin()">ã­ã°ã¤ã³</button>
   </div>
 </div>
 
-<!-- メインアプリ -->
+<!-- ã¡ã¤ã³ã¢ããª -->
 <header id="main-header" style="display:none">
-  <div><h1>みのり歯科 記録</h1><p id="user-label">スタッフ</p></div>
-  <button id="logout-btn" onclick="doLogout()">ログアウト</button>
+  <div><h1>ã¿ã®ãæ­¯ç§ è¨é²</h1><p id="user-label">ã¹ã¿ãã</p></div>
+  <button id="logout-btn" onclick="doLogout()">ã­ã°ã¢ã¦ã</button>
 </header>
 
 <div id="app">
-  <!-- 記録入力タブ -->
+  <!-- è¨é²å¥åã¿ã -->
   <div id="input-tab">
-    <!-- 施設選択 -->
+    <!-- æ½è¨­é¸æ -->
     <div class="section">
-      <div class="section-label">施設</div>
+      <div class="section-label">æ½è¨­</div>
       <div class="fac-grid">
         <button class="fac-btn active" data-fac="izumi" onclick="switchFacility('izumi')">
-          <div class="fac-name">いすみ苑</div>
-          <div class="fac-sub">ケア月2回 / リハ月4回</div>
+          <div class="fac-name">ããã¿è</div>
+          <div class="fac-sub">ã±ã¢æ2å / ãªãæ4å</div>
         </button>
         <button class="fac-btn" data-fac="nagaiki" onclick="switchFacility('nagaiki')">
-          <div class="fac-name">長生き邑</div>
-          <div class="fac-sub">ケア月4回 / リハ月4回</div>
+          <div class="fac-name">é·çãé</div>
+          <div class="fac-sub">ã±ã¢æ4å / ãªãæ4å</div>
         </button>
         <button class="fac-btn" data-fac="ichimiya" onclick="switchFacility('ichimiya')">
-          <div class="fac-name">一宮喜楽園</div>
-          <div class="fac-sub">ケア月2回 / リハ月4回</div>
+          <div class="fac-name">ä¸å®®åæ¥½å</div>
+          <div class="fac-sub">ã±ã¢æ2å / ãªãæ4å</div>
         </button>
       </div>
     </div>
 
-    <!-- 基本情報 -->
+    <!-- åºæ¬æå ± -->
     <div class="section">
-      <div class="section-label">基本情報</div>
+      <div class="section-label">åºæ¬æå ±</div>
       <div class="field">
-        <label>患者</label>
-        <div id="pt-loading">患者リストを読み込み中...</div>
+        <label>æ£è</label>
+        <div id="pt-loading">æ£èãªã¹ããèª­ã¿è¾¼ã¿ä¸­...</div>
         <select class="input-styled" id="pt-sel" onchange="updatePreview()">
-          <option value="">患者を選んでください</option>
+          <option value="">æ£èãé¸ãã§ãã ãã</option>
         </select>
         <div id="measure-reminder" style="display:none;margin-top:8px;padding:8px 12px;background:#fff3cd;border:1.5px solid #ffc107;border-radius:8px;font-size:12px;color:#856404;font-weight:600;"></div>
       </div>
       <div class="field">
-        <label>訪問日</label>
+        <label>è¨ªåæ¥</label>
         <input type="date" class="input-styled" id="visit-date" onchange="updatePreview()">
       </div>
       <div class="field">
-        <label>時間</label>
+        <label>æé</label>
         <div class="time-row">
           <input type="time" class="input-styled" id="time-from" value="10:00" onchange="autoSetTimeTo(); updatePreview()">
-          <span class="tilde">〜</span>
+          <span class="tilde">ã</span>
           <input type="time" class="input-styled" id="time-to" value="10:20" onchange="updatePreview()">
         </div>
       </div>
     </div>
 
-    <!-- 算定区分 -->
+    <!-- ç®å®åºå -->
     <div class="section">
-      <div class="section-label">算定区分</div>
+      <div class="section-label">ç®å®åºå</div>
       <div class="type-grid">
         <div class="type-card active" data-type="kea" onclick="selectType('kea')">
-          <div class="type-icon">🦷</div>
-          <div class="type-name">口腔ケア</div>
-          <div class="type-sub">訪問衛生指導料</div>
+          <div class="type-icon">ð¦·</div>
+          <div class="type-name">å£èã±ã¢</div>
+          <div class="type-sub">è¨ªåè¡çæå°æ</div>
         </div>
         <div class="type-card" data-type="riha" onclick="selectType('riha')">
-          <div class="type-icon">💪</div>
-          <div class="type-name">口腔リハ</div>
-          <div class="type-sub">訪問口腔リハ</div>
+          <div class="type-icon">ðª</div>
+          <div class="type-name">å£èãªã</div>
+          <div class="type-sub">è¨ªåå£èãªã</div>
         </div>
       </div>
     </div>
 
-    <!-- 実施内容 -->
+    <!-- å®æ½åå®¹ -->
     <div class="section">
-      <div class="section-label">実施内容（複数選択可）</div>
+      <div class="section-label">å®æ½åå®¹ï¼è¤æ°é¸æå¯ï¼</div>
       <div class="check-grid" id="content-checks">
-        <div class="check-item" onclick="toggleCheck(this)" data-value="スポンジブラシ">スポンジブラシ</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="歯ブラシ">歯ブラシ</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="歯間ブラシ">歯間ブラシ</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="保湿">保湿</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="ぶくぶく">ぶくぶく</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="舌回し">舌回し</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="マッサージ">マッサージ</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="ã¹ãã³ã¸ãã©ã·">ã¹ãã³ã¸ãã©ã·</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="æ­¯ãã©ã·">æ­¯ãã©ã·</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="æ­¯éãã©ã·">æ­¯éãã©ã·</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="ä¿æ¹¿">ä¿æ¹¿</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="ã¶ãã¶ã">ã¶ãã¶ã</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="èåã">èåã</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="ãããµã¼ã¸">ãããµã¼ã¸</div>
         <div class="check-item" onclick="toggleCheck(this)" data-value="ROM">ROM</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="舌圧排">舌圧排</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="水飲み訓練">水飲み訓練</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="発語訓練">発語訓練</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="シャキアー法">シャキアー法</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="シャキアー変法">シャキアー変法</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="握手">握手</div>
-        <div class="check-item" onclick="toggleCheck(this)" data-value="唾液腺マッサージ">唾液腺マッサージ</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="èå§æ">èå§æ</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="æ°´é£²ã¿è¨ç·´">æ°´é£²ã¿è¨ç·´</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="çºèªè¨ç·´">çºèªè¨ç·´</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="ã·ã£ã­ã¢ã¼æ³">ã·ã£ã­ã¢ã¼æ³</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="ã·ã£ã­ã¢ã¼å¤æ³">ã·ã£ã­ã¢ã¼å¤æ³</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="æ¡æ">æ¡æ</div>
+        <div class="check-item" onclick="toggleCheck(this)" data-value="å¾æ¶²èºãããµã¼ã¸">å¾æ¶²èºãããµã¼ã¸</div>
       </div>
     </div>
 
-    <!-- 担当者 -->
+    <!-- æå½è -->
     <div class="section">
-      <div class="section-label">担当者</div>
+      <div class="section-label">æå½è</div>
       <div class="radio-grid" id="staff-radios">
-        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="佐藤Dr">佐藤Dr</label>
-        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="南雲DH">南雲DH</label>
-        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="吉岡DH">吉岡DH</label>
-        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="末吉DH">末吉DH</label>
-        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="高梨DH">高梨DH</label>
-        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="古阪DH">古阪DH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="ä½è¤Dr">ä½è¤Dr</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="åé²DH">åé²DH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="åå²¡DH">åå²¡DH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="æ«åDH">æ«åDH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="é«æ¢¨DH">é«æ¢¨DH</label>
+        <label class="radio-item" onclick="selectStaff(this)"><input type="radio" name="staff" value="å¤éªDH">å¤éªDH</label>
       </div>
     </div>
 
-    <!-- 備考 -->
+    <!-- åè -->
     <div class="section">
-      <div class="section-label">備考・特記事項（任意）</div>
-      <textarea class="input-styled" id="memo" rows="3" placeholder="自由記述" style="resize:vertical" oninput="updatePreview()"></textarea>
+      <div class="section-label">åèã»ç¹è¨äºé ï¼ä»»æï¼</div>
+      <textarea class="input-styled" id="memo" rows="3" placeholder="èªç±è¨è¿°" style="resize:vertical" oninput="updatePreview()"></textarea>
     </div>
 
-    <!-- 測定値 -->
+    <!-- æ¸¬å®å¤ -->
     <div class="section">
-      <div class="section-label">測定値（3ヶ月ごと）</div>
+      <div class="section-label">æ¸¬å®å¤ï¼3ã¶æãã¨ï¼</div>
       <div class="field">
-        <label>舌圧</label>
+        <label>èå§</label>
         <div class="measure-row">
-          <input type="number" class="input-styled" id="tongue-val" placeholder="数値" step="0.1" min="0" oninput="updatePreview()">
+          <input type="number" class="input-styled" id="tongue-val" placeholder="æ°å¤" step="0.1" min="0" oninput="updatePreview()">
           <span style="color:var(--gray);white-space:nowrap">kPa</span>
         </div>
-        <div class="measure-prev" id="tongue-prev">前回: 未測定</div>
-        <label class="measure-check"><input type="checkbox" id="tongue-check" onchange="updatePreview()">今回測定した（記録シートに保存）</label>
+        <div class="measure-prev" id="tongue-prev">åå: æªæ¸¬å®</div>
+        <label class="measure-check"><input type="checkbox" id="tongue-check" onchange="updatePreview()">ä»åæ¸¬å®ããï¼è¨é²ã·ã¼ãã«ä¿å­ï¼</label>
       </div>
       <div class="field">
-        <label>口腔乾燥（ムーカス）</label>
+        <label>å£èä¹¾ç¥ï¼ã ã¼ã«ã¹ï¼</label>
         <div class="measure-row">
-          <input type="number" class="input-styled" id="dry-val" placeholder="数値" step="0.1" min="0" oninput="updatePreview()">
+          <input type="number" class="input-styled" id="dry-val" placeholder="æ°å¤" step="0.1" min="0" oninput="updatePreview()">
         </div>
-        <div class="measure-prev" id="dry-prev">前回: 未測定</div>
-        <label class="measure-check"><input type="checkbox" id="dry-check" onchange="updatePreview()">今回測定した（記録シートに保存）</label>
+        <div class="measure-prev" id="dry-prev">åå: æªæ¸¬å®</div>
+        <label class="measure-check"><input type="checkbox" id="dry-check" onchange="updatePreview()">ä»åæ¸¬å®ããï¼è¨é²ã·ã¼ãã«ä¿å­ï¼</label>
       </div>
     </div>
 
-    <!-- 保存 -->
+    <!-- ä¿å­ -->
     <div class="section">
-      <div class="section-label">スプレッドシートへの書き込み内容</div>
-      <div id="preview-box">—</div>
-      <button id="save-btn" onclick="saveRecord()">スプレッドシートに保存</button>
+      <div class="section-label">ã¹ãã¬ããã·ã¼ãã¸ã®æ¸ãè¾¼ã¿åå®¹</div>
+      <div id="preview-box">â</div>
+      <button id="save-btn" onclick="saveRecord()">ã¹ãã¬ããã·ã¼ãã«ä¿å­</button>
       <div id="save-msg"></div>
     </div>
   </div><!-- /#input-tab -->
 
-  <!-- 算定確認タブ -->
+  <!-- ç®å®ç¢ºèªã¿ã -->
   <div id="santel-tab">
-    <!-- 月間集計 -->
+    <!-- æééè¨ -->
     <div class="section">
-      <div class="section-label">算定確認</div>
+      <div class="section-label">ç®å®ç¢ºèª</div>
       <div class="santel-header">
         <select class="input-styled" id="santel-fac-sel" onchange="loadSantel()">
-          <option value="izumi">いすみ苑</option>
-          <option value="nagaiki">長生き邑</option>
-          <option value="ichimiya">一宮喜楽園</option>
+          <option value="izumi">ããã¿è</option>
+          <option value="nagaiki">é·çãé</option>
+          <option value="ichimiya">ä¸å®®åæ¥½å</option>
         </select>
         <input type="month" class="input-styled" id="santel-month-sel" onchange="loadSantel()">
-        <button onclick="loadSantel()">更新</button>
+        <button onclick="loadSantel()">æ´æ°</button>
       </div>
       <div id="santel-table-wrap">
-        <div id="santel-loading" style="text-align:center;padding:20px;color:var(--gray)">読み込み中...</div>
+        <div id="santel-loading" style="text-align:center;padding:20px;color:var(--gray)">èª­ã¿è¾¼ã¿ä¸­...</div>
         <table id="santel-table" style="display:none">
-          <thead><tr><th>患者名</th><th>ケア</th><th>リハ</th></tr></thead>
+          <thead><tr><th>æ£èå</th><th>ã±ã¢</th><th>ãªã</th></tr></thead>
           <tbody id="santel-tbody"></tbody>
         </table>
       </div>
 
-      <!-- 測定対象者（3ヶ月ごと） -->
+      <!-- æ¸¬å®å¯¾è±¡èï¼3ã¶æãã¨ï¼ -->
       <div class="measure-section">
-        <div class="section-label">測定対象者（3ヶ月ごと）</div>
-        <div id="measure-loading" style="text-align:center;padding:14px;color:var(--gray);font-size:13px;">読み込み中...</div>
+        <div class="section-label">æ¸¬å®å¯¾è±¡èï¼3ã¶æãã¨ï¼</div>
+        <div id="measure-loading" style="text-align:center;padding:14px;color:var(--gray);font-size:13px;">èª­ã¿è¾¼ã¿ä¸­...</div>
         <div id="measure-body" style="display:none;">
           <div class="measure-block">
-            <div class="measure-block-title">👅 舌圧 対象者</div>
+            <div class="measure-block-title">ð èå§ å¯¾è±¡è</div>
             <table class="measure-table"><tbody id="tongue-target-tbody"></tbody></table>
-            <div id="tongue-target-empty" style="display:none;padding:10px;color:var(--gray);font-size:12px;">対象者はいません</div>
+            <div id="tongue-target-empty" style="display:none;padding:10px;color:var(--gray);font-size:12px;">å¯¾è±¡èã¯ãã¾ãã</div>
           </div>
           <div class="measure-block">
-            <div class="measure-block-title">💧 口腔乾燥（ムーカス） 対象者</div>
+            <div class="measure-block-title">ð§ å£èä¹¾ç¥ï¼ã ã¼ã«ã¹ï¼ å¯¾è±¡è</div>
             <table class="measure-table"><tbody id="dry-target-tbody"></tbody></table>
-            <div id="dry-target-empty" style="display:none;padding:10px;color:var(--gray);font-size:12px;">対象者はいません</div>
+            <div id="dry-target-empty" style="display:none;padding:10px;color:var(--gray);font-size:12px;">å¯¾è±¡èã¯ãã¾ãã</div>
           </div>
         </div>
       </div>
 
-      <!-- CSV出力エリア -->
+      <!-- CSVåºåã¨ãªã¢ -->
       <div class="csv-section">
-        <div class="section-label">月次CSV出力</div>
+        <div class="section-label">ææ¬¡CSVåºå</div>
         <div class="csv-controls">
           <input type="month" class="input-styled" id="csv-month">
-          <button class="csv-dl-btn" onclick="downloadMonthlyCSV()">📥 月次CSVダウンロード</button>
+          <button class="csv-dl-btn" onclick="downloadMonthlyCSV()">ð¥ ææ¬¡CSVãã¦ã³ã­ã¼ã</button>
         </div>
       </div>
     </div>
   </div><!-- /#santel-tab -->
 
-  <!-- 日報タブ -->
+  <!-- æ¥å ±ã¿ã -->
   <div id="report-tab" style="display:none; padding-bottom:80px;">
     <div class="section">
-      <div class="section-label">日報</div>
+      <div class="section-label">æ¥å ±</div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
         <select class="input-styled" id="report-fac-sel">
-          <option value="izumi">いすみ苑</option>
-          <option value="nagaiki">長生き邑</option>
-          <option value="ichimiya">一宮喜楽園</option>
+          <option value="izumi">ããã¿è</option>
+          <option value="nagaiki">é·çãé</option>
+          <option value="ichimiya">ä¸å®®åæ¥½å</option>
         </select>
         <input type="date" class="input-styled" id="report-date" style="flex:1">
-        <button onclick="loadReport()" style="white-space:nowrap;padding:10px 14px;background:var(--green);color:white;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;">表示</button>
+        <button onclick="loadReport()" style="white-space:nowrap;padding:10px 14px;background:var(--green);color:white;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;">è¡¨ç¤º</button>
       </div>
-      <div id="report-loading" style="display:none;text-align:center;padding:20px;color:var(--gray)">読み込み中...</div>
-      <div id="report-empty" style="display:none;text-align:center;padding:20px;color:var(--gray);font-size:13px">記録がありません</div>
-      <!-- 日報本体（スクショ対象） -->
+      <div id="report-loading" style="display:none;text-align:center;padding:20px;color:var(--gray)">èª­ã¿è¾¼ã¿ä¸­...</div>
+      <div id="report-empty" style="display:none;text-align:center;padding:20px;color:var(--gray);font-size:13px">è¨é²ãããã¾ãã</div>
+      <!-- æ¥å ±æ¬ä½ï¼ã¹ã¯ã·ã§å¯¾è±¡ï¼ -->
       <div id="report-body" style="display:none;">
         <div id="report-header" style="text-align:center;padding:12px 0 8px;border-bottom:2px solid var(--green);margin-bottom:12px;">
           <div id="report-title" style="font-size:18px;font-weight:700;color:var(--green)"></div>
           <div id="report-subtitle" style="font-size:13px;color:var(--gray);margin-top:4px;"></div>
         </div>
         <div id="report-staff-blocks"></div>
-        <div style="text-align:center;padding:10px 0 4px;font-size:11px;color:var(--gray)">🦷 茂原みのり歯科クリニック</div>
+        <div style="text-align:center;padding:10px 0 4px;font-size:11px;color:var(--gray)">ð¦· èåã¿ã®ãæ­¯ç§ã¯ãªããã¯</div>
       </div>
     </div>
   </div><!-- /#report-tab -->
 
-  <!-- カレンダータブ -->
+  <!-- ã«ã¬ã³ãã¼ã¿ã -->
   <div id="calendar-tab" style="display:none; padding-bottom:80px;">
     <div class="section">
-      <div class="section-label">訪問カレンダー</div>
+      <div class="section-label">è¨ªåã«ã¬ã³ãã¼</div>
       
 
       <div class="cal-legend">
-        <span class="cal-legend-item"><span class="cal-dot cal-dot-dr"></span>佐藤Dr訪問</span>
-        <span class="cal-legend-item"><span class="cal-dot cal-dot-dh"></span>DH訪問</span>
+        <span class="cal-legend-item"><span class="cal-dot cal-dot-dr"></span>ä½è¤Drè¨ªå</span>
+        <span class="cal-legend-item"><span class="cal-dot cal-dot-dh"></span>DHè¨ªå</span>
       </div>
 
           <div style="text-align:center;padding:6px 0">
       <input type="month" id="cal-month-sel" class="input-styled" onchange="loadCalendar()" style="font-size:14px;padding:6px 10px">
     </div>
-<div id="cal-loading" style="text-align:center;padding:20px;color:var(--gray);font-size:13px;">読み込み中...</div>
+<div id="cal-loading" style="text-align:center;padding:20px;color:var(--gray);font-size:13px;">èª­ã¿è¾¼ã¿ä¸­...</div>
       <div id="cal-grid-wrap" style="display:none;">
         <div class="cal-weekdays">
-          <div class="cal-wd">日</div><div class="cal-wd">月</div><div class="cal-wd">火</div>
-          <div class="cal-wd">水</div><div class="cal-wd">木</div><div class="cal-wd">金</div><div class="cal-wd">土</div>
+          <div class="cal-wd">æ¥</div><div class="cal-wd">æ</div><div class="cal-wd">ç«</div>
+          <div class="cal-wd">æ°´</div><div class="cal-wd">æ¨</div><div class="cal-wd">é</div><div class="cal-wd">å</div>
         </div>
         <div id="cal-grid" class="cal-grid"></div>
       </div>
@@ -477,30 +497,30 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 
 </div><!-- /#app -->
 
-<!-- タブバー -->
+<!-- ã¿ããã¼ -->
 <div id="tab-bar" style="display:none">
   <button class="tab-btn active" id="tab-input" onclick="showTab('input')">
     <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    記録入力
+    è¨é²å¥å
   </button>
   <button class="tab-btn" id="tab-santel" onclick="showTab('santel')">
     <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-    算定確認
+    ç®å®ç¢ºèª
   </button>
   <button class="tab-btn" id="tab-report" onclick="showTab('report')">
     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-    日報
+    æ¥å ±
   </button>
   <button class="tab-btn" id="tab-calendar" onclick="showTab('calendar')">
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    カレンダー
+    ã«ã¬ã³ãã¼
   </button>
 </div>
 
 <script>
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  設定
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  è¨­å®
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 const APP_PASSWORD = 'minori2024';
 const GAS_URLS = {
   izumi:    'https://script.google.com/macros/s/AKfycbw0hWzDcrVyxjEo5TS-qy3ZyYNgV5jGuplTpYv1Sq7_cUoJyHNBkNj2dlZnchlCfNl8/exec',
@@ -508,31 +528,31 @@ const GAS_URLS = {
   ichimiya: 'https://script.google.com/macros/s/AKfycbyAhvzWm9f5D3m52_1dyoPAK-y-QBe_jgw7pxJXeQ8kD0XNH5gUWDH69N8HB4oM9gNQwQ/exec',
 };
 const FAC_CONFIG = {
-  izumi:    { name:'いすみ苑',    limitKea:2, limitRiha:4 },
-  nagaiki:  { name:'長生き邑',    limitKea:4, limitRiha:4 },
-  ichimiya: { name:'一宮喜楽園',  limitKea:2, limitRiha:4 },
+  izumi:    { name:'ããã¿è',    limitKea:2, limitRiha:4 },
+  nagaiki:  { name:'é·çãé',    limitKea:4, limitRiha:4 },
+  ichimiya: { name:'ä¸å®®åæ¥½å',  limitKea:2, limitRiha:4 },
 };
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  状態
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  ç¶æ
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 let currentFac   = 'izumi';
 let currentType  = 'kea';
 let patientCache = {};
-let csvRecords   = [];   // 最後に取得したCSV用データ
+let csvRecords   = [];   // æå¾ã«åå¾ããCSVç¨ãã¼ã¿
 let csvDateStr   = '';
 let csvFac       = '';
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  ログイン
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  ã­ã°ã¤ã³
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 function doLogin() {
   const pw = document.getElementById('pw-input').value;
   if (pw === APP_PASSWORD) {
     sessionStorage.setItem('minori_auth', '1');
     showApp();
   } else {
-    document.getElementById('pw-err').textContent = 'パスワードが違います';
+    document.getElementById('pw-err').textContent = 'ãã¹ã¯ã¼ããéãã¾ã';
   }
 }
 document.getElementById('pw-input').addEventListener('keydown', e => {
@@ -564,18 +584,18 @@ function showApp() {
 }
 if (sessionStorage.getItem('minori_auth') === '1') showApp();
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  日付
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  æ¥ä»
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 function setTodayDate() {
   const t = new Date();
   document.getElementById('visit-date').value =
     `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  施設切り替え
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  æ½è¨­åãæ¿ã
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 function switchFacility(fac) {
   currentFac = fac;
   document.querySelectorAll('.fac-btn').forEach(b =>
@@ -584,26 +604,26 @@ function switchFacility(fac) {
   updatePreview();
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  患者リスト
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  æ£èãªã¹ã
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 async function loadPatients(fac) {
   const sel = document.getElementById('pt-sel');
   const loading = document.getElementById('pt-loading');
   if (patientCache[fac]) { buildPatientSelect(sel, patientCache[fac]); return; }
   loading.style.display = 'block';
   sel.style.display = 'none';
-  sel.innerHTML = '<option value="">読み込み中...</option>';
+  sel.innerHTML = '<option value="">èª­ã¿è¾¼ã¿ä¸­...</option>';
   try {
     const resp = await fetch(GAS_URLS[fac] + '?action=patients');
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     const patients = (data.patients || []).filter(p =>
-      p.name && !/^(患者氏名|患者名|氏名|名前|患者)$/.test(p.name.trim()));
+      p.name && !/^(æ£èæ°å|æ£èå|æ°å|åå|æ£è)$/.test(p.name.trim()));
     patientCache[fac] = patients;
     buildPatientSelect(sel, patients);
   } catch(e) {
-    sel.innerHTML = '<option value="">読み込みに失敗しました</option>';
+    sel.innerHTML = '<option value="">èª­ã¿è¾¼ã¿ã«å¤±æãã¾ãã</option>';
   } finally {
     loading.style.display = 'none';
     sel.style.display = 'block';
@@ -611,7 +631,7 @@ async function loadPatients(fac) {
 }
 
 function buildPatientSelect(sel, patients) {
-  sel.innerHTML = '<option value="">患者を選んでください</option>';
+  sel.innerHTML = '<option value="">æ£èãé¸ãã§ãã ãã</option>';
   patients.forEach(p => {
     const opt = document.createElement('option');
     opt.value = p.row;
@@ -623,18 +643,18 @@ function buildPatientSelect(sel, patients) {
   updatePreview();
 }
 
-// 患者選択変更時
+// æ£èé¸æå¤æ´æ
 document.getElementById('pt-sel')?.addEventListener('change', () => {
   updatePreview();
-  // リマインダーをリセット
+  // ãªãã¤ã³ãã¼ããªã»ãã
   const reminderEl = document.getElementById('measure-reminder');
   if (reminderEl) reminderEl.style.display = 'none';
   checkMeasureReminder();
 });
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  終了時刻自動計算（開始 + 20分）
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  çµäºæå»èªåè¨ç®ï¼éå§ + 20åï¼
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 function autoSetTimeTo() {
   const fromVal = document.getElementById('time-from').value;
   if (!fromVal) return;
@@ -652,7 +672,7 @@ async function selectType(type) {
   document.querySelectorAll('.type-card').forEach(c =>
     c.classList.toggle('active', c.dataset.type === type));
 
-  // 佐藤Dr + 口腔リハ の場合、同日の最後のリハ終了時刻+3分を開始時刻に自動セット
+  // ä½è¤Dr + å£èãªã ã®å ´åãåæ¥ã®æå¾ã®ãªãçµäºæå»+3åãéå§æå»ã«èªåã»ãã
   if (type === 'riha') {
     await autoSetRihaTime();
   }
@@ -662,7 +682,7 @@ async function selectType(type) {
 
 async function autoSetRihaTime() {
   const staff = getSelectedStaff();
-  if (staff !== '佐藤Dr') return; // 佐藤Dr以外はスキップ
+  if (staff !== 'ä½è¤Dr') return; // ä½è¤Drä»¥å¤ã¯ã¹ã­ãã
 
   const dateVal = document.getElementById('visit-date').value;
   if (!dateVal) return;
@@ -674,13 +694,13 @@ async function autoSetRihaTime() {
     const data = await resp.json();
     const records = (data.records || []).filter(r => {
       const c = r.content || r.raw || '';
-      return c.includes('口腔リハ') && c.includes('佐藤Dr');
+      return c.includes('å£èãªã') && c.includes('ä½è¤Dr');
     });
     if (records.length === 0) return;
 
-    // 最後のリハの終了時刻を取得
+    // æå¾ã®ãªãã®çµäºæå»ãåå¾
     const parseEnd = (c) => {
-      const m = (c.content || c.raw || '').match(/\d{1,2}:\d{2}[〜~](\d{1,2}):(\d{2})/);
+      const m = (c.content || c.raw || '').match(/\d{1,2}:\d{2}[ã~](\d{1,2}):(\d{2})/);
       if (!m) return null;
       return parseInt(m[1]) * 60 + parseInt(m[2]);
     };
@@ -688,8 +708,8 @@ async function autoSetRihaTime() {
     if (endTimes.length === 0) return;
 
     const lastEnd = Math.max(...endTimes);
-    const nextStart = lastEnd + 3; // 3分後
-    const nextEnd = nextStart + 20; // +20分
+    const nextStart = lastEnd + 3; // 3åå¾
+    const nextEnd = nextStart + 20; // +20å
 
     const toTimeStr = (min) => `${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`;
     document.getElementById('time-from').value = toTimeStr(nextStart);
@@ -710,9 +730,9 @@ function getSelectedStaff() {
   return checked ? checked.value : '';
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  プレビュー更新
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  ãã¬ãã¥ã¼æ´æ°
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 function getCheckedContents() {
   return Array.from(document.querySelectorAll('#content-checks .check-item.checked'))
     .map(el => el.dataset.value).filter(Boolean);
@@ -723,30 +743,30 @@ function updatePreview() {
   const from = document.getElementById('time-from').value;
   const to   = document.getElementById('time-to').value;
   const staff    = getSelectedStaff();
-  const typeName = currentType === 'kea' ? '口腔ケア' : '口腔リハ';
-  const timeStr  = from && to ? ` ${from}〜${to}` : '';
+  const typeName = currentType === 'kea' ? 'å£èã±ã¢' : 'å£èãªã';
+  const timeStr  = from && to ? ` ${from}ã${to}` : '';
   const contents = getCheckedContents();
-  const contentStr = contents.length > 0 ? ' ' + contents.join('・') : '';
+  const contentStr = contents.length > 0 ? ' ' + contents.join('ã»') : '';
   const staffStr = staff ? staff + ' ' : '';
 
-  // 測定値プレビュー
+  // æ¸¬å®å¤ãã¬ãã¥ã¼
   const tongueCheck = document.getElementById('tongue-check')?.checked;
   const dryCheck    = document.getElementById('dry-check')?.checked;
   const tongueVal   = document.getElementById('tongue-val')?.value;
   const dryVal      = document.getElementById('dry-val')?.value;
   const measureParts = [];
-  if (tongueCheck && tongueVal) measureParts.push(`舌圧:${tongueVal}kPa`);
-  if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
-  const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
+  if (tongueCheck && tongueVal) measureParts.push(`èå§:${tongueVal}kPa`);
+  if (dryCheck    && dryVal)    measureParts.push(`ã ã¼ã«ã¹:${dryVal}`);
+  const measureStr = measureParts.length ? ' ï¼' + measureParts.join(' ') : '';
   const memoVal = document.getElementById('memo')?.value.trim() || '';
-  const memoStr = memoVal ? ` ／備考:${memoVal.replace(/\n/g,' ')}` : '';
+  const memoStr = memoVal ? ` ï¼åè:${memoVal.replace(/\n/g,' ')}` : '';
   const preview = `${staffStr}${typeName}${timeStr}${contentStr}${measureStr}${memoStr}`;
-  document.getElementById('preview-box').textContent = sel.value ? preview : '患者を選択してください';
+  document.getElementById('preview-box').textContent = sel.value ? preview : 'æ£èãé¸æãã¦ãã ãã';
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  測定値リマインド（患者選択時）
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  æ¸¬å®å¤ãªãã¤ã³ãï¼æ£èé¸ææï¼
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 async function checkMeasureReminder() {
   const sel = document.getElementById('pt-sel');
   if (!sel.value) return;
@@ -758,8 +778,8 @@ async function checkMeasureReminder() {
     const data = await resp.json();
     const measures = data.measures || [];
     const rec = measures.find(m => String(m.id).trim() === String(ptId).trim());
-    if (!rec) return; // 過去記録なし → リマインド不要
-    // 最後の測定日を確認（舌圧・ムーカスのどちらか新しい方）
+    if (!rec) return; // éå»è¨é²ãªã â ãªãã¤ã³ãä¸è¦
+    // æå¾ã®æ¸¬å®æ¥ãç¢ºèªï¼èå§ã»ã ã¼ã«ã¹ã®ã©ã¡ããæ°ããæ¹ï¼
     const parseDate = (s) => {
       if (!s) return null;
       let m = String(s).match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
@@ -777,7 +797,7 @@ async function checkMeasureReminder() {
     if (diffDays >= 90) {
       const reminderEl = document.getElementById('measure-reminder');
       if (reminderEl) {
-        reminderEl.textContent = `⚠️ ${ptName}：前回測定から${diffDays}日経過しています（舌圧・ムーカスの測定をご確認ください）`;
+        reminderEl.textContent = `â ï¸ ${ptName}ï¼ååæ¸¬å®ãã${diffDays}æ¥çµéãã¦ãã¾ãï¼èå§ã»ã ã¼ã«ã¹ã®æ¸¬å®ããç¢ºèªãã ããï¼`;
         reminderEl.style.display = 'block';
       }
     } else {
@@ -787,13 +807,13 @@ async function checkMeasureReminder() {
   } catch(e) {}
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  同日重複チェック（種別重複 + 時間重複）
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  åæ¥éè¤ãã§ãã¯ï¼ç¨®å¥éè¤ + æééè¤ï¼
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 function parseTimeRange(timeStr) {
-  // 例: "10:00〜10:20" → {start: 600, end: 620} (分単位)
+  // ä¾: "10:00ã10:20" â {start: 600, end: 620} (ååä½)
   if (!timeStr) return null;
-  const m = timeStr.match(/(\d{1,2}):(\d{2})[〜~](\d{1,2}):(\d{2})/);
+  const m = timeStr.match(/(\d{1,2}):(\d{2})[ã~](\d{1,2}):(\d{2})/);
   if (!m) return null;
   return {
     start: parseInt(m[1]) * 60 + parseInt(m[2]),
@@ -815,17 +835,17 @@ async function checkDuplicate(patientName, dateStr, type, newTimeStr) {
     const records = (data.records || []).map(parseContentFront);
     const same = records.filter(r => r.name === patientName);
 
-    // 同種別の重複チェック
-    if (type === 'kea' && same.some(r => r.type === '口腔ケア')) return '同日に口腔ケアが既に記録されています';
-    if (type === 'riha' && same.some(r => r.type === '口腔リハ')) return '同日に口腔リハが既に記録されています';
+    // åç¨®å¥ã®éè¤ãã§ãã¯
+    if (type === 'kea' && same.some(r => r.type === 'å£èã±ã¢')) return 'åæ¥ã«å£èã±ã¢ãæ¢ã«è¨é²ããã¦ãã¾ã';
+    if (type === 'riha' && same.some(r => r.type === 'å£èãªã')) return 'åæ¥ã«å£èãªããæ¢ã«è¨é²ããã¦ãã¾ã';
 
-    // 時間重複チェック
+    // æééè¤ãã§ãã¯
     const newRange = parseTimeRange(newTimeStr);
     if (newRange) {
       for (const r of same) {
         const existRange = parseTimeRange(r.timeStr);
         if (isTimeOverlap(newRange, existRange)) {
-          return `時間が重複しています（既存: ${r.type} ${r.timeStr}）`;
+          return `æéãéè¤ãã¦ãã¾ãï¼æ¢å­: ${r.type} ${r.timeStr}ï¼`;
         }
       }
     }
@@ -833,53 +853,53 @@ async function checkDuplicate(patientName, dateStr, type, newTimeStr) {
   } catch(e) { return null; }
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  保存
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  ä¿å­
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 async function saveRecord() {
   const sel  = document.getElementById('pt-sel');
   const row  = sel.value;
-  if (!row) { alert('患者を選択してください'); return; }
+  if (!row) { alert('æ£èãé¸æãã¦ãã ãã'); return; }
   const dateVal = document.getElementById('visit-date').value;
-  if (!dateVal) { alert('訪問日を入力してください'); return; }
+  if (!dateVal) { alert('è¨ªåæ¥ãå¥åãã¦ãã ãã'); return; }
 
-  // 同日重複チェック（種別 + 時間）
+  // åæ¥éè¤ãã§ãã¯ï¼ç¨®å¥ + æéï¼
   const ptName = sel.options[sel.selectedIndex]?.dataset.name || '';
   const fromTime = document.getElementById('time-from').value;
   const toTime   = document.getElementById('time-to').value;
-  const newTimeStr = fromTime && toTime ? `${fromTime}〜${toTime}` : '';
+  const newTimeStr = fromTime && toTime ? `${fromTime}ã${toTime}` : '';
   const dupErr = await checkDuplicate(ptName, dateVal, currentType, newTimeStr);
-  if (dupErr) { alert('⚠️ ' + dupErr); return; }
+  if (dupErr) { alert('â ï¸ ' + dupErr); return; }
 
   const btn = document.getElementById('save-btn');
   const msg = document.getElementById('save-msg');
   btn.disabled = true;
-  btn.textContent = '保存中...';
+  btn.textContent = 'ä¿å­ä¸­...';
   msg.textContent = '';
   msg.className = '';
 
   try {
     const from = document.getElementById('time-from').value;
     const to   = document.getElementById('time-to').value;
-    const timeStr    = from && to ? `${from}〜${to}` : '';
+    const timeStr    = from && to ? `${from}ã${to}` : '';
     const contents   = getCheckedContents();
     const staff      = getSelectedStaff();
 
-    // 測定値をcontentStrに追記
+    // æ¸¬å®å¤ãcontentStrã«è¿½è¨
     const tongueCheck = document.getElementById('tongue-check').checked;
     const dryCheck    = document.getElementById('dry-check').checked;
     const tongueVal   = document.getElementById('tongue-val').value;
     const dryVal      = document.getElementById('dry-val').value;
     const measureParts = [];
-    if (tongueCheck && tongueVal) measureParts.push(`舌圧:${tongueVal}kPa`);
-    if (dryCheck    && dryVal)    measureParts.push(`ムーカス:${dryVal}`);
-    const measureStr = measureParts.length ? ' ／' + measureParts.join(' ') : '';
+    if (tongueCheck && tongueVal) measureParts.push(`èå§:${tongueVal}kPa`);
+    if (dryCheck    && dryVal)    measureParts.push(`ã ã¼ã«ã¹:${dryVal}`);
+    const measureStr = measureParts.length ? ' ï¼' + measureParts.join(' ') : '';
 
-    // 備考を追記（改行はスペースに置換）
+    // åèãè¿½è¨ï¼æ¹è¡ã¯ã¹ãã¼ã¹ã«ç½®æï¼
     const memoVal = document.getElementById('memo').value.trim().replace(/\n/g, ' ');
-    const memoStr = memoVal ? ` ／備考:${memoVal}` : '';
+    const memoStr = memoVal ? ` ï¼åè:${memoVal}` : '';
 
-    const contentStr = contents.join('・') + measureStr;
+    const contentStr = contents.join('ã»') + measureStr;
 
     const params = new URLSearchParams({
       action:       'write',
@@ -895,19 +915,19 @@ async function saveRecord() {
     const resp = await fetch(GAS_URLS[currentFac] + '?' + params.toString());
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
-    msg.textContent = `✅ 保存しました（${data.wrote}）`;
+    msg.textContent = `â ä¿å­ãã¾ããï¼${data.wrote}ï¼`;
     msg.className = 'ok';
 
-    // 測定記録シートにも保存
+    // æ¸¬å®è¨é²ã·ã¼ãã«ãä¿å­
     const ptId   = sel.options[sel.selectedIndex]?.dataset.id || '';
     if (tongueCheck && tongueVal) await saveMeasure(ptId, ptName, 'tongue', tongueVal);
     if (dryCheck    && dryVal)    await saveMeasure(ptId, ptName, 'dry',    dryVal);
   } catch(e) {
-    msg.textContent = '❌ エラー: ' + e.message;
+    msg.textContent = 'â ã¨ã©ã¼: ' + e.message;
     msg.className = 'err';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'スプレッドシートに保存';
+    btn.textContent = 'ã¹ãã¬ããã·ã¼ãã«ä¿å­';
   }
 }
 
@@ -916,9 +936,9 @@ async function saveMeasure(id, name, type, value) {
   await fetch(GAS_URLS[currentFac] + '?' + params.toString());
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  算定確認（月間）
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  ç®å®ç¢ºèªï¼æéï¼
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 let _santelLoading = false;
 async function loadSantel() {
   if (_santelLoading) return;
@@ -954,7 +974,7 @@ async function loadSantel() {
     loading.style.display = 'none';
     table.style.display   = '';
   } catch(e) {
-    loading.textContent = '読み込み失敗: ' + e.message;
+    loading.textContent = 'èª­ã¿è¾¼ã¿å¤±æ: ' + e.message;
   } finally {
     _santelLoading = false;
   }
@@ -976,7 +996,7 @@ async function loadMeasureTargets(fac, year, month) {
     loadingEl.style.display = 'none';
     bodyEl.style.display = '';
   } catch(e) {
-    loadingEl.textContent = '読み込み失敗: ' + e.message;
+    loadingEl.textContent = 'èª­ã¿è¾¼ã¿å¤±æ: ' + e.message;
   }
 }
 
@@ -992,13 +1012,13 @@ function renderTargetList(key, list) {
   list.forEach(p => {
     const isOver = p.gapNum === null || p.gapNum >= 3;
     const tr = document.createElement('tr');
-    const lastDateText = p.lastDate ? '前回: ' + p.lastDate : '未測定';
+    const lastDateText = p.lastDate ? 'åå: ' + p.lastDate : 'æªæ¸¬å®';
     const nameStyle = isOver ? 'font-weight:600;color:#c62828;' : 'font-weight:600;';
     const dateStyle = isOver
       ? 'font-size:12px;color:#c62828;white-space:nowrap;'
       : 'font-size:12px;color:var(--gray);white-space:nowrap;';
     const badgeHtml = isOver
-      ? `<span style="background:#fdeaea;color:#c62828;font-weight:700;border-radius:5px;padding:3px 9px;font-size:12px;">⚠ ${p.gap}</span>`
+      ? `<span style="background:#fdeaea;color:#c62828;font-weight:700;border-radius:5px;padding:3px 9px;font-size:12px;">â  ${p.gap}</span>`
       : '';
     tr.innerHTML = `<td style="${nameStyle}">${p.name}</td>
       <td style="${dateStyle}">${lastDateText}</td>
@@ -1007,40 +1027,40 @@ function renderTargetList(key, list) {
   });
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  contentパース（フロント側・旧形式対応）
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  contentãã¼ã¹ï¼ãã­ã³ãå´ã»æ§å½¢å¼å¯¾å¿ï¼
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 function parseContentFront(r) {
-  // GASがすでに構造化して返している場合はそのまま使う
+  // GASããã§ã«æ§é åãã¦è¿ãã¦ããå ´åã¯ãã®ã¾ã¾ä½¿ã
   if (r.type) return r;
-  // 旧形式: contentのみの場合はフロントでパース
-  const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
+  // æ§å½¢å¼: contentã®ã¿ã®å ´åã¯ãã­ã³ãã§ãã¼ã¹
+  const STAFF_LIST = ['ä½è¤Dr','åé²DH','åå²¡DH','æ«åDH','é«æ¢¨DH','å¤éªDH'];
   let staff = '', rest = (r.content || r.raw || '').trim();
   for (const s of STAFF_LIST) {
     if (rest.startsWith(s + ' ') || rest === s) { staff = s; rest = rest.slice(s.length).trim(); break; }
   }
   let type = '';
-  if (rest.startsWith('口腔ケア'))      { type = '口腔ケア'; rest = rest.slice(4).trim(); }
-  else if (rest.startsWith('口腔リハ')) { type = '口腔リハ'; rest = rest.slice(4).trim(); }
+  if (rest.startsWith('å£èã±ã¢'))      { type = 'å£èã±ã¢'; rest = rest.slice(4).trim(); }
+  else if (rest.startsWith('å£èãªã')) { type = 'å£èãªã'; rest = rest.slice(4).trim(); }
   let timeStr = '';
-  const tm = rest.match(/^(\d{1,2}:\d{2}[〜~]\d{1,2}:\d{2})/);
+  const tm = rest.match(/^(\d{1,2}:\d{2}[ã~]\d{1,2}:\d{2})/);
   if (tm) { timeStr = tm[1]; rest = rest.slice(timeStr.length).trim(); }
-  const contents = rest ? rest.split('・').filter(Boolean) : [];
+  const contents = rest ? rest.split('ã»').filter(Boolean) : [];
 
-  // 備考を抽出（最後の実施内容から ／備考:〇〇 を分離）
+  // åèãæ½åºï¼æå¾ã®å®æ½åå®¹ãã ï¼åè:ãã ãåé¢ï¼
   let memo = '';
   if (contents.length > 0) {
     const last = contents[contents.length - 1];
-    const memoMatch = last.match(/^(.*)／備考:(.+)$/);
+    const memoMatch = last.match(/^(.*)ï¼åè:(.+)$/);
     if (memoMatch) {
       contents[contents.length - 1] = memoMatch[1].trim();
       memo = memoMatch[2].trim();
       if (!contents[contents.length - 1]) contents.pop();
     }
   }
-  // rawから直接備考を抽出（contents処理前の場合も）
+  // rawããç´æ¥åèãæ½åºï¼contentså¦çåã®å ´åãï¼
   if (!memo) {
-    const rawMemo = (r.content || r.raw || '').match(/／備考:(.+?)($|／)/);
+    const rawMemo = (r.content || r.raw || '').match(/ï¼åè:(.+?)($|ï¼)/);
     if (rawMemo) memo = rawMemo[1].trim();
   }
 
@@ -1056,12 +1076,12 @@ function timeToMin(t) {
 
 async function fetchCsvPreview() {
   const dateInput = document.getElementById('csv-date').value;
-  if (!dateInput) { alert('日付を選択してください'); return; }
+  if (!dateInput) { alert('æ¥ä»ãé¸æãã¦ãã ãã'); return; }
   const fac = document.getElementById('santel-fac-sel').value;
   const [yyyy, mm, dd] = dateInput.split('-');
   const dateStr = `${parseInt(mm)}/${parseInt(dd)}`;
   const btn = document.getElementById('csv-fetch-btn');
-  btn.textContent = '取得中...'; btn.disabled = true;
+  btn.textContent = 'åå¾ä¸­...'; btn.disabled = true;
   document.getElementById('csv-preview').style.display = 'none';
   document.getElementById('csv-empty').style.display   = 'none';
   try {
@@ -1071,36 +1091,36 @@ async function fetchCsvPreview() {
     const records = (data.records || [])
       .filter(r => {
         const raw = r.content || r.raw || '';
-        return raw.trim() !== ''; // 空・削除済みを除外
+        return raw.trim() !== ''; // ç©ºã»åé¤æ¸ã¿ãé¤å¤
       })
       .map(parseContentFront)
-      .filter(r => r.type); // 種別不明（口腔ケア・口腔リハ以外）も除外
+      .filter(r => r.type); // ç¨®å¥ä¸æï¼å£èã±ã¢ã»å£èãªãä»¥å¤ï¼ãé¤å¤
     csvRecords = records; csvDateStr = dateInput; csvFac = fac;
     if (records.length === 0) { document.getElementById('csv-empty').style.display = 'block'; return; }
     renderStaffBlocks(records);
     document.getElementById('csv-preview').style.display = 'block';
   } catch(e) {
-    alert('エラー: ' + e.message);
+    alert('ã¨ã©ã¼: ' + e.message);
   } finally {
-    btn.textContent = '📋 取得'; btn.disabled = false;
+    btn.textContent = 'ð åå¾'; btn.disabled = false;
   }
 }
 
-// 担当者別ブロックをレンダリング
+// æå½èå¥ãã­ãã¯ãã¬ã³ããªã³ã°
 function renderStaffBlocks(records) {
-  const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
+  const STAFF_ORDER = ['ä½è¤Dr','åé²DH','åå²¡DH','æ«åDH','é«æ¢¨DH','å¤éªDH'];
   const wrap = document.getElementById('staff-blocks-wrap');
   wrap.innerHTML = '';
 
-  // 担当者ごとにグループ化
+  // æå½èãã¨ã«ã°ã«ã¼ãå
   const groups = {};
   records.forEach(r => {
-    const key = r.staff || '（担当者未記録）';
+    const key = r.staff || 'ï¼æå½èæªè¨é²ï¼';
     if (!groups[key]) groups[key] = [];
     groups[key].push(r);
   });
 
-  // 表示順：既知の担当者 → 未記録
+  // è¡¨ç¤ºé ï¼æ¢ç¥ã®æå½è â æªè¨é²
   const orderedKeys = [
     ...STAFF_ORDER.filter(s => groups[s]),
     ...Object.keys(groups).filter(k => !STAFF_ORDER.includes(k))
@@ -1109,12 +1129,12 @@ function renderStaffBlocks(records) {
   orderedKeys.forEach(staffName => {
     const recs = groups[staffName].slice().sort((a,b) => timeToMin(a.timeStr) - timeToMin(b.timeStr));
     const rows = recs.map(r => {
-      const badge = r.type === '口腔ケア'
-        ? '<span class="badge-kea">口腔ケア</span>'
-        : r.type === '口腔リハ' ? '<span class="badge-riha">口腔リハ</span>' : r.type || '';
-      const cont = r.contents && r.contents.length ? r.contents.join('・') : (r.raw || '');
+      const badge = r.type === 'å£èã±ã¢'
+        ? '<span class="badge-kea">å£èã±ã¢</span>'
+        : r.type === 'å£èãªã' ? '<span class="badge-riha">å£èãªã</span>' : r.type || '';
+      const cont = r.contents && r.contents.length ? r.contents.join('ã»') : (r.raw || '');
       return `<tr>
-        <td>${r.timeStr || '—'}</td>
+        <td>${r.timeStr || 'â'}</td>
         <td>${r.name}</td>
         <td>${badge}</td>
         <td>${cont}</td>
@@ -1124,12 +1144,12 @@ function renderStaffBlocks(records) {
     wrap.innerHTML += `
       <div class="staff-block">
         <div class="staff-block-title">
-          👤 ${staffName}
-          <span>${recs.length}件</span>
+          ð¤ ${staffName}
+          <span>${recs.length}ä»¶</span>
         </div>
         <div style="overflow-x:auto">
           <table class="csv-table">
-            <thead><tr><th>時間</th><th>患者名</th><th>種別</th><th>実施内容</th></tr></thead>
+            <thead><tr><th>æé</th><th>æ£èå</th><th>ç¨®å¥</th><th>å®æ½åå®¹</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
         </div>
@@ -1138,14 +1158,14 @@ function renderStaffBlocks(records) {
 }
 
 function downloadCSV() {
-  if (!csvRecords.length) { alert('データがありません'); return; }
-  const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
+  if (!csvRecords.length) { alert('ãã¼ã¿ãããã¾ãã'); return; }
+  const STAFF_ORDER = ['ä½è¤Dr','åé²DH','åå²¡DH','æ«åDH','é«æ¢¨DH','å¤éªDH'];
   const facName = FAC_CONFIG[csvFac].name;
 
-  // 担当者別・時系列でグループ化
+  // æå½èå¥ã»æç³»åã§ã°ã«ã¼ãå
   const groups = {};
   csvRecords.forEach(r => {
-    const key = r.staff || '（担当者未記録）';
+    const key = r.staff || 'ï¼æå½èæªè¨é²ï¼';
     if (!groups[key]) groups[key] = [];
     groups[key].push(r);
   });
@@ -1158,39 +1178,39 @@ function downloadCSV() {
   const rows = [];
 
   orderedKeys.forEach(staffName => {
-    // 担当者ヘッダー行
-    rows.push([`【${staffName}】`, '', '', '', '', '', '']);
-    rows.push(['時間', '患者名', '種別', '実施内容', '施設', '日付', '担当者']);
+    // æå½èãããã¼è¡
+    rows.push([`ã${staffName}ã`, '', '', '', '', '', '']);
+    rows.push(['æé', 'æ£èå', 'ç¨®å¥', 'å®æ½åå®¹', 'æ½è¨­', 'æ¥ä»', 'æå½è']);
     const recs = groups[staffName].slice().sort((a,b) => timeToMin(a.timeStr) - timeToMin(b.timeStr));
     recs.forEach(r => {
-      const cont = r.contents && r.contents.length ? r.contents.join('・') : (r.raw || '');
+      const cont = r.contents && r.contents.length ? r.contents.join('ã»') : (r.raw || '');
       rows.push([r.timeStr || '', r.name, r.type || '', cont, facName, csvDateStr, staffName]);
     });
-    rows.push(['', '', '', '', '', '', '']); // 空行で区切り
+    rows.push(['', '', '', '', '', '', '']); // ç©ºè¡ã§åºåã
   });
 
   const csv  = rows.map(r => r.map(q).join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   link.href     = URL.createObjectURL(blob);
-  link.download = `みのり歯科_${facName}_${csvDateStr}.csv`;
+  link.download = `ã¿ã®ãæ­¯ç§_${facName}_${csvDateStr}.csv`;
   link.click();
   URL.revokeObjectURL(link.href);
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  月次CSVダウンロード
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  ææ¬¡CSVãã¦ã³ã­ã¼ã
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 async function downloadMonthlyCSV() {
   const monthInput = document.getElementById('csv-month');
-  if (!monthInput || !monthInput.value) { alert('年月を選択してください'); return; }
+  if (!monthInput || !monthInput.value) { alert('å¹´æãé¸æãã¦ãã ãã'); return; }
   const fac = document.getElementById('santel-fac-sel').value || 'izumi';
   const [year, month] = monthInput.value.split('-').map(Number);
   const daysInMonth = new Date(year, month, 0).getDate();
 
   const btn = document.querySelector('[onclick="downloadMonthlyCSV()"]');
   const origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = '取得中...'; btn.disabled = true; }
+  if (btn) { btn.textContent = 'åå¾ä¸­...'; btn.disabled = true; }
 
   try {
     const promises = [];
@@ -1210,7 +1230,7 @@ async function downloadMonthlyCSV() {
       (data.records || []).forEach(r => allRecords.push({ ...r, date: dateLabel }));
     });
 
-    if (!allRecords.length) { alert('この月の記録はありません'); return; }
+    if (!allRecords.length) { alert('ãã®æã®è¨é²ã¯ããã¾ãã'); return; }
 
     const facName = FAC_CONFIG[fac].name;
     const q = v => `"${String(v||'').replace(/"/g,'""')}"`;
@@ -1222,9 +1242,9 @@ async function downloadMonthlyCSV() {
       return timeToMin(a.timeStr) - timeToMin(b.timeStr);
     });
 
-    const rows = [['日付', '時間', '患者名', '種別', '実施内容', '施設', '担当者']];
+    const rows = [['æ¥ä»', 'æé', 'æ£èå', 'ç¨®å¥', 'å®æ½åå®¹', 'æ½è¨­', 'æå½è']];
     allRecords.forEach(r => {
-      const cont = r.contents && r.contents.length ? r.contents.join('・') : (r.raw || '');
+      const cont = r.contents && r.contents.length ? r.contents.join('ã»') : (r.raw || '');
       rows.push([r.date, r.timeStr||'', r.name, r.type||'', cont, facName, r.staff||'']);
     });
 
@@ -1232,7 +1252,7 @@ async function downloadMonthlyCSV() {
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `みのり歯科_${facName}_${year}年${month}月.csv`;
+    link.download = `ã¿ã®ãæ­¯ç§_${facName}_${year}å¹´${month}æ.csv`;
     link.click();
     URL.revokeObjectURL(link.href);
   } finally {
@@ -1240,9 +1260,9 @@ async function downloadMonthlyCSV() {
   }
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  タブ切り替え
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  ã¿ãåãæ¿ã
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 function showTab(tab) {
   document.getElementById('input-tab').style.display    = tab === 'input'    ? 'block' : 'none';
   document.getElementById('santel-tab').style.display   = tab === 'santel'   ? 'block' : 'none';
@@ -1254,7 +1274,7 @@ function showTab(tab) {
   document.getElementById('tab-calendar').classList.toggle('active', tab === 'calendar');
   if (tab === 'santel') loadSantel();
   if (tab === 'report') {
-    // 日報の日付を今日にデフォルト設定
+    // æ¥å ±ã®æ¥ä»ãä»æ¥ã«ããã©ã«ãè¨­å®
     const d = document.getElementById('report-date');
     if (d && !d.value) {
       const t = new Date();
@@ -1264,9 +1284,9 @@ function showTab(tab) {
   if (tab === 'calendar') loadCalendar();
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  訪問カレンダー
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  è¨ªåã«ã¬ã³ãã¼
+// âââââââââââââââââââââââââââââââââââââââââââââââ
 async function loadCalendar() {
   const monthInput = document.getElementById('cal-month-sel');
   if (!monthInput.value) {
@@ -1285,7 +1305,7 @@ async function loadCalendar() {
 
   try {
     const facs = ['izumi', 'nagaiki', 'ichimiya'];
-    const facLabels = {izumi: 'いすみ苑', nagaiki: '長生き邑', ichimiya: '一宮喜楽園'};
+    const facLabels = {izumi: 'ããã¿è', nagaiki: 'é·çãé', ichimiya: 'ä¸å®®åæ¥½å'};
     const qs = '?action=calendar&year=' + yy + '&month=' + mm;
 
     const results = await Promise.all(
@@ -1334,16 +1354,127 @@ async function loadCalendar() {
     loading.style.display = 'none';
     gridWrap.style.display = '';
   } catch (e) {
-    loading.textContent = '読み込み失敗: ' + e.message;
+    loading.textContent = 'èª­ã¿è¾¼ã¿å¤±æ: ' + e.message;
   }
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  日報表示
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+//  æ¥å ±è¡¨ç¤º
+// âââââââââââââââââââââââââââââââââââââââââââââââ
+// ===== è¨é²ç·¨éæ©è½ =====
+let _editCtx = null;
+let _reportData = [];
+
+function openEditModal(idx) {
+  _editCtx = _reportData[idx];
+  if (!_editCtx) return;
+  const r = _editCtx.r;
+
+  // æå½è
+  document.querySelectorAll('.edit-staff-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.staff === r.staff));
+
+  // ç¨®å¥
+  const typeVal = (r.type === 'å£èãªã') ? 'riha' : 'kea';
+  document.querySelectorAll('.edit-type-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.type === typeVal));
+
+  // æé
+  const tm = r.timeStr ? r.timeStr.match(/(\d{1,2}):(\d{2})[ã~](\d{1,2}):(\d{2})/) : null;
+  if (tm) {
+    document.getElementById('edit-time-from').value = tm[1].padStart(2,'0') + ':' + tm[2];
+    document.getElementById('edit-time-to').value   = tm[3].padStart(2,'0') + ':' + tm[4];
+  } else {
+    document.getElementById('edit-time-from').value = '10:00';
+    document.getElementById('edit-time-to').value   = '10:20';
+  }
+
+  // å®æ½åå®¹
+  const currentContents = new Set(r.contents || []);
+  document.querySelectorAll('#edit-content-checks .edit-check-item').forEach(el =>
+    el.classList.toggle('checked', currentContents.has(el.dataset.value)));
+
+  // åè
+  document.getElementById('edit-memo').value = r.memo || '';
+
+  document.getElementById('edit-modal').style.display = 'block';
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').style.display = 'none';
+  _editCtx = null;
+}
+
+function editSelectStaff(btn) {
+  document.querySelectorAll('.edit-staff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function editSelectType(btn) {
+  document.querySelectorAll('.edit-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function saveEditRecord() {
+  const ctx = _editCtx;
+  if (!ctx) return;
+
+  const staff      = document.querySelector('.edit-staff-btn.active')?.dataset.staff || '';
+  const typeBtn    = document.querySelector('.edit-type-btn.active');
+  const type       = typeBtn?.dataset.type || 'kea';
+  const timeFrom   = document.getElementById('edit-time-from').value;
+  const timeTo     = document.getElementById('edit-time-to').value;
+  const timeStr    = (timeFrom && timeTo) ? timeFrom + 'ã' + timeTo : '';
+  const contents   = Array.from(document.querySelectorAll('#edit-content-checks .edit-check-item.checked'))
+                         .map(el => el.dataset.value);
+  const contentStr = contents.join('ã»');
+  const memo       = document.getElementById('edit-memo').value.trim();
+
+  const params = new URLSearchParams({
+    action: 'updateRecord',
+    patientName: ctx.patientName,
+    visitDate:   ctx.dateStr,
+    oldRaw:      ctx.r.raw,
+    staff, type, timeStr, contentStr, memo
+  });
+
+  try {
+    const resp = await fetch(GAS_URLS[ctx.fac] + '?' + params.toString());
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    closeEditModal();
+    await loadReport();
+  } catch(e) {
+    alert('ä¿å­ã¨ã©ã¼: ' + e.message);
+  }
+}
+
+async function deleteRecordFromModal() {
+  const ctx = _editCtx;
+  if (!ctx) return;
+  if (!confirm('ã' + ctx.patientName + 'ãã®è¨é²ãåé¤ãã¾ããï¼')) return;
+
+  const params = new URLSearchParams({
+    action: 'deleteRecord',
+    patientName: ctx.patientName,
+    visitDate:   ctx.dateStr,
+    rawText:     ctx.r.raw
+  });
+
+  try {
+    const resp = await fetch(GAS_URLS[ctx.fac] + '?' + params.toString());
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    closeEditModal();
+    await loadReport();
+  } catch(e) {
+    alert('åé¤ã¨ã©ã¼: ' + e.message);
+  }
+}
+
 async function loadReport() {
   const dateInput = document.getElementById('report-date').value;
-  if (!dateInput) { alert('日付を選択してください'); return; }
+  if (!dateInput) { alert('æ¥ä»ãé¸æãã¦ãã ãã'); return; }
   const fac = document.getElementById('report-fac-sel').value;
   const [yyyy, mm, dd] = dateInput.split('-');
   const dateStr = `${parseInt(mm)}/${parseInt(dd)}`;
@@ -1368,15 +1499,15 @@ async function loadReport() {
       return;
     }
 
-    // ヘッダー
-    document.getElementById('report-title').textContent    = `${facName}　日報`;
-    document.getElementById('report-subtitle').textContent = `${yyyy}年${parseInt(mm)}月${parseInt(dd)}日　計${records.length}名`;
+    // ãããã¼
+    document.getElementById('report-title').textContent    = `${facName}ãæ¥å ±`;
+    document.getElementById('report-subtitle').textContent = `${yyyy}å¹´${parseInt(mm)}æ${parseInt(dd)}æ¥ãè¨${records.length}å`;
 
-    // 担当者別・時間順でレンダリング
-    const STAFF_ORDER = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
+    // æå½èå¥ã»æéé ã§ã¬ã³ããªã³ã°
+    const STAFF_ORDER = ['ä½è¤Dr','åé²DH','åå²¡DH','æ«åDH','é«æ¢¨DH','å¤éªDH'];
     const groups = {};
     records.forEach(r => {
-      const key = r.staff || '（担当者未記録）';
+      const key = r.staff || 'ï¼æå½èæªè¨é²ï¼';
       if (!groups[key]) groups[key] = [];
       groups[key].push(r);
     });
@@ -1387,69 +1518,75 @@ async function loadReport() {
 
     const wrap = document.getElementById('report-staff-blocks');
     wrap.innerHTML = '';
+    _reportData = [];
     orderedKeys.forEach(staffName => {
       const recs = groups[staffName].slice().sort((a,b) => timeToMin(a.timeStr) - timeToMin(b.timeStr));
-      const isDr = staffName === '佐藤Dr';
+      const isDr = staffName === 'ä½è¤Dr';
 
       const rows = recs.map((r, idx) => {
-        // ⑤ 1行おきに背景色
+        // ç·¨éãã¿ã³ç¨ã«ãã¼ã¿ãç»é²
+        const dataIdx = _reportData.length;
+        _reportData.push({ fac, dateStr, patientName: r.name, r });
+        const editBtn = `<button class="edit-record-btn" onclick="openEditModal(${dataIdx})">âï¸</button>`;
+
+        // â¤ 1è¡ããã«èæ¯è²
         const rowBg = idx % 2 === 0 ? '#ffffff' : '#f0f7f4';
 
-        // ② 患者番号と名前を分離
+        // â¡ æ£èçªå·ã¨ååãåé¢
         const nameMatch = r.name.match(/^(\d+)\s+(.+)$/);
         const patNum   = nameMatch ? nameMatch[1] : '';
         const nameText = nameMatch ? nameMatch[2] : r.name;
         const cpPatId  = 'cpp' + Math.random().toString(36).slice(2, 8);
-        const numHtml  = patNum ? `<span style="font-size:11px;color:#4a9b7f;font-weight:700;margin-right:2px;">${patNum}</span><button id="${cpPatId}" onclick="navigator.clipboard.writeText('${patNum}').then(()=>{const b=document.getElementById('${cpPatId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-right:5px;padding:1px 4px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
+        const numHtml  = patNum ? `<span style="font-size:11px;color:#4a9b7f;font-weight:700;margin-right:2px;">${patNum}</span><button id="${cpPatId}" onclick="navigator.clipboard.writeText('${patNum}').then(()=>{const b=document.getElementById('${cpPatId}');b.textContent='â';setTimeout(()=>b.textContent='ð',1500)})" style="margin-right:5px;padding:1px 4px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">ð</button>` : '';
 
-        const rawCont = r.contents && r.contents.length ? r.contents.join('・') : '';
+        const rawCont = r.contents && r.contents.length ? r.contents.join('ã»') : '';
 
-        // 測定値を抽出して別表示
-        const tongueMatch = rawCont.match(/舌圧:([\d.]+)kPa/);
-        const dryMatch    = rawCont.match(/ムーカス:([\d.]+)/);
+        // æ¸¬å®å¤ãæ½åºãã¦å¥è¡¨ç¤º
+        const tongueMatch = rawCont.match(/èå§:([\d.]+)kPa/);
+        const dryMatch    = rawCont.match(/ã ã¼ã«ã¹:([\d.]+)/);
         const measureHtml = [
-          tongueMatch ? `<span style="background:#e8f5f0;color:#2e7d5e;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">舌圧 ${tongueMatch[1]}kPa</span>` : '',
-          dryMatch    ? `<span style="background:#fdf0ec;color:#c0613a;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">ムーカス ${dryMatch[1]}</span>` : ''
+          tongueMatch ? `<span style="background:#e8f5f0;color:#2e7d5e;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">èå§ ${tongueMatch[1]}kPa</span>` : '',
+          dryMatch    ? `<span style="background:#fdf0ec;color:#c0613a;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">ã ã¼ã«ã¹ ${dryMatch[1]}</span>` : ''
         ].filter(Boolean).join('');
         const measureLine = measureHtml ? `<div style="margin-top:3px;">${measureHtml}</div>` : '';
 
-        // 測定値部分を除いた実施内容
-        const cont = rawCont.replace(/\s*／?(舌圧:[\d.]+kPa|ムーカス:[\d.]+)/g, '').replace(/\s*／\s*$/, '').trim();
-        const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">📝 ${r.memo}</div>` : '';
+        // æ¸¬å®å¤é¨åãé¤ããå®æ½åå®¹
+        const cont = rawCont.replace(/\s*ï¼?(èå§:[\d.]+kPa|ã ã¼ã«ã¹:[\d.]+)/g, '').replace(/\s*ï¼\s*$/, '').trim();
+        const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">ð ${r.memo}</div>` : '';
 
-        // 患者番号＋時間コピーボタン
+        // æ£èçªå·ï¼æéã³ãã¼ãã¿ã³
 
 
-        // ③ コピーボタン（実施内容用）
+        // â¢ ã³ãã¼ãã¿ã³ï¼å®æ½åå®¹ç¨ï¼
         const copyId  = 'cp' + Math.random().toString(36).slice(2, 8);
-        const copyTxt = (cont + (r.memo ? ' 備考:' + r.memo : '')).replace(/'/g, "\\'");
-        const copyBtn = cont ? `<button id="${copyId}" onclick="navigator.clipboard.writeText('${copyTxt}').then(()=>{const b=document.getElementById('${copyId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-left:6px;padding:2px 6px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
+        const copyTxt = (cont + (r.memo ? ' åè:' + r.memo : '')).replace(/'/g, "\\'");
+        const copyBtn = cont ? `<button id="${copyId}" onclick="navigator.clipboard.writeText('${copyTxt}').then(()=>{const b=document.getElementById('${copyId}');b.textContent='â';setTimeout(()=>b.textContent='ð',1500)})" style="margin-left:6px;padding:2px 6px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">ð</button>` : '';
 
         if (isDr) {
-          // Dr：時間・患者名・実施内容（④種別列削除）
+          // Drï¼æéã»æ£èåã»å®æ½åå®¹ï¼â£ç¨®å¥ååé¤ï¼
           return `<tr style="background:${rowBg};">
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span></td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || 'â'}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</td>
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${measureLine}${memo}${copyBtn}</td>
           </tr>`;
         } else {
-          // DH：時間・患者名のみ
+          // DHï¼æéã»æ£èåã®ã¿
           return `<tr style="background:${rowBg};">
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${measureLine}${memo}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || 'â'}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}${measureLine}${memo}</td>
           </tr>`;
         }
       }).join('');
 
       const thead = isDr
-        ? `<tr style="background:#e4f0eb;"><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">時間</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">患者名</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">実施内容</th></tr>`
-        : `<tr style="background:#e4f0eb;"><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">時間</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;" colspan="2">患者名</th></tr>`;
+        ? `<tr style="background:#e4f0eb;"><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">æé</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">æ£èå</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">å®æ½åå®¹</th></tr>`
+        : `<tr style="background:#e4f0eb;"><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;">æé</th><th style="padding:4px 6px;font-size:10px;color:#6a9e8c;font-weight:700;text-align:left;" colspan="2">æ£èå</th></tr>`;
 
       wrap.innerHTML += `
         <div style="margin-bottom:8px;border:1px solid #dde8e4;border-radius:8px;overflow:hidden;">
           <div style="background:#4a9b7f;color:white;padding:5px 10px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;">
-            <span>👤 ${staffName}</span>
-            <span style="opacity:.85;font-weight:400;font-size:10px;">${recs.length}名</span>
+            <span>ð¤ ${staffName}</span>
+            <span style="opacity:.85;font-weight:400;font-size:10px;">${recs.length}å</span>
           </div>
           <table style="width:100%;border-collapse:collapse;">
             <thead>${thead}</thead>
@@ -1460,11 +1597,64 @@ async function loadReport() {
 
     document.getElementById('report-body').style.display = 'block';
   } catch(e) {
-    alert('エラー: ' + e.message);
+    alert('ã¨ã©ã¼: ' + e.message);
   } finally {
     document.getElementById('report-loading').style.display = 'none';
   }
 }
 </script>
+
+<!-- ===== è¨é²ç·¨éã¢ã¼ãã« ===== -->
+<div id="edit-modal" onclick="if(event.target===this)closeEditModal()">
+  <div class="edit-modal-inner">
+    <h3>âï¸ è¨é²ãç·¨é</h3>
+    <div class="edit-section-label">æå½è</div>
+    <div class="edit-staff-grid">
+      <button class="edit-staff-btn" data-staff="ä½è¤Dr" onclick="editSelectStaff(this)">ä½è¤Dr</button>
+      <button class="edit-staff-btn" data-staff="åé²DH" onclick="editSelectStaff(this)">åé²DH</button>
+      <button class="edit-staff-btn" data-staff="åå²¡DH" onclick="editSelectStaff(this)">åå²¡DH</button>
+      <button class="edit-staff-btn" data-staff="æ«åDH" onclick="editSelectStaff(this)">æ«åDH</button>
+      <button class="edit-staff-btn" data-staff="é«æ¢¨DH" onclick="editSelectStaff(this)">é«æ¢¨DH</button>
+      <button class="edit-staff-btn" data-staff="å¤éªDH" onclick="editSelectStaff(this)">å¤éªDH</button>
+    </div>
+    <div class="edit-section-label">ç®å®åºå</div>
+    <div class="edit-type-grid">
+      <button class="edit-type-btn active" data-type="kea" onclick="editSelectType(this)">ð¦· å£èã±ã¢</button>
+      <button class="edit-type-btn" data-type="riha" onclick="editSelectType(this)">ðª å£èãªã</button>
+    </div>
+    <div class="edit-section-label">æé</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="time" id="edit-time-from" class="input-styled" value="10:00" style="flex:1">
+      <span style="color:var(--gray)">ã</span>
+      <input type="time" id="edit-time-to" class="input-styled" value="10:20" style="flex:1">
+    </div>
+    <div class="edit-section-label">å®æ½åå®¹</div>
+    <div class="edit-check-grid" id="edit-content-checks">
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="ã¹ãã³ã¸ãã©ã·">ã¹ãã³ã¸ãã©ã·</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="æ­¯ãã©ã·">æ­¯ãã©ã·</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="æ­¯éãã©ã·">æ­¯éãã©ã·</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="ä¿æ¹¿">ä¿æ¹¿</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="ã¶ãã¶ã">ã¶ãã¶ã</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="èåã">èåã</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="ãããµã¼ã¸">ãããµã¼ã¸</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="ROM">ROM</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="èå§æ">èå§æ</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="æ°´é£²ã¿è¨ç·´">æ°´é£²ã¿è¨ç·´</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="çºèªè¨ç·´">çºèªè¨ç·´</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="ã·ã£ã­ã¢ã¼æ³">ã·ã£ã­ã¢ã¼æ³</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="ã·ã£ã­ã¢ã¼å¤æ³">ã·ã£ã­ã¢ã¼å¤æ³</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="æ¡æ">æ¡æ</div>
+      <div class="edit-check-item" onclick="this.classList.toggle('checked')" data-value="å¾æ¶²èºãããµã¼ã¸">å¾æ¶²èºãããµã¼ã¸</div>
+    </div>
+    <div class="edit-section-label">åè</div>
+    <input type="text" id="edit-memo" class="input-styled" placeholder="åèãå¥åï¼ä»»æï¼">
+    <div class="edit-btn-row">
+      <button class="edit-btn-cancel" onclick="closeEditModal()">ã­ã£ã³ã»ã«</button>
+      <button class="edit-btn-save" onclick="saveEditRecord()">ð¾ ä¿å­</button>
+    </div>
+    <button class="edit-btn-delete" onclick="deleteRecordFromModal()">ðï¸ ãã®è¨é²ãåé¤</button>
+  </div>
+</div>
+
 </body>
 </html>
