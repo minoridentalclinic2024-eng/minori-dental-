@@ -1201,7 +1201,7 @@ function downloadCSV() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  月次CSVダウンロード
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const origTe. downloadMonthlyCSV() {
+async function downloadMonthlyCSV() {
   const monthInput = document.getElementById('csv-month');
   if (!monthInput || !monthInput.value) { alert('年月を選択してください'); return; }
   const fac = document.getElementById('santel-fac-sel').value || 'izumi';
