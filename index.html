@@ -33,11 +33,11 @@ header p  { font-size: 11px; opacity: .8; margin-top: 2px; }
 .login-box h2 { color: var(--green); font-size: 22px; margin-bottom: 8px; }
 .login-box p  { color: var(--gray); font-size: 13px; margin-bottom: 28px; }
 .login-box input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border);
-                   border-radius: 10px; font-size: 16px; outline: none; transition: border .2s; }
+                   border-radius: 10px; font-size: 16px; outline: none; }
 .login-box input:focus { border-color: var(--green); }
 .login-box button { width: 100%; padding: 13px; background: var(--green); color: white;
                     border: none; border-radius: 10px; font-size: 16px; font-weight: 600;
-                    cursor: pointer; margin-top: 16px; transition: background .2s; }
+                    cursor: pointer; margin-top: 16px; }
 .login-box button:hover { background: var(--green-mid); }
 .login-err { color: var(--warn); font-size: 13px; margin-top: 8px; }
 
@@ -52,7 +52,7 @@ header p  { font-size: 11px; opacity: .8; margin-top: 2px; }
 /* 施設ボタン */
 .fac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fac-btn { border: 1.5px solid var(--border); background: white; border-radius: 12px;
-           padding: 14px 12px; cursor: pointer; text-align: center; transition: all .2s; }
+           padding: 14px 12px; cursor: pointer; text-align: center; }
 .fac-btn .fac-name { font-size: 15px; font-weight: 600; color: var(--text); }
 .fac-btn .fac-sub  { font-size: 11px; color: var(--gray); margin-top: 3px; }
 .fac-btn.active { background: var(--green-light); border-color: var(--green); }
@@ -65,7 +65,7 @@ header p  { font-size: 11px; opacity: .8; margin-top: 2px; }
 label { display: block; font-size: 12px; color: var(--gray); font-weight: 600; margin-bottom: 5px; }
 .input-styled { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
                 border-radius: 10px; font-size: 15px; color: var(--text); background: white;
-                outline: none; transition: border .2s; appearance: none; -webkit-appearance: none; }
+                outline: none; appearance: none; -webkit-appearance: none; }
 .input-styled:focus { border-color: var(--green); }
 select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a9e96' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
                       background-repeat: no-repeat; background-position: right 12px center;
@@ -80,7 +80,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 /* 算定区分 */
 .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .type-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 14px;
-             cursor: pointer; text-align: center; transition: all .2s; }
+             cursor: pointer; text-align: center; }
 .type-card .type-icon { font-size: 22px; margin-bottom: 4px; }
 .type-card .type-name { font-size: 14px; font-weight: 600; color: var(--text); }
 .type-card .type-sub  { font-size: 11px; color: var(--gray); margin-top: 2px; }
@@ -92,7 +92,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .check-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .check-item { display: flex; align-items: center; gap: 6px; background: #f7faf9;
               border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 11px;
-              cursor: pointer; font-size: 13px; transition: all .2s; }
+              cursor: pointer; font-size: 13px; }
 .check-item input { display: none; }
 .check-item.checked { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 600; }
 
@@ -100,7 +100,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .radio-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .radio-item { display: flex; align-items: center; gap: 6px; background: #f7faf9;
               border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 11px;
-              cursor: pointer; font-size: 13px; transition: all .2s; }
+              cursor: pointer; font-size: 13px; }
 .radio-item input { display: none; }
 .radio-item.checked { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 600; }
 
@@ -109,7 +109,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
                border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px; color: var(--text); }
 #save-btn { width: 100%; padding: 15px; background: var(--green); color: white;
             border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
-            cursor: pointer; transition: background .2s; }
+            cursor: pointer; }
 #save-btn:hover:not(:disabled) { background: var(--green-mid); }
 #save-btn:disabled { opacity: .5; cursor: not-allowed; }
 #save-msg { text-align: center; margin-top: 10px; font-size: 14px; font-weight: 600;
@@ -129,7 +129,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
            border-top: 1px solid var(--border); display: flex; z-index: 100; }
 .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center;
            padding: 10px; cursor: pointer; border: none; background: none;
-           color: var(--gray); font-size: 11px; gap: 3px; transition: color .2s; }
+           color: var(--gray); font-size: 11px; gap: 3px; }
 .tab-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 .tab-btn.active { color: var(--green); }
 
@@ -222,7 +222,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .edit-modal-inner h3 { color:var(--green); font-size:17px; font-weight:700; margin-bottom:16px; text-align:center; }
 .edit-section-label { font-size:11px; color:var(--gray); font-weight:700; letter-spacing:.05em; margin:14px 0 6px; text-transform:uppercase; }
 .edit-staff-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
-.edit-staff-btn { padding:8px 4px; border:1.5px solid var(--border); border-radius:8px; background:white; font-size:12px; cursor:pointer; transition:.15s; }
+.edit-staff-btn { padding:8px 4px; border:1.5px solid var(--border); border-radius:8px; background:white; font-size:12px; cursor:pointer; }
 .edit-staff-btn.active { background:var(--green); color:white; border-color:var(--green); font-weight:700; }
 .edit-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .edit-type-btn { padding:10px; border:1.5px solid var(--border); border-radius:10px; background:white; font-size:13px; cursor:pointer; text-align:center; }
@@ -544,6 +544,23 @@ let csvDateStr   = '';
 let csvFac       = '';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  APIキャッシュ（10分TTL）
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const _apiCache = {};
+const _CACHE_TTL = 10 * 60 * 1000;
+async function cachedFetch(url) {
+  const now = Date.now();
+  if (_apiCache[url] && (now - _apiCache[url].ts) < _CACHE_TTL) return _apiCache[url].data;
+  const resp = await fetch(url);
+  const data = await resp.json();
+  _apiCache[url] = { ts: now, data };
+  return data;
+}
+function clearCache(urlPrefix) {
+  Object.keys(_apiCache).forEach(k => { if (k.includes(urlPrefix)) delete _apiCache[k]; });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  ログイン
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function doLogin() {
@@ -569,8 +586,7 @@ function showApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('tab-bar').style.display = 'flex';
   setTodayDate();
-  loadPatients('izumi');
-  loadSantel();
+  loadPatients(currentFac); // 起動時のみ・以降キャッシュ利用
   const csv = document.getElementById('csv-date');
   if(csv) {
     const t = new Date();
@@ -615,8 +631,7 @@ async function loadPatients(fac) {
   sel.style.display = 'none';
   sel.innerHTML = '<option value="">読み込み中...</option>';
   try {
-    const resp = await fetch(GAS_URLS[fac] + '?action=patients');
-    const data = await resp.json();
+    const data = await cachedFetch(GAS_URLS[fac] + '?action=patients');
     if (data.error) throw new Error(data.error);
     const patients = (data.patients || []).filter(p =>
       p.name && !/^(患者氏名�患者名|氏名|名前�患者)$/.test(p.name.trim()));
@@ -774,8 +789,7 @@ async function checkMeasureReminder() {
   const ptName = sel.options[sel.selectedIndex]?.dataset.name || '';
   if (!ptId) return;
   try {
-    const resp = await fetch(GAS_URLS[currentFac] + '?action=measures');
-    const data = await resp.json();
+    const data = await cachedFetch(GAS_URLS[currentFac] + '?action=measures');
     const measures = data.measures || [];
     const rec = measures.find(m => String(m.id).trim() === String(ptId).trim());
     if (!rec) return; // 過去記録なし → リマインド不要
@@ -917,6 +931,9 @@ async function saveRecord() {
     if (data.error) throw new Error(data.error);
     msg.textContent = `✅ 保存しました（${data.wrote}）`;
     msg.className = 'ok';
+    // 保存後はキャッシュをクリア（今日の記録・月集計が古くなるため）
+    clearCache(GAS_URLS[currentFac] + '?action=today');
+    clearCache(GAS_URLS[currentFac] + '?action=monthCount');
 
     // 測定記録シートにも保存
     const ptId   = sel.options[sel.selectedIndex]?.dataset.id || '';
@@ -934,6 +951,8 @@ async function saveRecord() {
 async function saveMeasure(id, name, type, value) {
   const params = new URLSearchParams({ action:'writeMeasure', id, name, type, value });
   await fetch(GAS_URLS[currentFac] + '?' + params.toString());
+  clearCache(GAS_URLS[currentFac] + '?action=measures');
+  clearCache(GAS_URLS[currentFac] + '?action=measureTargets');
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1442,6 +1461,8 @@ async function saveEditRecord() {
     const resp = await fetch(GAS_URLS[ctx.fac] + '?' + params.toString());
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
+    clearCache(GAS_URLS[ctx.fac] + '?action=today');
+    clearCache(GAS_URLS[ctx.fac] + '?action=monthCount');
     closeEditModal();
     await loadReport();
   } catch(e) {
@@ -1465,6 +1486,8 @@ async function deleteRecordFromModal() {
     const resp = await fetch(GAS_URLS[ctx.fac] + '?' + params.toString());
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
+    clearCache(GAS_URLS[ctx.fac] + '?action=today');
+    clearCache(GAS_URLS[ctx.fac] + '?action=monthCount');
     closeEditModal();
     await loadReport();
   } catch(e) {
