@@ -1,6 +1,8 @@
 // ============================================================
 //  茂原みのり歯科クリニック - 算定管理GAS v14（いすみ苑専用）
 //  修正: 患者名でrow検索（行挿入ずれ対策）
+//  修正: getPatientList 患者番号抽出（全角スペース・スペースなし対応）
+//  修正: getMeasureTargets IDマッチング改善（患者名正規化照合）
 //  書き込み形式: 「佐藤Dr 口腔ケア 10:00〜10:30 スポンジブラシ・歯ブラシ」
 // ============================================================
 
@@ -49,6 +51,10 @@ function normDisp(s) {
   const m=s.match(/^(\d{1,2})\/(\d{1,2})$/);
   if(m)return parseInt(m[1])+'/'+parseInt(m[2]);
   return '';
+}
+// 患者名の正規化（NFKC変換＋スペース除去）: 全角・半角スペース差異を吸収して照合に使用
+function normalizePatientName(value) {
+  return String(value || '').normalize('NFKC').replace(/\s+/g, '').trim();
 }
 
 // ★ contentセルをパースして構造化データを返す
@@ -101,7 +107,8 @@ function getPatientList() {
   for(let r=cfg.headerRows;r<colValues.length;r++){
     const raw=String(colValues[r][0]).trim(); if(!raw)continue;
     if(/^(患者氏名|患者名|氏名|名前|患者|本館|分館|c|C)$/.test(raw))continue;
-    const match=raw.match(/^(\d+)\s+(.+)$/);
+    const normRaw = raw.normalize('NFKC'); // 全角スペースを半角に統一してから番号抽出
+    const match = normRaw.match(/^(\d+)\s*(.+)$/); // \s* でスペースなし形式も対応
     patients.push({id:match?match[1]:String(r+1),name:raw,row:r+1});
   }
   return{patients,sheetName};
@@ -156,7 +163,7 @@ function getMeasureTargets(year, month) {
   const measureMapById={}; const measureMapByName={};
   measures.forEach(m=>{
     measureMapById[String(m.id).trim()]=m;
-    if(m.name) measureMapByName[String(m.name).trim()]=m;
+    if(m.name) measureMapByName[normalizePatientName(m.name)]=m; // 正規化した名前でキー登録
   });
   const targetDate=new Date(year, month-1, 1);
   function monthsGap(lastStr){
@@ -165,12 +172,23 @@ function getMeasureTargets(year, month) {
   }
   const tongueTargets=[]; const dryTargets=[];
   patients.forEach(p=>{
-    // ID一致を優先し、見つからなければ患者名で照合（ID不一致対策）
-    const m = measureMapById[String(p.id).trim()] || measureMapByName[String(p.name).trim()];
+    // 1.ID検索 → 2.患者名一致確認 → 3.不一致なら名前検索 → 4.見つからなければnull
+    const normPName = normalizePatientName(p.name);
+    const mById = measureMapById[String(p.id).trim()];
+    let m;
+    if (mById && normalizePatientName(mById.name) === normPName) {
+      m = mById; // IDも患者名も一致
+    } else {
+      m = measureMapByName[normPName] || null; // 名前で再検索、見つからなければnull
+    }
     const tGap = m ? monthsGap(m.tongueDate) : null;
     const dGap = m ? monthsGap(m.dryDate)    : null;
-    tongueTargets.push({id:p.id, name:p.name, lastDate:(m&&m.tongueDate)||'', gap: tGap===null?'未測定':tGap+'ヶ月経過', gapNum: tGap});
-    dryTargets.push({id:p.id, name:p.name, lastDate:(m&&m.dryDate)||'', gap: dGap===null?'未測定':dGap+'ヶ月経過', gapNum: dGap});
+    if(tGap===null || tGap>=3){
+      tongueTargets.push({id:p.id, name:p.name, lastDate:(m&&m.tongueDate)||'', gap: tGap===null?'未測定':tGap+'ヶ月経過'});
+    }
+    if(dGap===null || dGap>=3){
+      dryTargets.push({id:p.id, name:p.name, lastDate:(m&&m.dryDate)||'', gap: dGap===null?'未測定':dGap+'ヶ月経過'});
+    }
   });
   return{facility:cfg.name,year,month,tongueTargets,dryTargets};
 }

@@ -548,15 +548,19 @@ let csvFac       = '';
 //  APIキャッシュ（10分TTL）
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const _apiCache = {};
-const _CACHE_TTL = 10 * 60 * 1000;
+const _CACHE_TTL = 10 * 60 * 1000; // 10分
+
 async function cachedFetch(url) {
   const now = Date.now();
-  if (_apiCache[url] && (now - _apiCache[url].ts) < _CACHE_TTL) return _apiCache[url].data;
+  if (_apiCache[url] && (now - _apiCache[url].ts) < _CACHE_TTL) {
+    return _apiCache[url].data;
+  }
   const resp = await fetch(url);
   const data = await resp.json();
   _apiCache[url] = { ts: now, data };
   return data;
 }
+
 function clearCache(urlPrefix) {
   Object.keys(_apiCache).forEach(k => { if (k.includes(urlPrefix)) delete _apiCache[k]; });
 }
@@ -587,7 +591,9 @@ function showApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('tab-bar').style.display = 'flex';
   setTodayDate();
-  loadPatients(currentFac); // 起動時のみ・以降キャッシュ利用
+  // 患者リストは入力タブ表示時に初めて読み込む（起動時の無駄なAPI呼び出し削減）
+  loadPatients(currentFac);
+  // loadSantel() は算定タブ切り替え時に呼ばれるため起動時は不要
   const csv = document.getElementById('csv-date');
   if(csv) {
     const t = new Date();
@@ -635,7 +641,7 @@ async function loadPatients(fac) {
     const data = await cachedFetch(GAS_URLS[fac] + '?action=patients');
     if (data.error) throw new Error(data.error);
     const patients = (data.patients || []).filter(p =>
-      p.name && !/^(患者氏名�患者名|氏名|名前�患者)$/.test(p.name.trim()));
+      p.name && !/^(患者氏名|患者名|氏名|名前|患者)$/.test(p.name.trim()));
     patientCache[fac] = patients;
     buildPatientSelect(sel, patients);
   } catch(e) {
@@ -812,7 +818,7 @@ async function checkMeasureReminder() {
     if (diffDays >= 90) {
       const reminderEl = document.getElementById('measure-reminder');
       if (reminderEl) {
-        reminderEl.textContent = `⚠️ ${ptName}：前回測定から${diffDays}日経過しています（舌圧・ムーカスの測定をえ確認ください）`;
+        reminderEl.textContent = `⚠️ ${ptName}：前回測定から${diffDays}日経過しています（舌圧・ムーカスの測定をご確認ください）`;
         reminderEl.style.display = 'block';
       }
     } else {
@@ -951,7 +957,28 @@ async function saveRecord() {
 
 async function saveMeasure(id, name, type, value) {
   const params = new URLSearchParams({ action:'writeMeasure', id, name, type, value });
-  await fetch(GAS_URLS[currentFac] + '?' + params.toString());
+  let resp;
+  try {
+    resp = await fetch(GAS_URLS[currentFac] + '?' + params.toString());
+  } catch(e) {
+    alert('測定値の保存に失敗しました（ネットワークエラー）:\n' + e.message);
+    return;
+  }
+  if (!resp.ok) {
+    alert('測定値の保存に失敗しました（HTTPエラー ' + resp.status + '）');
+    return;
+  }
+  let data;
+  try {
+    data = await resp.json();
+  } catch(e) {
+    alert('測定値の保存に失敗しました（レスポンス解析エラー）:\n' + e.message);
+    return;
+  }
+  if (data.error) {
+    alert('測定値の保存に失敗しました:\n' + data.error);
+    return;
+  }
   clearCache(GAS_URLS[currentFac] + '?action=measures');
   clearCache(GAS_URLS[currentFac] + '?action=measureTargets');
 }
@@ -978,8 +1005,7 @@ async function loadSantel() {
   table.style.display   = 'none';
   tbody.innerHTML = '';
   try {
-    const resp = await fetch(GAS_URLS[fac] + `?action=monthCount&year=${yy}&month=${mm}`);
-    const data = await resp.json();
+    const data = await cachedFetch(GAS_URLS[fac] + `?action=monthCount&year=${yy}&month=${mm}`);
     if (data.error) throw new Error(data.error);
     const cfg = FAC_CONFIG[fac];
     (data.patients || []).forEach(p => {
@@ -1008,8 +1034,7 @@ async function loadMeasureTargets(fac, year, month) {
   loadingEl.style.display = 'block';
   bodyEl.style.display = 'none';
   try {
-    const resp = await fetch(GAS_URLS[fac] + `?action=measureTargets&year=${year}&month=${month}`);
-    const data = await resp.json();
+    const data = await cachedFetch(GAS_URLS[fac] + `?action=measureTargets&year=${year}&month=${month}`);
     if (data.error) throw new Error(data.error);
     renderTargetList('tongue', data.tongueTargets || []);
     renderTargetList('dry', data.dryTargets || []);
@@ -1117,7 +1142,7 @@ async function fetchCsvPreview() {
         return lines.map(line => ({ name: r.name, raw: line, content: line }));
       })
       .map(parseContentFront)
-      .filter(r => r.type); // 種別不明除外
+      .filter(r => r.type);
     csvRecords = records; csvDateStr = dateInput; csvFac = fac;
     if (records.length === 0) { document.getElementById('csv-empty').style.display = 'block'; return; }
     renderStaffBlocks(records);
@@ -1215,10 +1240,10 @@ function downloadCSV() {
   const csv  = rows.map(r => r.map(q).join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
-  link.href     = URL.createObjectURL(btob);
+  link.href     = URL.createObjectURL(blob);
   link.download = `みのり歯科_${facName}_${csvDateStr}.csv`;
   link.click();
-  URL.revokeObjectURL(btob.href);
+  URL.revokeObjectURL(link.href);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1533,6 +1558,7 @@ async function loadReport() {
         const raw = (r.content || r.raw || '').trim();
         const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
         if (lines.length <= 1) return [r];
+        // 構造化フィールド(staff/type等)をクリアして各行を再パースさせる
         return lines.map(line => ({ name: r.name, raw: line, content: line }));
       })
       .map(parseContentFront)
@@ -1598,10 +1624,10 @@ async function loadReport() {
         const cont = rawCont.replace(/\s*／?(舌圧:[\d.]+kPa|ムーカス:[\d.]+)/g, '').replace(/\s*／\s*$/, '').trim();
         const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">📝 ${r.memo}</div>` : '';
 
-        // 患者番号＋時間コピボタン
+        // 患者番号＋時間コピーボタン
 
 
-        // ③ コピボタン（実施内容用）
+        // ③ コピーボタン（実施内容用）
         const copyId  = 'cp' + Math.random().toString(36).slice(2, 8);
         const copyTxt = (cont + (r.memo ? ' 備考:' + r.memo : '')).replace(/'/g, "\\'");
         const copyBtn = cont ? `<button id="${copyId}" onclick="navigator.clipboard.writeText('${copyTxt}').then(()=>{const b=document.getElementById('${copyId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-left:6px;padding:2px 6px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
@@ -1648,7 +1674,7 @@ async function loadReport() {
 }
 </script>
 
-<!-- ===== 記録緘録編集モーダル ===== -->
+<!-- ===== 記録編集モーダル ===== -->
 <div id="edit-modal" onclick="if(event.target===this)closeEditModal()">
   <div class="edit-modal-inner">
     <h3>✏️ 記録を編集</h3>

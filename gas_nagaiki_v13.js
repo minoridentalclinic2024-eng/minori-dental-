@@ -55,6 +55,10 @@ function normDisp(s) {
   if(m)return parseInt(m[1])+'/'+parseInt(m[2]);
   return '';
 }
+// 患者名の正規化（NFKC変換＋スペース除去）: 全角・半角スペース差異を吸収して照合に使用
+function normalizePatientName(value) {
+  return String(value || '').normalize('NFKC').replace(/\s+/g, '').trim();
+}
 
 // ★ contentセルをパースして構造化データを返す
 // 形式1（新）: 「佐藤Dr 口腔ケア 10:00〜10:30 スポンジブラシ・歯ブラシ」
@@ -106,7 +110,8 @@ function getPatientList() {
   for(let r=cfg.headerRows;r<colValues.length;r++){
     const raw=String(colValues[r][0]).trim(); if(!raw)continue;
     if(/^(患者氏名|患者名|氏名|名前|患者|本館|分館|c|C)$/.test(raw))continue;
-    const match=raw.match(/^(\d+)\s+(.+)$/);
+    const normRaw = raw.normalize('NFKC'); // 全角スペースを半角に統一してから番号抽出
+    const match = normRaw.match(/^(\d+)\s*(.+)$/); // \s* でスペースなし形式も対応
     patients.push({id:match?match[1]:String(r+1),name:raw,row:r+1});
   }
   return{patients,sheetName};
@@ -161,7 +166,7 @@ function getMeasureTargets(year, month) {
   const measureMapById={}; const measureMapByName={};
   measures.forEach(m=>{
     measureMapById[String(m.id).trim()]=m;
-    if(m.name) measureMapByName[String(m.name).trim()]=m;
+    if(m.name) measureMapByName[normalizePatientName(m.name)]=m; // 正規化した名前でキー登録
   });
   const targetDate=new Date(year, month-1, 1);
   function monthsGap(lastStr){
@@ -170,8 +175,15 @@ function getMeasureTargets(year, month) {
   }
   const tongueTargets=[]; const dryTargets=[];
   patients.forEach(p=>{
-    // ID一致を優先し、見つからなければ患者名で照合（ID不一致対策）
-    const m = measureMapById[String(p.id).trim()] || measureMapByName[String(p.name).trim()];
+    // 1.ID検索 → 2.患者名一致確認 → 3.不一致なら名前検索 → 4.見つからなければnull
+    const normPName = normalizePatientName(p.name);
+    const mById = measureMapById[String(p.id).trim()];
+    let m;
+    if (mById && normalizePatientName(mById.name) === normPName) {
+      m = mById; // IDも患者名も一致
+    } else {
+      m = measureMapByName[normPName] || null; // 名前で再検索、見つからなければnull
+    }
     const tGap = m ? monthsGap(m.tongueDate) : null;
     const dGap = m ? monthsGap(m.dryDate)    : null;
     tongueTargets.push({id:p.id, name:p.name, lastDate:(m&&m.tongueDate)||'', gap: tGap===null?'未測定':tGap+'ヶ月経過', gapNum: tGap});
@@ -205,7 +217,7 @@ function getMonthCalendar(year, month) {
         if(!cell) continue;
         const lines=cell.split('\n').map(l=>l.trim()).filter(l=>l);
         for(const line of lines){
-          const isRecord = STAFF_LIST.some(s=>line.startsWith(s+' ')||line===s) || line.startsWith('口腔ケア')||line.startsWith('口腔リハ');
+          const isRecord = STAFF_LIST.some(s=>line.startsWith(s)) || line.startsWith('口腔ケア')||line.startsWith('口腔リハ');
           if(!isRecord) continue;
           dayInfo.hasVisit = true; dayInfo.count++;
           for(const s of STAFF_LIST){ if(line.startsWith(s)){ staffSet.add(s); if(s.endsWith('Dr')){ dayInfo.hasDr=true; dayInfo.countDr++; } else { dayInfo.countDH++; } break; } }
@@ -219,7 +231,8 @@ function getMonthCalendar(year, month) {
 
 function getTodayRecords(dateStr) {
   const cfg=FACILITY_CONFIG[THIS_FACILITY]; const ss=SpreadsheetApp.getActiveSpreadsheet();
-  const sheetName=getSheetName(); const sheet=ss.getSheetByName(sheetName);
+  const _d=dateStr?new Date(dateStr):new Date();
+  const sheetName=getSheetName(_d); const sheet=ss.getSheetByName(sheetName);
   if(!sheet)return{error:`シート「${sheetName}」が見つかりません`};
   const targetDate=dateStr?normDateStr(dateStr):toMD(new Date());
   const lastRow=sheet.getLastRow(); const lastCol=sheet.getLastColumn();
@@ -265,7 +278,8 @@ function getTodayRecords(dateStr) {
 
 function writeRecord(params) {
   const cfg=FACILITY_CONFIG[THIS_FACILITY]; const ss=SpreadsheetApp.getActiveSpreadsheet();
-  const sheetName=getSheetName(); const sheet=ss.getSheetByName(sheetName);
+  const _wd=params.visitDate?new Date(params.visitDate):new Date();
+  const sheetName=getSheetName(_wd); const sheet=ss.getSheetByName(sheetName);
   if(!sheet)return{error:`シート「${sheetName}」が見つかりません`};
   let visitMD; try{const d=new Date(params.visitDate);visitMD=toMD(d);}catch(e){visitMD=normDateStr(params.visitDate);}
 
@@ -344,6 +358,65 @@ function writeMemoRecord(params) {
   return{ok:true};
 }
 
+function updateRecord(params) {
+  const cfg=FACILITY_CONFIG[THIS_FACILITY]; const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const _d=params.visitDate?(/^\d{4}[\/\-]/.test(params.visitDate)?new Date(params.visitDate):new Date(new Date().getFullYear()+'/'+params.visitDate)):new Date();
+  const sheetName=getSheetName(_d); const sheet=ss.getSheetByName(sheetName);
+  if(!sheet)return{error:`シート「${sheetName}」が見つかりません`};
+  let visitMD; try{visitMD=toMD(new Date(params.visitDate));}catch(e){visitMD=normDateStr(params.visitDate);}
+  const lastRow=sheet.getLastRow();
+  const patColValues=sheet.getRange(1,cfg.patientCol,lastRow,1).getValues();
+  let targetRow=-1; const searchName=String(params.patientName||'').trim();
+  for(let r=cfg.headerRows;r<patColValues.length;r++){if(String(patColValues[r][0]).trim()===searchName){targetRow=r+1;break;}}
+  if(targetRow===-1)return{error:`患者「${searchName}」が見つかりません`};
+  const currentLastCol=sheet.getLastColumn();
+  const headerDisp=sheet.getRange(cfg.headerRows,1,1,currentLastCol).getDisplayValues()[0];
+  let dateCol=-1;
+  for(let c=cfg.dataStartCol-1;c<headerDisp.length;c++){if(normDisp(headerDisp[c])===visitMD){dateCol=c;break;}}
+  if(dateCol===-1)return{error:'日付列が見つかりません'};
+  const cell=sheet.getRange(targetRow,dateCol+1);
+  const existing=String(cell.getValue()).trim();
+  const oldRaw=String(params.oldRaw||'').trim();
+  const staffStr=params.staff?params.staff+' ':'';
+  const typeName=params.type==='kea'?'口腔ケア':params.type==='riha'?'口腔リハ':'口腔ケア';
+  const timeStr=params.timeStr?' '+params.timeStr:'';
+  const contentStr=params.contentStr?' '+params.contentStr:'';
+  const memoStr=params.memo?' ／備考:'+params.memo:'';
+  const newContent=staffStr+typeName+timeStr+contentStr+memoStr;
+  const lines=existing.split('\n').map(l=>l.trim()).filter(l=>l);
+  let found=false;
+  const newLines=lines.map(l=>{if(l.trim()===oldRaw){found=true;return newContent;}return l;});
+  if(!found)return{error:'元の記録が見つかりません',oldRaw,existing};
+  cell.setValue(newLines.join('\n'));
+  return{ok:true,wrote:newContent};
+}
+
+function deleteRecord(params) {
+  const cfg=FACILITY_CONFIG[THIS_FACILITY]; const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const _d=params.visitDate?(/^\d{4}[\/\-]/.test(params.visitDate)?new Date(params.visitDate):new Date(new Date().getFullYear()+'/'+params.visitDate)):new Date();
+  const sheetName=getSheetName(_d); const sheet=ss.getSheetByName(sheetName);
+  if(!sheet)return{error:`シート「${sheetName}」が見つかりません`};
+  let visitMD; try{visitMD=toMD(new Date(params.visitDate));}catch(e){visitMD=normDateStr(params.visitDate);}
+  const lastRow=sheet.getLastRow();
+  const patColValues=sheet.getRange(1,cfg.patientCol,lastRow,1).getValues();
+  let targetRow=-1; const searchName=String(params.patientName||'').trim();
+  for(let r=cfg.headerRows;r<patColValues.length;r++){if(String(patColValues[r][0]).trim()===searchName){targetRow=r+1;break;}}
+  if(targetRow===-1)return{error:`患者「${searchName}」が見つかりません`};
+  const currentLastCol=sheet.getLastColumn();
+  const headerDisp=sheet.getRange(cfg.headerRows,1,1,currentLastCol).getDisplayValues()[0];
+  let dateCol=-1;
+  for(let c=cfg.dataStartCol-1;c<headerDisp.length;c++){if(normDisp(headerDisp[c])===visitMD){dateCol=c;break;}}
+  if(dateCol===-1)return{error:'日付列が見つかりません'};
+  const cell=sheet.getRange(targetRow,dateCol+1);
+  const existing=String(cell.getValue()).trim();
+  const rawToDelete=String(params.rawText||'').trim();
+  const lines=existing.split('\n').map(l=>l.trim()).filter(l=>l);
+  const newLines=lines.filter(l=>l.trim()!==rawToDelete);
+  if(newLines.length===lines.length)return{error:'該当記録が見つかりません',rawToDelete};
+  cell.setValue(newLines.join('\n'));
+  return{ok:true,deleted:rawToDelete};
+}
+
 function doGet(e) {
   const action=e&&e.parameter&&e.parameter.action?e.parameter.action:''; let result;
   try{
@@ -351,6 +424,8 @@ function doGet(e) {
     else if(action==='measures')result={measures:getMeasures()};
     else if(action==='today')result=getTodayRecords(e&&e.parameter&&e.parameter.date?e.parameter.date:null);
     else if(action==='write')result=writeRecord(e.parameter);
+    else if(action==='updateRecord')result=updateRecord(e.parameter);
+    else if(action==='deleteRecord')result=deleteRecord(e.parameter);
     else if(action==='monthCount')result=countByMonth(parseInt(e.parameter.year), parseInt(e.parameter.month));
     else if(action==='measureTargets')result=getMeasureTargets(parseInt(e.parameter.year), parseInt(e.parameter.month));
     else if(action==='calendar')result=getMonthCalendar(parseInt(e.parameter.year), parseInt(e.parameter.month));
