@@ -1,4 +1,4 @@
-// ============================================================
+Z// ============================================================
 //  茂原みのり歯科クリニック - 算定管理GAS v13（一宮喜楽園専用）
 //  修正: 患者名でrow検索（行挿入ずれ対策）
 //  修正: formatDateCell - instanceof Date失敗時のフォールバック追加
@@ -61,7 +61,7 @@ function normDisp(s) {
 // 形式2（旧）: 「口腔ケア 10:00〜10:30 スポンジブラシ・歯ブラシ」
 function parseContent(raw) {
   if(!raw) return null;
-  const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
+  const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH','石井DH'];
   let staff = '';
   let rest = raw.trim();
 
@@ -192,7 +192,7 @@ function getMonthCalendar(year, month) {
   if(lastRow>cfg.headerRows && lastCol>=cfg.dataStartCol){
     const allData=sheet.getRange(1,1,lastRow,lastCol).getValues();
     const headerRow=allData[cfg.headerRows-1];
-    const STAFF_LIST=['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
+    const STAFF_LIST=['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH','石井DH'];
     for(let c=cfg.dataStartCol-1;c<headerRow.length;c++){
       const label=normDateStr(headerRow[c]); if(!label) continue;
       const dm=label.match(/^(\d{1,2})\/(\d{1,2})$/); if(!dm) continue;
@@ -235,7 +235,7 @@ function getTodayRecords(dateStr) {
     if(!cell) continue;
     // 改行で複数件入っている場合は分割して処理
     const lines = cell.split('\n').map(l => l.trim()).filter(l => l);
-    const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH'];
+    const STAFF_LIST = ['佐藤Dr','南雲DH','吉岡DH','末吉DH','高梨DH','古阪DH','石井DH'];
     for(const line of lines){
       // 先頭が担当者名または口腔ケア/リハで始まる行のみ新レコードとして処理
       const isRecord = STAFF_LIST.some(s => line.startsWith(s + ' ') || line === s)
