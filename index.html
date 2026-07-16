@@ -1250,7 +1250,17 @@ async function downloadMonthlyCSV() {
     const allRecords = [];
     results.forEach((data, i) => {
       const dateLabel = month + '/' + (i + 1);
-      (data.records || []).forEach(r => allRecords.push({ ...r, date: dateLabel }));
+      (data.records || [])
+        .filter(r => (r.content || r.raw || '').trim() !== '')
+        .flatMap(r => {
+          const raw = (r.content || r.raw || '').trim();
+          const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+          if (lines.length <= 1) return [r];
+          return lines.map(line => ({ name: r.name, raw: line, content: line }));
+        })
+        .map(parseContentFront)
+        .filter(r => r.type)
+        .forEach(r => allRecords.push({ ...r, date: dateLabel }));
     });
 
     if (!allRecords.length) { alert('この月の記録はありません'); return; }
