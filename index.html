@@ -1114,7 +1114,7 @@ async function fetchCsvPreview() {
         const raw = (r.content || r.raw || '').trim();
         const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
         if (lines.length <= 1) return [r];
-        return lines.map(line => ({ ...r, content: line, raw: line }));
+        return lines.map(line => ({ name: r.name, raw: line, content: line }));
       })
       .map(parseContentFront)
       .filter(r => r.type); // 種別不明除外
@@ -1523,7 +1523,7 @@ async function loadReport() {
         const raw = (r.content || r.raw || '').trim();
         const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
         if (lines.length <= 1) return [r];
-        return lines.map(line => ({ ...r, content: line, raw: line }));
+        return lines.map(line => ({ name: r.name, raw: line, content: line }));
       })
       .map(parseContentFront)
       .filter(r => r.type);
