@@ -1109,12 +1109,15 @@ async function fetchCsvPreview() {
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     const records = (data.records || [])
-      .filter(r => {
-        const raw = r.content || r.raw || '';
-        return raw.trim() !== ''; // 空・削除済みを除外
+      .filter(r => (r.content || r.raw || '').trim() !== '')
+      .flatMap(r => {
+        const raw = (r.content || r.raw || '').trim();
+        const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+        if (lines.length <= 1) return [r];
+        return lines.map(line => ({ ...r, content: line, raw: line }));
       })
       .map(parseContentFront)
-      .filter(r => r.type); // 種別不明（口腔ケア・口腔リハ以外）も除外
+      .filter(r => r.type); // 種別不明除外
     csvRecords = records; csvDateStr = dateInput; csvFac = fac;
     if (records.length === 0) { document.getElementById('csv-empty').style.display = 'block'; return; }
     renderStaffBlocks(records);
@@ -1515,6 +1518,13 @@ async function loadReport() {
 
     const records = (data.records || [])
       .filter(r => (r.content || r.raw || '').trim() !== '')
+      .flatMap(r => {
+        // GASが同一患者に複数スタッフ分を\n結合して返す場合に分割
+        const raw = (r.content || r.raw || '').trim();
+        const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+        if (lines.length <= 1) return [r];
+        return lines.map(line => ({ ...r, content: line, raw: line }));
+      })
       .map(parseContentFront)
       .filter(r => r.type);
 
