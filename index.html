@@ -147,6 +147,8 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .count-ok   { color: var(--green); font-weight: 700; }
 .count-over { color: var(--warn); font-weight: 700; background: var(--warn-bg); padding: 2px 6px; border-radius: 4px; }
 .measure-done { color: #2e7d32; font-weight: 700; background: #e8f5e9; border-radius: 4px; padding: 2px 7px; font-size: 12px; white-space: nowrap; }
+.measure-recent { color: #333; font-size: 12px; white-space: nowrap; }
+.measure-warn { color: #c62828; font-weight: 700; background: #fdeaea; border-radius: 4px; padding: 2px 7px; font-size: 12px; white-space: nowrap; }
 .measure-none { color: #9e9e9e; font-size: 12px; }
 
 /* 測定対象者セクション */
@@ -415,24 +417,6 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
           <thead><tr><th>患者名</th><th>ケア</th><th>リハ</th><th>舌圧</th><th>ムーカス</th></tr></thead>
           <tbody id="santel-tbody"></tbody>
         </table>
-      </div>
-
-      <!-- 測定対象者（3ヶ月ごと） -->
-      <div class="measure-section">
-        <div class="section-label">測定対象者（3ヶ月ごと）</div>
-        <div id="measure-loading" style="text-align:center;padding:14px;color:var(--gray);font-size:13px;">読み込み中...</div>
-        <div id="measure-body" style="display:none;">
-          <div class="measure-block">
-            <div class="measure-block-title">👅 舌圧 対象者</div>
-            <table class="measure-table"><tbody id="tongue-target-tbody"></tbody></table>
-            <div id="tongue-target-empty" style="display:none;padding:10px;color:var(--gray);font-size:12px;">対象者はいません</div>
-          </div>
-          <div class="measure-block">
-            <div class="measure-block-title">💧 口腔乾燥（ムーカス） 対象者</div>
-            <table class="measure-table"><tbody id="dry-target-tbody"></tbody></table>
-            <div id="dry-target-empty" style="display:none;padding:10px;color:var(--gray);font-size:12px;">対象者はいません</div>
-          </div>
-        </div>
       </div>
 
       <!-- CSV出力エリア -->
@@ -1012,12 +996,33 @@ async function loadSantel() {
     const cfg = FAC_CONFIG[fac];
     (data.patients || []).forEach(p => {
       const tr = document.createElement('tr');
-      const keaCls    = p.keaCount  > cfg.limitKea  ? 'count-over' : 'count-ok';
-      const rihaCls   = p.rihaCount > cfg.limitRiha ? 'count-over' : 'count-ok';
-      const tongueText = p.tongueDone ? (p.tongueDisp || '済') : '未';
-      const dryText    = p.dryDone    ? (p.dryDisp    || '済') : '未';
-      const tongueCls  = p.tongueDone ? 'measure-done' : 'measure-none';
-      const dryCls     = p.dryDone    ? 'measure-done' : 'measure-none';
+      const keaCls = p.keaCount  > cfg.limitKea  ? 'count-over' : 'count-ok';
+      const rihaCls= p.rihaCount > cfg.limitRiha ? 'count-over' : 'count-ok';
+
+      // 舌圧 表示
+      let tongueText, tongueCls;
+      if (!p.tongueDisp) {
+        tongueText = '未測定'; tongueCls = 'measure-none';
+      } else if (p.tongueDoneThisMonth) {
+        tongueText = p.tongueDisp + '　当月済'; tongueCls = 'measure-done';
+      } else if (p.tongueNeedsMeasurement) {
+        tongueText = p.tongueDisp + '　要測定'; tongueCls = 'measure-warn';
+      } else {
+        tongueText = p.tongueDisp; tongueCls = 'measure-recent';
+      }
+
+      // ムーカス 表示
+      let dryText, dryCls;
+      if (!p.dryDisp) {
+        dryText = '未測定'; dryCls = 'measure-none';
+      } else if (p.dryDoneThisMonth) {
+        dryText = p.dryDisp + '　当月済'; dryCls = 'measure-done';
+      } else if (p.dryNeedsMeasurement) {
+        dryText = p.dryDisp + '　要測定'; dryCls = 'measure-warn';
+      } else {
+        dryText = p.dryDisp; dryCls = 'measure-recent';
+      }
+
       tr.innerHTML = `<td>${p.name}</td>
         <td><span class="${keaCls}">${p.keaCount}/${cfg.limitKea}</span></td>
         <td><span class="${rihaCls}">${p.rihaCount}/${cfg.limitRiha}</span></td>
@@ -1032,8 +1037,6 @@ async function loadSantel() {
   } finally {
     _santelLoading = false;
   }
-
-  loadMeasureTargets(fac, yy, mm);
 }
 
 async function loadMeasureTargets(fac, year, month) {
@@ -1063,7 +1066,8 @@ function renderTargetList(key, list) {
   }
   empty.style.display = 'none';
   list.forEach(p => {
-    const isOver = p.gapNum === null || p.gapNum >= 3;
+    // gapNum が undefined の場合も「要測定」として扱う（izumi v14 旧版との後方互換）
+    const isOver = p.gapNum == null || p.gapNum >= 3;
     const tr = document.createElement('tr');
     const lastDateText = p.lastDate ? '前回: ' + p.lastDate : '未測定';
     const nameStyle = isOver ? 'font-weight:600;color:#c62828;' : 'font-weight:600;';
