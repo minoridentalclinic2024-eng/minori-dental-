@@ -146,6 +146,8 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 #santel-table tr:hover td { background: var(--green-light); }
 .count-ok   { color: var(--green); font-weight: 700; }
 .count-over { color: var(--warn); font-weight: 700; background: var(--warn-bg); padding: 2px 6px; border-radius: 4px; }
+.measure-done { color: #2e7d32; font-weight: 700; background: #e8f5e9; border-radius: 4px; padding: 2px 7px; font-size: 12px; white-space: nowrap; }
+.measure-none { color: #9e9e9e; font-size: 12px; }
 
 /* 測定対象者セクション */
 .measure-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
@@ -410,7 +412,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
       <div id="santel-table-wrap">
         <div id="santel-loading" style="text-align:center;padding:20px;color:var(--gray)">読み込み中...</div>
         <table id="santel-table" style="display:none">
-          <thead><tr><th>患者名</th><th>ケア</th><th>リハ</th></tr></thead>
+          <thead><tr><th>患者名</th><th>ケア</th><th>リハ</th><th>舌圧</th><th>ムーカス</th></tr></thead>
           <tbody id="santel-tbody"></tbody>
         </table>
       </div>
@@ -1010,11 +1012,17 @@ async function loadSantel() {
     const cfg = FAC_CONFIG[fac];
     (data.patients || []).forEach(p => {
       const tr = document.createElement('tr');
-      const keaCls  = p.keaCount  > cfg.limitKea  ? 'count-over' : 'count-ok';
-      const rihaCls = p.rihaCount > cfg.limitRiha ? 'count-over' : 'count-ok';
+      const keaCls    = p.keaCount  > cfg.limitKea  ? 'count-over' : 'count-ok';
+      const rihaCls   = p.rihaCount > cfg.limitRiha ? 'count-over' : 'count-ok';
+      const tongueText = p.tongueDone ? (p.tongueDisp || '済') : '未';
+      const dryText    = p.dryDone    ? (p.dryDisp    || '済') : '未';
+      const tongueCls  = p.tongueDone ? 'measure-done' : 'measure-none';
+      const dryCls     = p.dryDone    ? 'measure-done' : 'measure-none';
       tr.innerHTML = `<td>${p.name}</td>
         <td><span class="${keaCls}">${p.keaCount}/${cfg.limitKea}</span></td>
-        <td><span class="${rihaCls}">${p.rihaCount}/${cfg.limitRiha}</span></td>`;
+        <td><span class="${rihaCls}">${p.rihaCount}/${cfg.limitRiha}</span></td>
+        <td><span class="${tongueCls}">${tongueText}</span></td>
+        <td><span class="${dryCls}">${dryText}</span></td>`;
       tbody.appendChild(tr);
     });
     loading.style.display = 'none';
