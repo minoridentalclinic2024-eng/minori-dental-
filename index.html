@@ -1599,6 +1599,17 @@ async function loadReport() {
       }
     } catch(e) { console.warn('測定記録取得失敗:', e); }
 
+    // 測定記録をIDと正規化名でインデックス化（照合用）
+    function _normName(s){ return (s||'').replace(/[\s　]+/g,''); }
+    const measureMap={}, consumedKeys=new Set();
+    dailyMeasures.forEach(m=>{
+      const ik=m.id?String(m.id).trim():null;
+      const nk='n:'+_normName(m.name);
+      if(ik) measureMap[ik]=m;
+      measureMap[nk]=m;
+      m._key=ik||nk;
+    });
+
     const records = (data.records || [])
       .filter(r => (r.content || r.raw || '').trim() !== '')
       .flatMap(r => {
@@ -1689,10 +1700,17 @@ async function loadReport() {
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${measureLine}${memo}${copyBtn}</td>
           </tr>`;
         } else {
-          // DH：時間・患者名のみ（実施内容は非表示）
+          // DH：患者名 + 測定記録を統合表示（IDで照合、フォールバックは正規化名）
+          const mMatch=(patNum&&measureMap[patNum])||measureMap['n:'+_normName(nameText)]||null;
+          if(mMatch) consumedKeys.add(mMatch._key);
+          const mRowHtml=mMatch?(()=>{
+            const tH=mMatch.tongue?`<span style="background:#e8f5f0;color:#2e7d5e;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">舌圧 ${mMatch.tongue}kPa</span>`:'';
+            const dH=mMatch.dry?`<span style="background:#fdf0ec;color:#c0613a;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">ムーカス ${mMatch.dry}</span>`:'';
+            return(tH||dH)?`<div style="margin-top:2px;">${tH}${dH}</div>`:'';
+          })():'';
           return `<tr style="background:${rowBg};">
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2"><div>${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</div>${mRowHtml}</td>
           </tr>`;
         }
       }).join('');
@@ -1714,27 +1732,19 @@ async function loadReport() {
         </div>`;
     });
 
-    // 測定記録セクション（測定記録シートが正規ソース・重複なし・修正済み値）
-    const mBlock = document.getElementById('report-measures-block');
-    mBlock.innerHTML = '';
-    if (dailyMeasures.length > 0) {
-      const mCards = dailyMeasures.map(m => {
-        const tHtml = m.tongue ? `<span style="background:#e8f5f0;color:#2e7d5e;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;margin-right:4px;">舌圧 ${m.tongue}kPa</span>` : '';
-        const dHtml = m.dry    ? `<span style="background:#fdf0ec;color:#c0613a;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">ムーカス ${m.dry}</span>` : '';
-        return `<div style="padding:6px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #eef3f1;">
-          <span style="font-size:12px;font-weight:700;min-width:90px;">${m.name}</span>
-          <div>${tHtml}${dHtml}</div>
-        </div>`;
+    // 口腔ケアなし患者の測定のみ補足欄（統合できなかった分だけ表示）
+    const umList=dailyMeasures.filter(m=>!consumedKeys.has(m._key));
+    if(umList.length>0){
+      const umRows=umList.map(m=>{
+        const tH=m.tongue?`<span style="background:#e8f5f0;color:#2e7d5e;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">舌圧 ${m.tongue}kPa</span>`:'';
+        const dH=m.dry?`<span style="background:#fdf0ec;color:#c0613a;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">ムーカス ${m.dry}</span>`:'';
+        return `<div style="padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;border-bottom:1px solid #eef3f1;"><span style="font-size:12px;font-weight:700;min-width:80px;">${m.name}様</span><div>${tH}${dH}</div></div>`;
       }).join('');
-      mBlock.innerHTML = `
-        <div style="margin-bottom:8px;border:1px solid #b2d8c9;border-radius:8px;overflow:hidden;">
-          <div style="background:#2e7d5e;color:white;padding:5px 10px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;">
-            <span>📊 測定記録（${dateStr}）</span>
-            <span style="opacity:.85;font-weight:400;font-size:10px;">${dailyMeasures.length}名</span>
-          </div>
-          ${mCards}
-        </div>`;
+      wrap.innerHTML+=`<div style="margin-bottom:8px;border:1px solid #c8ddd5;border-radius:8px;overflow:hidden;"><div style="background:#7b9e8a;color:white;padding:5px 10px;font-size:12px;font-weight:700;">📋 測定のみ（${umList.length}名）</div>${umRows}</div>`;
     }
+    // 独立した測定記録セクションは廃止（患者行へ統合済み）
+    const mBlock = document.getElementById('report-measures-block');
+    if(mBlock) mBlock.innerHTML='';
 
     document.getElementById('report-body').style.display = 'block';
   } catch(e) {
