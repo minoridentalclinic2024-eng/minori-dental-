@@ -1155,13 +1155,14 @@ async function fetchCsvPreview() {
   if (!dateInput) { alert('日付を選択してください'); return; }
   const fac = document.getElementById('santel-fac-sel').value;
   const [yyyy, mm, dd] = dateInput.split('-');
-  const dateStr = `${parseInt(mm)}/${parseInt(dd)}`;
+  const dateStr     = `${parseInt(mm)}/${parseInt(dd)}`;
+  const fullDateStr = `${yyyy}/${parseInt(mm)}/${parseInt(dd)}`; // YYYY/M/D — GAS日付解析修正
   const btn = document.getElementById('csv-fetch-btn');
   btn.textContent = '取得中...'; btn.disabled = true;
   document.getElementById('csv-preview').style.display = 'none';
   document.getElementById('csv-empty').style.display   = 'none';
   try {
-    const resp = await fetch(GAS_URLS[fac] + `?action=today&date=${encodeURIComponent(dateStr)}`);
+    const resp = await fetch(GAS_URLS[fac] + `?action=today&date=${encodeURIComponent(fullDateStr)}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     const records = (data.records || [])
@@ -1574,7 +1575,8 @@ async function loadReport() {
   if (!dateInput) { alert('日付を選択してください'); return; }
   const fac = document.getElementById('report-fac-sel').value;
   const [yyyy, mm, dd] = dateInput.split('-');
-  const dateStr = `${parseInt(mm)}/${parseInt(dd)}`;
+  const dateStr     = `${parseInt(mm)}/${parseInt(dd)}`;           // "M/D" — getDailyMeasures・列照合用
+  const fullDateStr = `${yyyy}/${parseInt(mm)}/${parseInt(dd)}`;   // "YYYY/M/D" — action=today（GAS日付解析修正）
   const facName = FAC_CONFIG[fac].name;
 
   document.getElementById('report-loading').style.display = 'block';
@@ -1582,22 +1584,33 @@ async function loadReport() {
   document.getElementById('report-body').style.display    = 'none';
 
   try {
-    // ケア記録と測定記録を並行取得（測定記録シートが日報の正規ソース）
-    const [resp, mResp] = await Promise.all([
-      fetch(GAS_URLS[fac] + `?action=today&date=${encodeURIComponent(dateStr)}`),
-      fetch(GAS_URLS[fac] + `?action=getDailyMeasures&date=${encodeURIComponent(dateStr)}`).catch(() => null)
+    // ケア記録と測定記録を並行取得（Promise.allSettled: 片方失敗でも日報継続）
+    const [careResult, mResult] = await Promise.allSettled([
+      fetch(GAS_URLS[fac] + `?action=today&date=${encodeURIComponent(fullDateStr)}`).then(r => r.json()),
+      fetch(GAS_URLS[fac] + `?action=getDailyMeasures&date=${encodeURIComponent(dateStr)}`).then(r => r.json())
     ]);
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error);
 
-    // 測定記録シートから当日の舌圧・ムーカス（重複なし・修正済み値を使用）
+    // ケア記録失敗は致命的エラー（施設名・日付・詳細を表示）
+    if (careResult.status === 'rejected') {
+      const em = careResult.reason?.message || '通信エラー';
+      console.error(`[日報] ${facName} ケア記録取得失敗`, { fac, date: fullDateStr, action: 'today', error: em });
+      throw new Error(`【${facName}】${yyyy}年${parseInt(mm)}月${parseInt(dd)}日\naction=today の取得に失敗しました。\n詳細: ${em}`);
+    }
+    const data = careResult.value;
+    if (data.error) {
+      console.error(`[日報] ${facName} GASエラー`, { fac, date: fullDateStr, action: 'today', response: data });
+      throw new Error(`【${facName}】${yyyy}年${parseInt(mm)}月${parseInt(dd)}日\nGASエラー: ${data.error}`);
+    }
+
+    // 測定記録（失敗時はログのみ・日報表示は継続）
     let dailyMeasures = [];
-    try {
-      if (mResp && mResp.ok) {
-        const mData = await mResp.json();
-        dailyMeasures = mData.measures || [];
-      }
-    } catch(e) { console.warn('測定記録取得失敗:', e); }
+    if (mResult.status === 'fulfilled') {
+      const mData = mResult.value;
+      if (mData.error) { console.warn(`[日報] ${facName} 測定記録GASエラー:`, mData.error); }
+      else { dailyMeasures = mData.measures || []; }
+    } else {
+      console.warn(`[日報] ${facName} 測定記録取得失敗:`, mResult.reason?.message);
+    }
 
     // 測定記録をIDと正規化名でインデックス化（照合用）
     function _normName(s){ return (s||'').replace(/[\s　]+/g,''); }
@@ -1748,6 +1761,7 @@ async function loadReport() {
 
     document.getElementById('report-body').style.display = 'block';
   } catch(e) {
+    console.error('[日報] 表示エラー:', e);
     alert('エラー: ' + e.message);
   } finally {
     document.getElementById('report-loading').style.display = 'none';
