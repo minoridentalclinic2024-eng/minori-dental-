@@ -991,6 +991,62 @@ async function saveMeasure(id, name, type, value, visitDate) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  算定確認（月間）
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/**
+ * 最終測定日から表示ラベル・CSSクラスを返す純粋関数
+ * @param {string|null} lastDateStr - "YYYY/M/D" 形式の日付文字列（空・null可）
+ * @param {Date} today - 判定基準日（省略時は new Date()）
+ * @param {string} type - 測定種別（'舌圧' or 'ムーカス'）。ラベル先頭に付加する
+ * @returns {{ label: string, cssClass: string }}
+ *
+ * 3か月判定: 暦月単位で経過月数を計算
+ *   elapsedMonths = (今年×12+今月) − (測定年×12+測定月)
+ *   0〜2: アラートなし  /  3以上: 要測定
+ *
+ * 例) 4月測定 → 7月以降が「要測定」（4月・5月・6月は警告なし）
+ */
+function getMeasurementStatus(lastDateStr, today, type) {
+  if (!today) today = new Date();
+  const prefix = type ? type + '　' : '';
+  let lastDate = null;
+  try {
+    if (lastDateStr) {
+      const s = String(lastDateStr).trim();
+      const m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+      if (m) {
+        const d = new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+        if (!isNaN(d.getTime())) lastDate = d;
+        else console.warn('[getMeasurementStatus] 無効な日付値:', lastDateStr);
+      }
+      // M/D形式は今回対象外（GASはYYYY/M/D形式で保存）
+    }
+  } catch (e) {
+    console.error('[getMeasurementStatus] 日付パースエラー:', lastDateStr, e);
+  }
+
+  if (!lastDate) {
+    return { label: `${prefix}最終測定：なし　⚠ 未測定`, cssClass: 'measure-none' };
+  }
+
+  // 表示用日付文字列
+  const dispDate = `${lastDate.getFullYear()}/${lastDate.getMonth() + 1}/${lastDate.getDate()}`;
+
+  // 暦月単位の経過月数（日付は関係なく、年月のみで判定）
+  const elapsedMonths = (today.getFullYear() * 12 + (today.getMonth() + 1))
+                      - (lastDate.getFullYear() * 12 + (lastDate.getMonth() + 1));
+
+  if (elapsedMonths >= 3) {
+    return { label: `${prefix}最終測定：${dispDate}　⚠ 要測定`, cssClass: 'measure-warn' };
+  } else {
+    return { label: `${prefix}最終測定：${dispDate}`, cssClass: 'measure-recent' };
+  }
+}
+
+/** 患者名を正規化（先頭の患者番号と空白を除去）してIDマッチングに使用 */
+function _normSantelName(s) {
+  return String(s || '').normalize('NFKC').replace(/^\d+\s*/, '').replace(/[\s　]+/g, '');
+}
+
 let _santelLoading = false;
 async function loadSantel() {
   if (_santelLoading) return;
@@ -1010,43 +1066,54 @@ async function loadSantel() {
   table.style.display   = 'none';
   tbody.innerHTML = '';
   try {
-    const data = await cachedFetch(GAS_URLS[fac] + `?action=monthCount&year=${yy}&month=${mm}`);
+    // 算定集計と測定記録を並行取得（測定失敗は警告のみ・画面は継続表示）
+    const [countResult, measResult] = await Promise.allSettled([
+      cachedFetch(GAS_URLS[fac] + `?action=monthCount&year=${yy}&month=${mm}`),
+      cachedFetch(GAS_URLS[fac] + '?action=measures')
+    ]);
+
+    if (countResult.status === 'rejected') throw countResult.reason;
+    const data = countResult.value;
     if (data.error) throw new Error(data.error);
+
+    // 測定記録マップ構築（ID優先・正規化名フォールバック）
+    const measById = {}, measByNorm = {};
+    if (measResult.status === 'fulfilled' && !measResult.value.error) {
+      (measResult.value.measures || []).forEach(m => {
+        const id = String(m.id || '').trim();
+        if (id) measById[id] = m;
+        const nm = _normSantelName(m.name);
+        if (nm) measByNorm[nm] = m;
+      });
+    } else if (measResult.status === 'rejected') {
+      console.warn('[loadSantel] 測定記録取得失敗（舌圧・ムーカス表示のみ影響）:', measResult.reason);
+    }
+
+    const today = new Date();
     const cfg = FAC_CONFIG[fac];
     (data.patients || []).forEach(p => {
       const tr = document.createElement('tr');
-      const keaCls = p.keaCount  > cfg.limitKea  ? 'count-over' : 'count-ok';
-      const rihaCls= p.rihaCount > cfg.limitRiha ? 'count-over' : 'count-ok';
+      const keaCls  = p.keaCount  > cfg.limitKea  ? 'count-over' : 'count-ok';
+      const rihaCls = p.rihaCount > cfg.limitRiha ? 'count-over' : 'count-ok';
 
-      // 舌圧 表示
-      let tongueText, tongueCls;
-      if (!p.tongueDisp) {
-        tongueText = '未測定'; tongueCls = 'measure-none';
-      } else if (p.tongueDoneThisMonth) {
-        tongueText = p.tongueDisp + '　当月済'; tongueCls = 'measure-done';
-      } else if (p.tongueNeedsMeasurement) {
-        tongueText = p.tongueDisp + '　要測定'; tongueCls = 'measure-warn';
-      } else {
-        tongueText = p.tongueDisp; tongueCls = 'measure-recent';
-      }
+      // 患者IDを名前から抽出してマッチング（例: "57 池田 俊夫" → id="57"）
+      const idM = String(p.name || '').normalize('NFKC').match(/^(\d+)\s*/);
+      const extractedId = idM ? idM[1] : null;
+      const normN = _normSantelName(p.name);
+      const mRec = (extractedId && measById[extractedId]) || measByNorm[normN] || null;
 
-      // ムーカス 表示
-      let dryText, dryCls;
-      if (!p.dryDisp) {
-        dryText = '未測定'; dryCls = 'measure-none';
-      } else if (p.dryDoneThisMonth) {
-        dryText = p.dryDisp + '　当月済'; dryCls = 'measure-done';
-      } else if (p.dryNeedsMeasurement) {
-        dryText = p.dryDisp + '　要測定'; dryCls = 'measure-warn';
-      } else {
-        dryText = p.dryDisp; dryCls = 'measure-recent';
-      }
+      // 舌圧・ムーカス それぞれ独立した最終測定日で判定
+      let tongueStatus, dryStatus;
+      try { tongueStatus = getMeasurementStatus(mRec ? mRec.tongueDate : null, today, '舌圧'); }
+      catch(e) { console.error('[loadSantel] 舌圧判定エラー', p.name, e); tongueStatus = { label: '舌圧　取得失敗', cssClass: 'measure-none' }; }
+      try { dryStatus = getMeasurementStatus(mRec ? mRec.dryDate : null, today, 'ムーカス'); }
+      catch(e) { console.error('[loadSantel] ムーカス判定エラー', p.name, e); dryStatus = { label: 'ムーカス　取得失敗', cssClass: 'measure-none' }; }
 
       tr.innerHTML = `<td>${p.name}</td>
         <td><span class="${keaCls}">${p.keaCount}/${cfg.limitKea}</span></td>
         <td><span class="${rihaCls}">${p.rihaCount}/${cfg.limitRiha}</span></td>
-        <td><span class="${tongueCls}">${tongueText}</span></td>
-        <td><span class="${dryCls}">${dryText}</span></td>`;
+        <td><span class="${tongueStatus.cssClass}">${tongueStatus.label}</span></td>
+        <td><span class="${dryStatus.cssClass}">${dryStatus.label}</span></td>`;
       tbody.appendChild(tr);
     });
     loading.style.display = 'none';
