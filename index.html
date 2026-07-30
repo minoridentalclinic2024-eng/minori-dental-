@@ -7,7 +7,7 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --green: #4a9b7f;
+  --green: #4a9b7f
   --green-light: #e8f5f0;
   --green-mid: #6ab090;
   --border: #dde8e4;
@@ -1594,7 +1594,7 @@ async function saveEditRecord() {
   const params = new URLSearchParams({
     action: 'updateRecord',
     patientName: ctx.patientName,
-    visitDate:   ctx.dateStr,
+    visitDate:   ctx.isoDateStr,
     oldRaw:      ctx.r.raw,
     staff, type, timeStr, contentStr, memo
   });
@@ -1620,7 +1620,7 @@ async function deleteRecordFromModal() {
   const params = new URLSearchParams({
     action: 'deleteRecord',
     patientName: ctx.patientName,
-    visitDate:   ctx.dateStr,
+    visitDate:   ctx.isoDateStr,
     rawText:     ctx.r.raw
   });
 
@@ -1736,7 +1736,7 @@ async function loadReport() {
       const rows = recs.map((r, idx) => {
         // 編集ボタン用にデータを登録
         const dataIdx = _reportData.length;
-        _reportData.push({ fac, dateStr, patientName: r.name, r });
+        _reportData.push({ fac, dateStr, isoDateStr: dateInput, patientName: r.name, r });
         const editBtn = `<button class="edit-record-btn" onclick="openEditModal(${dataIdx})">✏️</button>`;
 
         // ⑤ 1行おきに背景色
