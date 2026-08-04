@@ -239,6 +239,155 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .edit-btn-cancel { flex:1; padding:13px; background:#f0f0f0; color:#555; border:none; border-radius:12px; font-size:15px; cursor:pointer; }
 .edit-btn-delete { width:100%; padding:12px; background:white; color:var(--warn); border:1.5px solid var(--warn); border-radius:12px; font-size:14px; cursor:pointer; margin-top:10px; }
 .edit-record-btn { margin-left:5px; padding:2px 6px; font-size:11px; background:#fff8e1; border:1px solid #ffd54f; border-radius:4px; cursor:pointer; color:#795548; vertical-align:middle; }
+
+/* ===== デザイン改善 2026/08 — CSS変更のみ ===== */
+
+/* カード: 境界線・影を強化 */
+.section {
+  border: 1px solid #ccd9d4;
+  box-shadow: 0 2px 10px rgba(0,0,0,.09);
+}
+
+/* セクションタイトル: 薄い緑背景で視認性アップ */
+.section-label {
+  background: #edf6f1;
+  border-radius: 6px;
+  padding: 5px 10px 5px 8px;
+  color: #357a64;
+  margin-bottom: 14px;
+}
+
+/* 施設ボタン: 押せると分かる背景色 */
+.fac-btn {
+  border-color: #a8c4bb;
+  background: #f2f9f5;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+.fac-btn:hover:not(.active) {
+  border-color: var(--green);
+  background: #e6f2ec;
+  box-shadow: 0 2px 6px rgba(74,155,127,.18);
+}
+
+/* 算定区分カード */
+.type-card {
+  border-color: #a8c4bb;
+  background: #f2f9f5;
+  transition: border-color .15s, background .15s;
+}
+.type-card:hover:not(.active) {
+  border-color: var(--green);
+  background: #e6f2ec;
+}
+
+/* 入力欄: 枠線を分かりやすく */
+.input-styled {
+  border-color: #9fbdb4;
+  background: #fafdfc;
+}
+.input-styled:focus {
+  border-color: var(--green);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(74,155,127,.13);
+}
+
+/* 実施内容チェック */
+.check-item {
+  background: #ecf2ef;
+  border-color: #a8c4bb;
+  transition: background .12s, border-color .12s;
+}
+.check-item:hover:not(.checked) {
+  background: #dceee7;
+  border-color: var(--green-mid);
+}
+
+/* 担当者ボタン */
+.radio-item {
+  background: #ecf2ef;
+  border-color: #a8c4bb;
+  transition: background .12s, border-color .12s;
+}
+.radio-item:hover:not(.checked) {
+  background: #dceee7;
+  border-color: var(--green-mid);
+}
+
+/* タブバー: 影と区切り */
+#tab-bar {
+  border-top: 1.5px solid #b8cec8;
+  box-shadow: 0 -3px 10px rgba(0,0,0,.09);
+}
+.tab-btn.active {
+  background: #edf6f1;
+}
+
+/* 保存ボタン: 存在感を強調 */
+#save-btn {
+  box-shadow: 0 3px 10px rgba(74,155,127,.3);
+  letter-spacing: .03em;
+}
+#save-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(74,155,127,.42);
+  transform: translateY(-1px);
+}
+
+/* 編集モーダル — スタッフボタン */
+.edit-staff-btn {
+  background: #ecf2ef;
+  border-color: #a8c4bb;
+  transition: background .12s, border-color .12s;
+}
+.edit-staff-btn:hover:not(.active) {
+  background: #dceee7;
+  border-color: var(--green-mid);
+}
+
+/* 編集モーダル — タイプボタン */
+.edit-type-btn {
+  background: #ecf2ef;
+  border-color: #a8c4bb;
+  transition: background .12s, border-color .12s;
+}
+.edit-type-btn:hover:not(.active) {
+  background: #dceee7;
+  border-color: var(--green-mid);
+}
+
+/* 編集モーダル — チェック項目 */
+.edit-check-item {
+  background: #ecf2ef;
+  border-color: #a8c4bb;
+  transition: background .12s, border-color .12s;
+}
+.edit-check-item:hover:not(.checked) {
+  background: #dceee7;
+  border-color: var(--green-mid);
+}
+
+/* キャンセルボタン */
+.edit-btn-cancel {
+  background: #dde4e2;
+  color: #3a4a46;
+  border: 1.5px solid #b8c6c2;
+}
+.edit-btn-cancel:hover {
+  background: #cfd8d5;
+}
+
+/* 削除ボタン */
+.edit-btn-delete {
+  background: #fef0ec;
+}
+.edit-btn-delete:hover {
+  background: #fcdfd5;
+}
+
+/* 鉛筆ボタン (日報の編集) */
+.edit-record-btn:hover {
+  background: #ffe9a0;
+  border-color: #e0a800;
+}
 </style>
 </head>
 <body>
