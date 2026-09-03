@@ -676,6 +676,7 @@ const FAC_CONFIG = {
 let currentFac   = 'izumi';
 let currentType  = 'kea';
 let patientCache = {};
+let _saving      = false; // 保存処理中フラグ（二重送信・保存中の患者切替を防止）
 let csvRecords   = [];   // 最後に取得したCSV用データ
 let csvDateStr   = '';
 let csvFac       = '';
@@ -756,6 +757,7 @@ function setTodayDate() {
 //  施設切り替え
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function switchFacility(fac) {
+  if (_saving) return; // 保存処理中は施設切り替えを禁止（患者取り違え防止）
   currentFac = fac;
   document.querySelectorAll('.fac-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.fac === fac));
@@ -801,12 +803,10 @@ function buildPatientSelect(sel, patients) {
   updatePreview();
 }
 
-// 患者選択変更時
+// 患者選択変更時: 前の患者の実施内容・測定値・備考を持ち越さないよう初期化する
 document.getElementById('pt-sel')?.addEventListener('change', () => {
+  resetEntryFieldsForPatientSwitch();
   updatePreview();
-  // リマインダーをリセット
-  const reminderEl = document.getElementById('measure-reminder');
-  if (reminderEl) reminderEl.style.display = 'none';
   checkMeasureReminder();
 });
 
@@ -826,6 +826,7 @@ function autoSetTimeTo() {
 
 
 async function selectType(type) {
+  if (_saving) return; // 保存処理中は算定区分の変更を禁止（記録種別の取り違え防止）
   currentType = type;
   document.querySelectorAll('.type-card').forEach(c =>
     c.classList.toggle('active', c.dataset.type === type));
@@ -875,10 +876,12 @@ async function autoSetRihaTime() {
   } catch(e) {}
 }
 function toggleCheck(el) {
+  if (_saving) return;
   el.classList.toggle('checked');
   updatePreview();
 }
 function selectStaff(el) {
+  if (_saving) return;
   document.querySelectorAll('.radio-item').forEach(r => r.classList.remove('checked'));
   el.classList.add('checked');
   updatePreview();
@@ -1013,23 +1016,57 @@ async function checkDuplicate(patientName, dateStr, type, newTimeStr) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  保存
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ★ 患者情報取得の共通処理（一本化）。
+//   プルダウンの現在選択から { row, id, name } を"その場で1回だけ"確定させる。
+//   保存処理の中では、この戻り値をずっと使い回し、あとから sel.selectedIndex を
+//   読み直さないこと（読み直すと、保存中に次の患者へ切り替えられた場合に
+//   測定値だけ別患者に紐付いてしまう＝今回の不具合の直接原因）。
+function getSelectedPatient() {
+  const sel = document.getElementById('pt-sel');
+  if (!sel || !sel.value) return null;
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt) return null;
+  return { row: sel.value, id: opt.dataset.id || '', name: opt.dataset.name || '' };
+}
+
+// 保存中は患者選択・施設切り替え・算定区分変更をロックする（連続操作・取り違え防止）
+function lockFormForSaving(lock) {
+  const sel = document.getElementById('pt-sel');
+  if (sel) sel.disabled = lock;
+  document.querySelectorAll('.fac-btn').forEach(b => b.disabled = lock);
+}
+
+// 患者切替時: 前の患者に紐づく実施内容・測定値・備考を初期化する（取り違え防止）
+function resetEntryFieldsForPatientSwitch() {
+  document.querySelectorAll('#content-checks .check-item.checked').forEach(el => el.classList.remove('checked'));
+  const tc = document.getElementById('tongue-check'); if (tc) tc.checked = false;
+  const dc = document.getElementById('dry-check');    if (dc) dc.checked = false;
+  const tv = document.getElementById('tongue-val');   if (tv) tv.value = '';
+  const dv = document.getElementById('dry-val');      if (dv) dv.value = '';
+  const memo = document.getElementById('memo');       if (memo) memo.value = '';
+  const reminderEl = document.getElementById('measure-reminder');
+  if (reminderEl) reminderEl.style.display = 'none';
+}
+
 async function saveRecord() {
-  const sel  = document.getElementById('pt-sel');
-  const row  = sel.value;
-  if (!row) { alert('患者を選択してください'); return; }
+  if (_saving) return; // 二重送信防止（保存ボタン以外の経路からの連打対策）
+  const patient = getSelectedPatient();
+  if (!patient) { alert('患者を選択してください'); return; }
   const dateVal = document.getElementById('visit-date').value;
   if (!dateVal) { alert('訪問日を入力してください'); return; }
+  const recordType = currentType; // 記録種別もこの時点で確定し、以後読み直さない
 
   // 同日重複チェック（種別 + 時間）
-  const ptName = sel.options[sel.selectedIndex]?.dataset.name || '';
   const fromTime = document.getElementById('time-from').value;
   const toTime   = document.getElementById('time-to').value;
   const newTimeStr = fromTime && toTime ? `${fromTime}〜${toTime}` : '';
-  const dupErr = await checkDuplicate(ptName, dateVal, currentType, newTimeStr);
+  const dupErr = await checkDuplicate(patient.name, dateVal, recordType, newTimeStr);
   if (dupErr) { alert('⚠️ ' + dupErr); return; }
 
   const btn = document.getElementById('save-btn');
   const msg = document.getElementById('save-msg');
+  _saving = true;
+  lockFormForSaving(true);
   btn.disabled = true;
   btn.textContent = '保存中...';
   msg.textContent = '';
@@ -1060,10 +1097,11 @@ async function saveRecord() {
 
     const params = new URLSearchParams({
       action:       'write',
-      patientRow:   row,
-      patientName:  ptName,
+      patientRow:   patient.row,
+      patientId:    patient.id,
+      patientName:  patient.name,
       visitDate:    dateVal,
-      type:         currentType,
+      type:         recordType,
       timeStr:      timeStr,
       contentStr:   contentStr,
       staff:        staff,
@@ -1072,25 +1110,35 @@ async function saveRecord() {
     const resp = await fetch(GAS_URLS[currentFac] + '?' + params.toString());
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
-    msg.textContent = `✅ 保存しました（${data.wrote}）`;
+    // 保存完了後に、サーバー側で実際に確定した患者名・記録種別を表示する
+    const typeName = recordType === 'kea' ? '口腔ケア' : '口腔リハ';
+    const savedName = data.patientName || patient.name;
+    msg.textContent = `✅ ${savedName}様の${typeName}を保存しました（${data.wrote}）`;
     msg.className = 'ok';
     // 保存後はキャッシュをクリア（今日の記録・月集計が古くなるため）
     clearCache(GAS_URLS[currentFac] + '?action=today');
     clearCache(GAS_URLS[currentFac] + '?action=monthCount');
 
-    // 測定記録シートにも保存
-    const ptId   = sel.options[sel.selectedIndex]?.dataset.id || '';
-    if (tongueCheck && tongueVal) await saveMeasure(ptId, ptName, 'tongue', tongueVal, dateVal);
-    if (dryCheck    && dryVal)    await saveMeasure(ptId, ptName, 'dry',    dryVal, dateVal);
+    // 測定記録シートにも保存（患者情報は上で確定した同じ patient を使い回す）
+    if (tongueCheck && tongueVal) await saveMeasure(patient, 'tongue', tongueVal, dateVal);
+    if (dryCheck    && dryVal)    await saveMeasure(patient, 'dry',    dryVal, dateVal);
 
     // 保存完了後に日報を自動更新（測定日 = 訪問日 を使用）
     await _refreshDailyReport(dateVal, currentFac);
+
+    // 次の患者の入力に備え、患者選択と実施内容・測定値・備考を初期化する
+    const sel = document.getElementById('pt-sel');
+    if (sel) sel.value = '';
+    resetEntryFieldsForPatientSwitch();
+    updatePreview();
   } catch(e) {
     msg.textContent = '❌ エラー: ' + e.message;
     msg.className = 'err';
   } finally {
     btn.disabled = false;
     btn.textContent = 'スプレッドシートに保存';
+    _saving = false;
+    lockFormForSaving(false);
   }
 }
 
@@ -1108,8 +1156,8 @@ async function _refreshDailyReport(dateVal, fac) {
   }
 }
 
-async function saveMeasure(id, name, type, value, visitDate) {
-  const params = new URLSearchParams({ action:'writeMeasure', id, name, type, value });
+async function saveMeasure(patient, type, value, visitDate) {
+  const params = new URLSearchParams({ action:'writeMeasure', id: patient.id, name: patient.name, type, value });
   if (visitDate) params.set('date', visitDate); // 訪問日（測定日）をGASへ渡す
   let resp;
   try {
