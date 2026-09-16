@@ -1056,15 +1056,13 @@ async function saveRecord() {
   if (!dateVal) { alert('訪問日を入力してください'); return; }
   const recordType = currentType; // 記録種別もこの時点で確定し、以後読み直さない
 
-  // 同日重複チェック（種別 + 時間）
-  const fromTime = document.getElementById('time-from').value;
-  const toTime   = document.getElementById('time-to').value;
-  const newTimeStr = fromTime && toTime ? `${fromTime}〜${toTime}` : '';
-  const dupErr = await checkDuplicate(patient.name, dateVal, recordType, newTimeStr);
-  if (dupErr) { alert('⚠️ ' + dupErr); return; }
-
   const btn = document.getElementById('save-btn');
   const msg = document.getElementById('save-msg');
+  // ★ 二重送信防止・患者切替ロックは、この後の同日重複チェック通信（await）より前に
+  //   同期的にかける。以前はcheckDuplicate()の完了後にロックしていたため、その通信待ちの
+  //   間（スマホ等の低速回線では特に長くなる）にもう一度保存ボタンを押されると二重保存に、
+  //   患者プルダウンを切り替えられると記録の欠落・不整合につながっていた
+  //   （2026-09-10 吉岡さんの「ダブり」「測定のみ」報告・不具合ログ参照）。
   _saving = true;
   lockFormForSaving(true);
   btn.disabled = true;
@@ -1073,6 +1071,13 @@ async function saveRecord() {
   msg.className = '';
 
   try {
+    // 同日重複チェック（種別 + 時間）
+    const fromTime = document.getElementById('time-from').value;
+    const toTime   = document.getElementById('time-to').value;
+    const newTimeStr = fromTime && toTime ? `${fromTime}〜${toTime}` : '';
+    const dupErr = await checkDuplicate(patient.name, dateVal, recordType, newTimeStr);
+    if (dupErr) { alert('⚠️ ' + dupErr); return; }
+
     const from = document.getElementById('time-from').value;
     const to   = document.getElementById('time-to').value;
     const timeStr    = from && to ? `${from}〜${to}` : '';
