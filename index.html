@@ -455,6 +455,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .oe-hist td.hit { color: #c0613a; font-weight: 700; }
 .oe-csv-month { display: flex; gap: 8px; margin-top: 8px; }
 .oe-csv-month .input-styled { flex: 1; min-width: 0; }
+.oe-report-line { font-size: 11px; color: #2b5d7a; background: #eef6fb; border-radius: 4px; padding: 3px 6px; margin-top: 3px; line-height: 1.5; }
 .oe-report-badge { display: inline-block; border-radius: 3px; padding: 1px 5px; font-size: 11px; font-weight: 700; margin: 2px 4px 0 0; }
 </style>
 </head>
@@ -617,8 +618,8 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
           <div class="oe-note">入力があるときだけ「スプレッドシートに保存」で一緒に保存されます。未入力のままでも通常の記録はこれまでどおり保存できます。</div>
 
           <div class="field">
-            <label>評価日</label>
-            <input type="date" class="input-styled" id="oe-date">
+            <label>評価日（訪問日と同じ日・変更不可）</label>
+            <input type="date" class="input-styled" id="oe-date" readonly tabindex="-1" style="background:#f4f8f6;color:var(--gray);">
           </div>
 
           <div class="oe-info" id="oe-current-info" style="display:none"></div>
@@ -2116,6 +2117,8 @@ async function loadReport() {
   document.getElementById('report-body').style.display    = 'none';
 
   try {
+    // 口腔機能評価を並行して取得開始（失敗・6秒超過時は null。日報本体の取得には影響しない）
+    const _oeFetch = (typeof oeReportFetch === 'function') ? oeReportFetch(fac, dateInput) : Promise.resolve(null);
     // ケア記録と測定記録を並行取得（Promise.allSettled: 片方失敗でも日報継続）
     const [careResult, mResult] = await Promise.allSettled([
       fetch(GAS_URLS[fac] + `?action=today&date=${encodeURIComponent(fullDateStr)}`).then(r => r.json()),
@@ -2143,6 +2146,10 @@ async function loadReport() {
     } else {
       console.warn(`[日報] ${facName} 測定記録取得失敗:`, mResult.reason?.message);
     }
+
+    // 口腔機能評価（患者ごと。口腔リハの行に付けて表示・コピーする。取得できなくても日報は通常どおり）
+    let _oeIdx = null;
+    try { _oeIdx = (typeof oeBuildReportIndex === 'function') ? oeBuildReportIndex(await _oeFetch) : null; } catch(e) { _oeIdx = null; }
 
     // 測定記録をIDと正規化名でインデックス化（照合用）
     function _normName(s){ return (s||'').replace(/[\s　]+/g,''); }
@@ -2232,17 +2239,23 @@ async function loadReport() {
         // 患者番号＋時間コピーボタン
 
 
+        // 口腔機能評価（同じ患者・同じ日の口腔リハの行にだけ付ける。評価が無ければ空＝従来どおり）
+        const oeTxt = (_oeIdx && typeof oeTakeEvalTextForRow === 'function') ? oeTakeEvalTextForRow(_oeIdx, r) : '';
+        const oeLine = oeTxt ? `<div class="oe-report-line">${oeEsc(oeTxt)}</div>` : '';
+
         // ③ コピーボタン（実施内容用）
         const copyId  = 'cp' + Math.random().toString(36).slice(2, 8);
-        const copyTxt = (cont + (r.memo ? ' 備考:' + r.memo : '')).replace(/'/g, "\\'");
-        const copyBtn = cont ? `<button id="${copyId}" onclick="navigator.clipboard.writeText('${copyTxt}').then(()=>{const b=document.getElementById('${copyId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-left:6px;padding:2px 6px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
+        const copyTxt = oeTxt
+          ? oeCopyLiteral(cont + (cont ? '\n' : '') + oeTxt + (r.memo ? '\n備考:' + r.memo : ''))  // 実施内容＋評価＋備考をまとめてコピー
+          : (cont + (r.memo ? ' 備考:' + r.memo : '')).replace(/'/g, "\\'");
+        const copyBtn = (cont || oeTxt) ? `<button id="${copyId}" onclick="navigator.clipboard.writeText('${copyTxt}').then(()=>{const b=document.getElementById('${copyId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-left:6px;padding:2px 6px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
 
         if (isDr) {
           // Dr：時間・患者名・実施内容（④種別列削除）
           return `<tr style="background:${rowBg};">
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${measureLine}${memo}${copyBtn}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${measureLine}${oeLine}${memo}${copyBtn}</td>
           </tr>`;
         } else {
           // DH：患者名 + 測定記録を統合表示（IDで照合、フォールバックは正規化名）
@@ -2255,7 +2268,7 @@ async function loadReport() {
           })():'';
           return `<tr style="background:${rowBg};">
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2"><div>${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</div>${mRowHtml}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2"><div>${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</div>${mRowHtml}${oeTxt ? `<div style="font-size:11px;color:#555;">${oeLine}${copyBtn}</div>` : ''}</td>
           </tr>`;
         }
       }).join('');
@@ -2292,8 +2305,8 @@ async function loadReport() {
     if(mBlock) mBlock.innerHTML='';
 
     document.getElementById('report-body').style.display = 'block';
-    // 口腔機能評価の表示（別通信・待たない。失敗しても日報本体には影響しない）
-    try { oeRenderReportBlock(fac, dateInput); } catch(e) { console.warn('[口腔機能評価] 日報表示エラー', e); }
+    // 口腔機能評価: 口腔リハの行に付けられなかった分だけ別欄に表示（失敗しても日報本体には影響しない）
+    try { oeRenderReportLeftovers(_oeIdx, fac, dateInput); } catch(e) { console.warn('[口腔機能評価] 日報表示エラー', e); }
   } catch(e) {
     console.error('[日報] 表示エラー:', e);
     alert('エラー: ' + e.message);
@@ -2494,9 +2507,10 @@ function oeJudge(inp) {
 }
 
 // ── 入力値の取得 ─────────────────────────────
+// 評価日は訪問日に固定（修正中は、その評価を行った日のまま）
 function oeEvalDate() {
-  const v = oeEl('oe-date')?.value;
-  return v || oeEl('visit-date')?.value || oeIso(new Date());
+  if (oeState.editing && oeState.editing.evalDate) return oeState.editing.evalDate;
+  return oeEl('visit-date')?.value || oeIso(new Date());
 }
 function oeReadNum(id) {
   const el = oeEl(id); if (!el) return { value:null, error:null };
@@ -2563,6 +2577,7 @@ function oeCurrentMonthEvals() {
   return oeState.history.filter(e => e.evalMonth === ym);
 }
 function oeRender() {
+  const dEl = oeEl('oe-date'); if (dEl) dEl.value = oeEvalDate();
   const { inp, tongue, dry } = oeCollect();
   const j = oeJudge(inp);
   OE_ITEMS.forEach(it => {
@@ -2956,24 +2971,86 @@ async function oeCsvMonth() {
 let _oeReportToken = 0;
 async function oeRenderReportBlock(fac, isoDate) {
   const box = oeEl('report-oral-eval-block'); if (!box) return;
-  box.innerHTML = '';
+  box.innerHTML = ''; box._oeTexts = [];
   if (!oeConfigured()) return;
   const myToken = ++_oeReportToken;
   let list;
   try { list = await oeList({ fac, date: isoDate }); }
   catch(e) { console.warn('[口腔機能評価] 日報用の取得失敗', e); return; }
   if (myToken !== _oeReportToken || !list.length) return;
-  const badge = (txt, hit) => `<span class="oe-report-badge" style="background:${hit ? '#fdf0ec' : '#eef3f1'};color:${hit ? '#c0613a' : '#55635d'};">${oeEsc(txt)}</span>`;
-  const rows = list.map(e => {
-    const hits = OE_ITEMS.filter(it => e['j_' + it.key] === '該当').map(it => it.short);
-    const ov = e.overall === '該当' ? badge('低下症 基準該当', true) : e.overall === '未確定' ? badge('判定未確定', false) : badge(oeOverallLabel(e), false);
-    return `<div style="padding:6px 10px;border-bottom:1px solid #eef3f1;">` +
-      `<div style="font-size:12px;font-weight:700;">${oeEsc(e.patientName)}様 <span style="font-weight:400;color:#8a9e96;font-size:10px;">${oeEsc(e.staff)}</span></div>` +
-      `<div>${ov}${badge(`該当${e.hitCount}／測定${e.measuredCount}`, false)}${hits.length ? badge('該当: ' + hits.join('・'), true) : ''}</div>` +
-      `<div style="font-size:10px;color:#6b7a74;margin-top:2px;">${oeEsc(oeSummaryText(e))}</div></div>`;
-  }).join('');
+  const idx = oeBuildReportIndex(list);
+  oeRenderEvalList(box, Object.values(idx.map), '口腔機能評価');
+}
+
+// ── 日報：口腔リハの実施内容に評価を追記して表示・一括コピー ──
+// 評価を日報用の1行の文章にする（未測定の項目も明記）
+function oeReportText(e) {
+  const st = k => e['j_' + k] || '未測定';
+  const mark = k => { const s = st(k); return s === '未測定' ? '' : `(${s === '保留' ? '判定保留' : s})`; };
+  const answered = (String(e.seirei || '').match(/[ABC]/g) || []).length;
+  const parts = [
+    st('hygiene') === '未測定' ? 'TCI 未測定' : (e.tciPct ? `TCI ${e.tciPct}%` : 'TCI 途中入力') + mark('hygiene'),
+    st('dry') === '未測定' ? 'ムーカス 未測定' : `ムーカス ${e.dry}` + mark('dry'),
+    st('bite') === '未測定' ? '残存歯 未測定' : `残存歯 ${e.teeth}本` + mark('bite'),
+    st('motor') === '未測定' ? 'パタカ 未測定' : `パ${e.pa || '—'} タ${e.ta || '—'} カ${e.ka || '—'}` + mark('motor'),
+    st('tongue') === '未測定' ? '舌圧 未測定' : `舌圧 ${e.tongue}kPa` + mark('tongue'),
+    st('chew') === '未測定' ? '咀嚼 未測定' : `咀嚼スコア ${e.chewScore}` + mark('chew'),
+    st('swallow') === '未測定' ? '聖隷式 未測定'
+      : (st('swallow') === '保留' ? `聖隷式 回答${answered}/15` : `聖隷式 A${e.seireiA || 0}個`) + mark('swallow'),
+  ];
+  const ov = e.overall === '該当' ? '口腔機能低下症の診断基準に該当'
+           : e.overall === '未確定' ? '判定未確定（未測定の項目あり）'
+           : e.overall === '非該当' ? '診断基準に非該当' : '未入力';
+  return `【口腔機能評価 ${oeMD(e.evalDate)}】${parts.join('／')} → 該当${e.hitCount}項目・測定${e.measuredCount}項目：${ov}`;
+}
+// コピーボタン（onclick属性内の '...'）に安全に埋め込める形にする（改行・記号を含む文章用）
+function oeCopyLiteral(s) {
+  return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n')
+    .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+// 日報用に評価を取得（失敗・6秒を超えたら null。日報本体を待たせすぎない）
+function oeReportFetch(fac, isoDate) {
+  if (!oeConfigured()) return Promise.resolve(null);
+  return Promise.race([
+    oeList({ fac, date: isoDate }).catch(e => { console.warn('[口腔機能評価] 日報用の取得失敗', e); return null; }),
+    new Promise(r => setTimeout(() => r(null), 6000)),
+  ]);
+}
+// 患者（照合用氏名）ごとに、その日の最新の評価をまとめる
+function oeBuildReportIndex(list) {
+  if (!Array.isArray(list)) return { failed: true, map: {}, used: new Set() };
+  const map = {};
+  list.slice().sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)))
+    .forEach(e => { map[e.cleanName || oeCleanName(e.patientName)] = e; });
+  return { failed: false, map, used: new Set() };
+}
+// 日報の行が「口腔リハ」で、同じ患者の評価があれば文章を返す（1患者につき最初の口腔リハ1行だけ）
+function oeTakeEvalTextForRow(idx, r) {
+  if (!idx || idx.failed || !r || r.type !== '口腔リハ') return '';
+  const key = oeCleanName(r.name);
+  if (!idx.map[key] || idx.used.has(key)) return '';
+  idx.used.add(key);
+  return oeReportText(idx.map[key]);
+}
+function oeRenderEvalList(box, evals, title) {
+  box._oeTexts = evals.map(e => oeReportText(e));
   box.innerHTML = `<div style="margin-bottom:8px;border:1px solid #c8ddd5;border-radius:8px;overflow:hidden;">` +
-    `<div style="background:#5b8fa8;color:white;padding:5px 10px;font-size:12px;font-weight:700;">🩺 口腔機能評価（${list.length}名）</div>${rows}</div>`;
+    `<div style="background:#5b8fa8;color:white;padding:5px 10px;font-size:12px;font-weight:700;">🩺 ${oeEsc(title)}（${evals.length}名）</div>` +
+    evals.map((e, i) => `<div style="padding:6px 10px;border-bottom:1px solid #eef3f1;">` +
+      `<div style="font-size:12px;font-weight:700;">${oeEsc(e.patientName)}様 <span style="font-weight:400;color:#8a9e96;font-size:10px;">${oeEsc(e.staff)}</span></div>` +
+      `<div class="oe-report-line">${oeEsc(box._oeTexts[i])}</div>` +
+      `<button type="button" data-oe-copy="${i}" style="margin-top:2px;padding:2px 6px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;">📋</button></div>`).join('') +
+    `</div>`;
+}
+// 口腔リハの行に付けられなかった評価（その日に口腔リハの記録がない等）を別欄に表示
+function oeRenderReportLeftovers(idx, fac, isoDate) {
+  const box = oeEl('report-oral-eval-block'); if (!box) return;
+  box.innerHTML = ''; box._oeTexts = [];
+  ++_oeReportToken;
+  if (!idx) return;
+  if (idx.failed) { oeRenderReportBlock(fac, isoDate); return; } // 取得が間に合わなかった場合は後から別欄に表示
+  const rest = Object.keys(idx.map).filter(k => !idx.used.has(k)).map(k => idx.map[k]);
+  if (rest.length) oeRenderEvalList(box, rest, '口腔機能評価（口腔リハの記録がない方）');
 }
 
 // ── イベント登録（既存の関数は書き換えず、リスナーを追加するだけ）──
@@ -3006,18 +3083,10 @@ async function oeRenderReportBlock(fac, isoDate) {
     });
   });
   oeEl('oe-chew').addEventListener('change', () => oeRender());
-  oeEl('oe-date').addEventListener('change', () => {
-    oeState.dateTouched = true;
-    if (!oeEl('oe-date').value) { oeEl('oe-date').value = oeEl('visit-date')?.value || ''; oeState.dateTouched = false; }
-    oeRender();
-  });
   // 既存の測定値欄の変化を判定に反映（既存の処理はそのまま）
   ['tongue-val','dry-val'].forEach(id => oeEl(id)?.addEventListener('input', () => oeRender()));
   ['tongue-check','dry-check'].forEach(id => oeEl(id)?.addEventListener('change', () => oeRender()));
-  oeEl('visit-date')?.addEventListener('change', () => {
-    if (!oeState.dateTouched) oeEl('oe-date').value = oeEl('visit-date').value;
-    oeRender();
-  });
+  oeEl('visit-date')?.addEventListener('change', () => oeRender()); // 評価日は訪問日に追従
   // 患者切替・施設切替で評価欄を初期化（前の患者の評価を持ち越さない）
   oeEl('pt-sel')?.addEventListener('change', () => {
     const p = oeCurrentPatientFromSelect();
@@ -3033,6 +3102,12 @@ async function oeRenderReportBlock(fac, isoDate) {
   oeEl('oe-clear-btn').addEventListener('click', () => { oeClearInputs(); oeSetMsg(''); oeRender(); });
   oeEl('oe-csv-patient-btn').addEventListener('click', oeCsvPatient);
   oeEl('oe-csv-month-btn').addEventListener('click', oeCsvMonth);
+  oeEl('report-oral-eval-block')?.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-oe-copy]'); if (!b) return;
+    const box = oeEl('report-oral-eval-block');
+    const txt = (box._oeTexts || [])[+b.dataset.oeCopy]; if (!txt) return;
+    navigator.clipboard.writeText(txt).then(() => { b.textContent = '✅'; setTimeout(() => b.textContent = '📋', 1500); });
+  });
   oeEl('oe-section').addEventListener('click', ev => {
     const ed = ev.target.closest('[data-oe-edit]');
     if (ed) { oeStartEdit(ed.dataset.oeEdit); return; }
