@@ -2983,23 +2983,23 @@ async function oeRenderReportBlock(fac, isoDate) {
 }
 
 // ── 日報：口腔リハの実施内容に評価を追記して表示・一括コピー ──
-// 評価を日報用の1行の文章にする（未測定の項目も明記）
+// 評価を日報用の1行の文章にする（未測定の項目は書かない）
 function oeReportText(e) {
   const st = k => e['j_' + k] || '未測定';
-  const mark = k => { const s = st(k); return s === '未測定' ? '' : `(${s === '保留' ? '判定保留' : s})`; };
+  const mark = k => `(${st(k) === '保留' ? '判定保留' : st(k)})`;
   const answered = (String(e.seirei || '').match(/[ABC]/g) || []).length;
-  const parts = [
-    st('hygiene') === '未測定' ? 'TCI 未測定' : (e.tciPct ? `TCI ${e.tciPct}%` : 'TCI 途中入力') + mark('hygiene'),
-    st('dry') === '未測定' ? 'ムーカス 未測定' : `ムーカス ${e.dry}` + mark('dry'),
-    st('bite') === '未測定' ? '残存歯 未測定' : `残存歯 ${e.teeth}本` + mark('bite'),
-    st('motor') === '未測定' ? 'パタカ 未測定' : `パ${e.pa || '—'} タ${e.ta || '—'} カ${e.ka || '—'}` + mark('motor'),
-    st('tongue') === '未測定' ? '舌圧 未測定' : `舌圧 ${e.tongue}kPa` + mark('tongue'),
-    st('chew') === '未測定' ? '咀嚼 未測定' : `咀嚼スコア ${e.chewScore}` + mark('chew'),
-    st('swallow') === '未測定' ? '聖隷式 未測定'
-      : (st('swallow') === '保留' ? `聖隷式 回答${answered}/15` : `聖隷式 A${e.seireiA || 0}個`) + mark('swallow'),
+  const items = [
+    ['hygiene', () => (e.tciPct ? `TCI ${e.tciPct}%` : 'TCI 途中入力')],
+    ['dry',     () => `ムーカス ${e.dry}`],
+    ['bite',    () => `残存歯 ${e.teeth}本`],
+    ['motor',   () => `パ${e.pa || '—'} タ${e.ta || '—'} カ${e.ka || '—'}`],
+    ['tongue',  () => `舌圧 ${e.tongue}kPa`],
+    ['chew',    () => `咀嚼スコア ${e.chewScore}`],
+    ['swallow', () => (st('swallow') === '保留' ? `聖隷式 回答${answered}/15` : `聖隷式 A${e.seireiA || 0}個`)],
   ];
+  const parts = items.filter(([k]) => st(k) !== '未測定').map(([k, f]) => f() + mark(k));
   const ov = e.overall === '該当' ? '口腔機能低下症の診断基準に該当'
-           : e.overall === '未確定' ? '判定未確定（未測定の項目あり）'
+           : e.overall === '未確定' ? '判定未確定'
            : e.overall === '非該当' ? '診断基準に非該当' : '未入力';
   return `【口腔機能評価 ${oeMD(e.evalDate)}】${parts.join('／')} → 該当${e.hitCount}項目・測定${e.measuredCount}項目：${ov}`;
 }
