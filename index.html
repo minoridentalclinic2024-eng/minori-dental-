@@ -388,6 +388,74 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
   background: #ffe9a0;
   border-color: #e0a800;
 }
+
+/* ===== 口腔機能評価セクション（2026-10-14 追加・oe- で始まるクラスのみ） ===== */
+.oe-section details > summary { list-style: none; cursor: pointer; }
+.oe-section details > summary::-webkit-details-marker { display: none; }
+.oe-summary { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: #edf6f1; border-radius: 6px; padding: 8px 10px; color: #357a64; font-size: 12px; font-weight: 700; }
+.oe-summary::before { content: '▸'; margin-right: 2px; transition: transform .15s; }
+#oe-details[open] > .oe-summary::before { transform: rotate(90deg); }
+.oe-summary-title { flex: 1; }
+.oe-body { margin-top: 12px; }
+.oe-note { font-size: 11px; color: var(--gray); margin-bottom: 12px; line-height: 1.5; }
+.oe-chip { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 8px; white-space: nowrap; }
+.oe-chip-hit  { background: var(--warn-bg); color: #c0613a; border: 1px solid #f0b8a4; }
+.oe-chip-ok   { background: var(--green-light); color: #2e7d5e; border: 1px solid #b9dccd; }
+.oe-chip-none { background: #f1f3f2; color: var(--gray); border: 1px solid #dfe5e2; }
+.oe-chip-hold { background: #fff8e1; color: #8d6e00; border: 1px solid #ffe082; }
+.oe-chip-done { background: #4a9b7f; color: white; border: 1px solid #4a9b7f; }
+.oe-info, .oe-prev, .oe-edit-banner, .oe-pending { font-size: 12px; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; line-height: 1.6; }
+.oe-info { background: #eef6fb; border: 1px solid #c7dfee; color: #2b5d7a; }
+.oe-prev { background: #f6f7f7; border: 1px dashed #c9d2ce; color: #6b7a74; }
+.oe-prev b { color: #55635d; }
+.oe-edit-banner { background: #fff8e1; border: 1px solid #ffd54f; color: #795548; }
+.oe-pending { background: var(--warn-bg); border: 1.5px solid var(--warn); color: #a2492a; font-weight: 600; }
+.oe-link-btn { background: none; border: none; color: #2b6f9a; text-decoration: underline; font-size: 12px; cursor: pointer; padding: 0 2px; }
+.oe-item { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: #fbfdfc; }
+.oe-item > summary, .oe-item-row { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 12px; font-size: 13px; font-weight: 600; }
+.oe-item-static { padding-bottom: 8px; }
+.oe-item-body { padding: 0 12px 12px; }
+.oe-hint { font-size: 11px; color: var(--gray); margin-bottom: 8px; line-height: 1.5; }
+.oe-ref { font-size: 12px; color: #55635d; padding: 0 12px; line-height: 1.5; }
+.oe-calc { font-size: 12px; font-weight: 700; color: #357a64; margin-top: 8px; }
+.oe-tci-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.oe-tci-cell { border: 1px solid var(--border); border-radius: 8px; padding: 4px; text-align: center; background: white; }
+.oe-tci-cell .oe-tci-label { font-size: 10px; color: var(--gray); margin-bottom: 3px; }
+.oe-seg { display: flex; gap: 3px; justify-content: center; }
+.oe-seg button { flex: 1; min-width: 0; padding: 6px 0; font-size: 13px; border: 1px solid #c9d8d2; background: white;
+  border-radius: 6px; cursor: pointer; color: var(--text); }
+.oe-seg button.on { background: var(--green); border-color: var(--green); color: white; font-weight: 700; }
+.oe-seg button.on.oe-a { background: var(--warn); border-color: var(--warn); }
+.oe-pataka { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.oe-pataka label { display: flex; flex-direction: column; font-size: 12px; font-weight: 700; gap: 4px; color: #357a64; }
+.oe-pataka .input-styled { padding: 8px; }
+.oe-unit { font-size: 11px; color: var(--gray); margin-top: 4px; text-align: right; }
+.oe-q { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eef3f1; }
+.oe-q-label { font-size: 12px; flex: 1; min-width: 0; }
+.oe-q .oe-seg { width: 120px; flex-shrink: 0; }
+.oe-result { border-radius: 10px; padding: 10px 12px; margin: 12px 0 8px; background: #f4f8f6; border: 1px solid var(--border); }
+.oe-result.hit  { background: var(--warn-bg); border-color: #f0b8a4; }
+.oe-result-main { font-size: 14px; font-weight: 700; }
+.oe-result.hit .oe-result-main { color: #c0613a; }
+.oe-result-sub { font-size: 11px; color: var(--gray); margin-top: 4px; line-height: 1.5; }
+.oe-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.oe-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1.5px solid var(--green); background: white;
+  color: var(--green); font-size: 13px; font-weight: 600; cursor: pointer; }
+.oe-btn-sub { border-color: #c9d8d2; color: #55635d; }
+.oe-btn:disabled { opacity: .5; cursor: default; }
+.oe-msg { font-size: 12px; font-weight: 600; margin-top: 6px; min-height: 16px; text-align: center; }
+.oe-msg.ok { color: var(--green); }
+.oe-msg.err { color: var(--warn); }
+.oe-hist-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.oe-hist { border-collapse: collapse; font-size: 11px; white-space: nowrap; width: 100%; }
+.oe-hist th, .oe-hist td { border-bottom: 1px solid #eef3f1; padding: 4px 6px; text-align: left; }
+.oe-hist th { background: #e4f0eb; color: #357a64; font-weight: 700; }
+.oe-hist td.hit { color: #c0613a; font-weight: 700; }
+.oe-csv-month { display: flex; gap: 8px; margin-top: 8px; }
+.oe-csv-month .input-styled { flex: 1; min-width: 0; }
+.oe-report-badge { display: inline-block; border-radius: 3px; padding: 1px 5px; font-size: 11px; font-weight: 700; margin: 2px 4px 0 0; }
 </style>
 </head>
 <body>
@@ -537,6 +605,127 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
       </div>
     </div>
 
+    <!-- 口腔機能評価（月1回・任意）2026-10-14 追加。既存の入力・保存には影響しない独立セクション -->
+    <div class="section oe-section" id="oe-section">
+      <details id="oe-details">
+        <summary class="oe-summary">
+          <span class="oe-summary-title">口腔機能評価（月1回・任意）</span>
+          <span class="oe-chip oe-chip-none" id="oe-status-chip">患者未選択</span>
+        </summary>
+        <div class="oe-body">
+          <div class="oe-pending" id="oe-pending" style="display:none"></div>
+          <div class="oe-note">入力があるときだけ「スプレッドシートに保存」で一緒に保存されます。未入力のままでも通常の記録はこれまでどおり保存できます。</div>
+
+          <div class="field">
+            <label>評価日</label>
+            <input type="date" class="input-styled" id="oe-date">
+          </div>
+
+          <div class="oe-info" id="oe-current-info" style="display:none"></div>
+          <div class="oe-edit-banner" id="oe-edit-banner" style="display:none"></div>
+          <div class="oe-prev" id="oe-prev-box" style="display:none"></div>
+
+          <!-- ① 口腔衛生（TCI） -->
+          <details class="oe-item">
+            <summary><span>① 舌苔付着度（TCI）</span><span class="oe-chip oe-chip-none" id="oe-j-hygiene">未測定</span></summary>
+            <div class="oe-item-body">
+              <div class="oe-hint">舌背を9区画に分け、0＝なし／1＝薄い（舌乳頭が見える）／2＝厚い（舌乳頭が見えない）。合計9点（50%）以上で該当。もう一度押すと取り消し。</div>
+              <div class="oe-tci-grid" id="oe-tci-grid"></div>
+              <div class="oe-calc" id="oe-tci-calc">TCI：—</div>
+            </div>
+          </details>
+
+          <!-- ② 口腔乾燥（ムーカス）既存の測定値欄を参照 -->
+          <div class="oe-item oe-item-static">
+            <div class="oe-item-row"><span>② 口腔乾燥（ムーカス）</span><span class="oe-chip oe-chip-none" id="oe-j-dry">未測定</span></div>
+            <div class="oe-ref" id="oe-dry-ref">上の「測定値」欄の当月の値を使います（27.0未満で該当）</div>
+          </div>
+
+          <!-- ③ 咬合力（残存歯数）任意 -->
+          <details class="oe-item">
+            <summary><span>③ 咬合力（残存歯数・任意）</span><span class="oe-chip oe-chip-none" id="oe-j-bite">未測定</span></summary>
+            <div class="oe-item-body">
+              <div class="oe-hint">残根・動揺度3の歯を除いた本数。20本未満で該当。</div>
+              <div class="measure-row">
+                <input type="number" class="input-styled oe-num" id="oe-teeth" placeholder="本数" step="1" min="0" max="32" inputmode="numeric">
+                <span style="color:var(--gray);white-space:nowrap">本</span>
+              </div>
+            </div>
+          </details>
+
+          <!-- ④ 舌口唇運動（パ・タ・カ） -->
+          <details class="oe-item">
+            <summary><span>④ 舌口唇運動（パ・タ・カ）</span><span class="oe-chip oe-chip-none" id="oe-j-motor">未測定</span></summary>
+            <div class="oe-item-body">
+              <div class="oe-hint">1秒あたりの回数。いずれかが6回未満で該当。</div>
+              <div class="oe-pataka">
+                <label>パ<input type="number" class="input-styled oe-num" id="oe-pa" step="0.1" min="0" max="15" inputmode="decimal"></label>
+                <label>タ<input type="number" class="input-styled oe-num" id="oe-ta" step="0.1" min="0" max="15" inputmode="decimal"></label>
+                <label>カ<input type="number" class="input-styled oe-num" id="oe-ka" step="0.1" min="0" max="15" inputmode="decimal"></label>
+              </div>
+              <div class="oe-unit">回/秒</div>
+            </div>
+          </details>
+
+          <!-- ⑤ 舌圧 既存の測定値欄を参照 -->
+          <div class="oe-item oe-item-static">
+            <div class="oe-item-row"><span>⑤ 舌圧</span><span class="oe-chip oe-chip-none" id="oe-j-tongue">未測定</span></div>
+            <div class="oe-ref" id="oe-tongue-ref">上の「測定値」欄の当月の値を使います（30kPa未満で該当）</div>
+          </div>
+
+          <!-- ⑥ 咀嚼（スコア法）任意 -->
+          <details class="oe-item">
+            <summary><span>⑥ 咀嚼（スコア法・任意）</span><span class="oe-chip oe-chip-none" id="oe-j-chew">未測定</span></summary>
+            <div class="oe-item-body">
+              <div class="oe-hint">咀嚼能率スコア法（0〜10）。0〜2で該当。誤嚥リスクを考慮して実施を判断してください。</div>
+              <select class="input-styled" id="oe-chew">
+                <option value="">未実施</option>
+                <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option>
+                <option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+              </select>
+            </div>
+          </details>
+
+          <!-- ⑦ 嚥下（聖隷式嚥下質問紙） -->
+          <details class="oe-item">
+            <summary><span>⑦ 嚥下（聖隷式嚥下質問紙）</span><span class="oe-chip oe-chip-none" id="oe-j-swallow">未測定</span></summary>
+            <div class="oe-item-body">
+              <div class="oe-hint">質問紙で聴取した回答（A／B／C）を選択。Aが1つ以上で該当。もう一度押すと取り消し。</div>
+              <div id="oe-seirei-list"></div>
+              <div class="oe-calc" id="oe-seirei-calc">回答 0/15</div>
+            </div>
+          </details>
+
+          <!-- 判定 -->
+          <div class="oe-result" id="oe-result">
+            <div class="oe-result-main" id="oe-result-main">—</div>
+            <div class="oe-result-sub" id="oe-result-sub">口腔機能低下症：7項目中3項目以上の該当で診断基準に該当（日本歯科医学会 令和8年3月）。未測定の項目は該当に数えません。</div>
+          </div>
+
+          <div class="oe-actions">
+            <button type="button" class="oe-btn" id="oe-save-only-btn">この評価だけ保存（修正・再送用）</button>
+            <button type="button" class="oe-btn oe-btn-sub" id="oe-clear-btn">評価入力をクリア</button>
+          </div>
+          <div class="oe-msg" id="oe-msg"></div>
+
+          <!-- 履歴 -->
+          <details class="oe-item" id="oe-history-details">
+            <summary><span>評価履歴・出力</span></summary>
+            <div class="oe-item-body">
+              <div id="oe-history">患者を選択してください</div>
+              <div class="oe-actions">
+                <button type="button" class="oe-btn oe-btn-sub" id="oe-csv-patient-btn">この患者の履歴CSV</button>
+              </div>
+              <div class="oe-csv-month">
+                <input type="month" class="input-styled" id="oe-csv-month">
+                <button type="button" class="oe-btn oe-btn-sub" id="oe-csv-month-btn">施設の月別一覧CSV</button>
+              </div>
+            </div>
+          </details>
+        </div>
+      </details>
+    </div>
+
     <!-- 保存 -->
     <div class="section">
       <div class="section-label">スプレッドシートへの書き込み内容</div>
@@ -602,6 +791,7 @@ select.input-styled { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
         </div>
         <div id="report-staff-blocks"></div>
         <div id="report-measures-block"></div>
+        <div id="report-oral-eval-block"></div>
         <div style="text-align:center;padding:10px 0 4px;font-size:11px;color:var(--gray)">🦷 茂原みのり歯科クリニック</div>
       </div>
     </div>
@@ -1183,6 +1373,9 @@ async function saveRecord() {
     // 測定記録シートにも保存（患者情報は上で確定した同じ patient を使い回す）
     if (tongueCheck && tongueVal) await saveMeasure(patient, 'tongue', tongueVal, dateVal);
     if (dryCheck    && dryVal)    await saveMeasure(patient, 'dry',    dryVal, dateVal);
+
+    // 口腔機能評価（入力がある場合のみ。失敗しても上の記録保存には影響しない）
+    try { await oeAfterRecordSaved({ patient, fac: currentFac, visitDate: dateVal, staff, msgEl: msg }); } catch(e) { console.warn('[口腔機能評価] 保存処理エラー', e); }
 
     // 保存完了後に日報を自動更新（測定日 = 訪問日 を使用）
     await _refreshDailyReport(dateVal, currentFac);
@@ -2099,6 +2292,8 @@ async function loadReport() {
     if(mBlock) mBlock.innerHTML='';
 
     document.getElementById('report-body').style.display = 'block';
+    // 口腔機能評価の表示（別通信・待たない。失敗しても日報本体には影響しない）
+    try { oeRenderReportBlock(fac, dateInput); } catch(e) { console.warn('[口腔機能評価] 日報表示エラー', e); }
   } catch(e) {
     console.error('[日報] 表示エラー:', e);
     alert('エラー: ' + e.message);
@@ -2160,6 +2355,694 @@ async function loadReport() {
     <button class="edit-btn-delete" onclick="deleteRecordFromModal()">🗑️ この記録を削除</button>
   </div>
 </div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  口腔機能評価（月1回・任意） 2026-10-14 追加
+//  ・保存先: 評価専用GAS → 各施設スプレッドシートの「口腔機能評価」シート
+//  ・既存の3施設GAS・既存シートには書き込まない（測定記録は action=measures の読み取りのみ）
+//  ・前月の結果は参考表示のみ。入力欄へ自動転記しない
+//  ・未測定の項目は「該当」に数えない
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const OE_GAS_URL = 'https://script.google.com/macros/s/AKfycbweCv94vbKfnjnobVLO34_YIBCtdXJ8nLJXISXpVNUDQS6vFYOwbKQYeDaLkKhWgOnDjw/exec';
+
+const OE_TCI_AREAS = ['奥 左','奥 中','奥 右','中 左','中 中','中 右','前 左','前 中','前 右'];
+// 聖隷式嚥下質問紙の各項目（質問文の要旨。聴取は質問紙原本で行う）
+const OE_SEIREI_ITEMS = ['肺炎の既往','やせてきた','飲み込みにくい','食事中のむせ','お茶でのむせ',
+  'のどのゴロゴロ','のどに残る感じ','食べるのが遅い','硬い物が食べにくい','口からこぼれる',
+  '口の中に残る','胃からの逆流','胸のつかえ','夜間の咳','声のかすれ'];
+const OE_ITEMS = [
+  { key:'hygiene', label:'①口腔衛生', short:'衛生' },
+  { key:'dry',     label:'②口腔乾燥', short:'乾燥' },
+  { key:'bite',    label:'③咬合力',   short:'咬合' },
+  { key:'motor',   label:'④舌口唇運動', short:'舌口唇' },
+  { key:'tongue',  label:'⑤舌圧',     short:'舌圧' },
+  { key:'chew',    label:'⑥咀嚼',     short:'咀嚼' },
+  { key:'swallow', label:'⑦嚥下',     short:'嚥下' },
+];
+const OE_NUM_FIELDS = {
+  'oe-pa':    { min:0, max:15, int:false, label:'パ' },
+  'oe-ta':    { min:0, max:15, int:false, label:'タ' },
+  'oe-ka':    { min:0, max:15, int:false, label:'カ' },
+  'oe-teeth': { min:0, max:32, int:true,  label:'残存歯数' },
+};
+
+const oeState = {
+  patient: null,      // { row, id, name, cleanName, fac }
+  token: 0,           // 患者切替時の古い応答を無視するための番号
+  history: [],        // この患者の評価（全期間）
+  historyStatus: 'none', // none | loading | ok | error
+  measure: null,      // 測定記録シートの最新値 { tongue, tongueDate, dry, dryDate }
+  editing: null,      // 修正中の評価（当月分のみ）
+  dateTouched: false, // 評価日を手で変更したか
+  tci: Array(9).fill(null),
+  seirei: Array(15).fill(null),
+  pending: null,      // 保存に失敗した評価 { payload, label }
+};
+
+// ── 小さな道具 ──────────────────────────────
+function oeEl(id) { return document.getElementById(id); }
+function oeEsc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+// 照合用氏名: 先頭の番号・「2割」「入院」「生保」・括弧書き・※以降・空白を除去
+function oeCleanName(s) {
+  let t = String(s || '').normalize('NFKC');
+  t = t.replace(/^\s*\d+\s*/, '');
+  t = t.replace(/[(（][^)）]*[)）]?/g, '');
+  t = t.replace(/※.*$/, '');
+  t = t.replace(/\d+\s*割/g, '');
+  t = t.replace(/(入院|生保)/g, '');
+  t = t.replace(/[\s　]+/g, '');
+  return t;
+}
+function oeIso(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function oeParseDate(s) {
+  if (!s) return null;
+  const str = String(s).trim();
+  let m = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  const t = Date.parse(str); // 英語表記の日付が返ってきた場合の保険
+  if (!isNaN(t)) { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  return null;
+}
+function oeMonthOf(iso) { return String(iso || '').slice(0, 7); }
+function oePrevMonth(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  const d = new Date(y, m - 2, 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function oeMD(iso) { const d = oeParseDate(iso); return d ? `${d.getMonth()+1}/${d.getDate()}` : String(iso || ''); }
+function oeYM(ym) { const [y, m] = String(ym).split('-'); return `${y}年${parseInt(m)}月`; }
+function oeNumOrNull(v) {
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  if (s === '') return null;
+  const n = Number(s);
+  return isFinite(n) ? n : null;
+}
+
+// ── 判定（純粋関数）──────────────────────────
+// 返り値の status: '該当' | '非該当' | '未測定' | '保留'（途中まで入力・判定に足りない）
+function oeJudge(inp) {
+  const r = {};
+  // ① TCI（9区画 各0〜2、合計9点＝50%以上で該当）
+  const tciVals = (inp.tci || []).filter(v => v !== null && v !== undefined);
+  const tciTotal = tciVals.reduce((a, b) => a + b, 0);
+  const tciPct = Math.round(tciTotal / 18 * 1000) / 10;
+  if (tciVals.length === 0) r.hygiene = { status:'未測定' };
+  else if (tciTotal >= 9) r.hygiene = { status:'該当', detail:`TCI ${tciPct}%` + (tciVals.length < 9 ? `（${tciVals.length}/9区画）` : '') };
+  else if (tciVals.length === 9) r.hygiene = { status:'非該当', detail:`TCI ${tciPct}%` };
+  else r.hygiene = { status:'保留', detail:`${tciVals.length}/9区画入力` };
+  r.hygiene.tciPct = tciVals.length === 9 || tciTotal >= 9 ? tciPct : null;
+  // ② ムーカス 27.0未満
+  r.dry = inp.dry === null ? { status:'未測定' } : { status: inp.dry < 27.0 ? '該当' : '非該当', detail:`ムーカス ${inp.dry}` };
+  // ③ 残存歯数 20本未満
+  r.bite = inp.teeth === null ? { status:'未測定' } : { status: inp.teeth < 20 ? '該当' : '非該当', detail:`残存歯 ${inp.teeth}本` };
+  // ④ パ・タ・カ いずれか6回/秒未満
+  const ptk = [inp.pa, inp.ta, inp.ka];
+  const ptkIn = ptk.filter(v => v !== null);
+  const ptkTxt = ['パ','タ','カ'].map((k, i) => `${k}${ptk[i] === null ? '—' : ptk[i]}`).join(' ');
+  if (ptkIn.length === 0) r.motor = { status:'未測定' };
+  else if (ptkIn.some(v => v < 6)) r.motor = { status:'該当', detail: ptkTxt };
+  else if (ptkIn.length === 3) r.motor = { status:'非該当', detail: ptkTxt };
+  else r.motor = { status:'保留', detail: ptkTxt };
+  // ⑤ 舌圧 30kPa未満
+  r.tongue = inp.tongue === null ? { status:'未測定' } : { status: inp.tongue < 30 ? '該当' : '非該当', detail:`舌圧 ${inp.tongue}kPa` };
+  // ⑥ 咀嚼スコア 0〜2
+  r.chew = inp.chew === null ? { status:'未測定' } : { status: inp.chew <= 2 ? '該当' : '非該当', detail:`スコア ${inp.chew}` };
+  // ⑦ 聖隷式 Aが1つ以上
+  const sAns = (inp.seirei || []).filter(v => v);
+  const sA = sAns.filter(v => v === 'A').length;
+  if (sAns.length === 0) r.swallow = { status:'未測定' };
+  else if (sA >= 1) r.swallow = { status:'該当', detail:`A ${sA}個` };
+  else if (sAns.length === 15) r.swallow = { status:'非該当', detail:'A 0個' };
+  else r.swallow = { status:'保留', detail:`回答 ${sAns.length}/15` };
+  r.swallow.aCount = sA;
+
+  const hit = OE_ITEMS.filter(it => r[it.key].status === '該当').length;
+  const measured = OE_ITEMS.filter(it => r[it.key].status === '該当' || r[it.key].status === '非該当').length;
+  const unmeasured = 7 - measured;
+  let overall;
+  if (measured === 0) overall = '未入力';
+  else if (hit >= 3) overall = '該当';
+  else if (hit + unmeasured >= 3) overall = '未確定';
+  else overall = '非該当';
+  return { items: r, hit, measured, unmeasured, overall };
+}
+
+// ── 入力値の取得 ─────────────────────────────
+function oeEvalDate() {
+  const v = oeEl('oe-date')?.value;
+  return v || oeEl('visit-date')?.value || oeIso(new Date());
+}
+function oeReadNum(id) {
+  const el = oeEl(id); if (!el) return { value:null, error:null };
+  const raw = String(el.value || '').trim();
+  if (raw === '') return { value:null, error:null };
+  const n = Number(raw), cfg = OE_NUM_FIELDS[id];
+  if (!isFinite(n) || n < cfg.min || n > cfg.max || (cfg.int && !Number.isInteger(n)))
+    return { value:null, error:`${cfg.label}は${cfg.min}〜${cfg.max}${cfg.int ? 'の整数' : ''}で入力してください` };
+  return { value:n, error:null };
+}
+// 舌圧・ムーカス: ①今回の測定値欄（「今回測定した」にチェック）②測定記録の評価月と同じ月の値 ③修正中の評価の記録値
+function oeResolveMeasure(kind) {
+  const ym = oeMonthOf(oeEvalDate());
+  const chk = oeEl(kind === 'tongue' ? 'tongue-check' : 'dry-check');
+  const val = oeNumOrNull(oeEl(kind === 'tongue' ? 'tongue-val' : 'dry-val')?.value);
+  if (chk && chk.checked && val !== null) {
+    return { value: val, date: oeEl('visit-date')?.value || '', src: '今回の測定値' };
+  }
+  const m = oeState.measure;
+  if (m && m[kind] !== null && m[kind + 'Date'] && oeMonthOf(m[kind + 'Date']) === ym) {
+    return { value: m[kind], date: m[kind + 'Date'], src: `測定記録 ${oeMD(m[kind + 'Date'])}` };
+  }
+  const ed = oeState.editing;
+  if (ed && oeNumOrNull(ed[kind]) !== null && ed[kind + 'Date'] && oeMonthOf(ed[kind + 'Date']) === ym) {
+    return { value: Number(ed[kind]), date: ed[kind + 'Date'], src: `評価時の記録 ${oeMD(ed[kind + 'Date'])}` };
+  }
+  return { value: null, date: '', src: '' };
+}
+function oeCollect() {
+  const errors = [];
+  const num = id => { const r = oeReadNum(id); if (r.error) errors.push(r.error); return r.value; };
+  const tongue = oeResolveMeasure('tongue');
+  const dry = oeResolveMeasure('dry');
+  const chewRaw = oeEl('oe-chew')?.value ?? '';
+  const inp = {
+    tci: oeState.tci.slice(),
+    seirei: oeState.seirei.slice(),
+    pa: num('oe-pa'), ta: num('oe-ta'), ka: num('oe-ka'),
+    teeth: num('oe-teeth'),
+    chew: chewRaw === '' ? null : Number(chewRaw),
+    tongue: tongue.value, dry: dry.value,
+  };
+  return { inp, tongue, dry, errors };
+}
+// 評価として保存すべき入力があるか（舌圧・ムーカスだけでは評価は保存しない＝既存の測定保存で足りるため）
+function oeHasInput() {
+  if (oeState.tci.some(v => v !== null)) return true;
+  if (oeState.seirei.some(v => v)) return true;
+  if (['oe-pa','oe-ta','oe-ka','oe-teeth'].some(id => String(oeEl(id)?.value || '').trim() !== '')) return true;
+  if ((oeEl('oe-chew')?.value || '') !== '') return true;
+  return false;
+}
+
+// ── 表示更新 ────────────────────────────────
+function oeChip(el, status, text) {
+  if (!el) return;
+  const cls = status === '該当' ? 'oe-chip-hit' : status === '非該当' ? 'oe-chip-ok'
+            : status === '保留' ? 'oe-chip-hold' : status === 'done' ? 'oe-chip-done' : 'oe-chip-none';
+  el.className = 'oe-chip ' + cls;
+  el.textContent = text || status;
+}
+function oeCurrentMonthEvals() {
+  const ym = oeMonthOf(oeEvalDate());
+  return oeState.history.filter(e => e.evalMonth === ym);
+}
+function oeRender() {
+  const { inp, tongue, dry } = oeCollect();
+  const j = oeJudge(inp);
+  OE_ITEMS.forEach(it => {
+    const s = j.items[it.key];
+    oeChip(oeEl('oe-j-' + it.key), s.status, s.status + (s.detail && s.status !== '未測定' ? '・' + s.detail.replace(/^(TCI|ムーカス|舌圧|残存歯|スコア) /, '') : ''));
+  });
+  // TCI・聖隷式の集計表示
+  const tciIn = oeState.tci.filter(v => v !== null);
+  const tciTotal = tciIn.reduce((a, b) => a + b, 0);
+  oeEl('oe-tci-calc').textContent = tciIn.length === 0 ? 'TCI：—'
+    : `TCI：${Math.round(tciTotal / 18 * 1000) / 10}%（合計${tciTotal}点・${tciIn.length}/9区画）`;
+  const sAns = oeState.seirei.filter(v => v);
+  oeEl('oe-seirei-calc').textContent = `回答 ${sAns.length}/15　A ${sAns.filter(v => v === 'A').length}個`;
+  // 舌圧・ムーカスの参照元
+  oeEl('oe-tongue-ref').textContent = tongue.value !== null
+    ? `${tongue.value}kPa（${tongue.src}）` : '当月の測定値なし。上の「測定値」欄に入力し「今回測定した」にチェックすると反映されます（30kPa未満で該当）';
+  oeEl('oe-dry-ref').textContent = dry.value !== null
+    ? `${dry.value}（${dry.src}）` : '当月の測定値なし。上の「測定値」欄に入力し「今回測定した」にチェックすると反映されます（27.0未満で該当）';
+  // 総合判定
+  const res = oeEl('oe-result'), main = oeEl('oe-result-main');
+  res.classList.toggle('hit', j.overall === '該当');
+  if (j.overall === '未入力') main.textContent = '判定：まだ入力がありません';
+  else if (j.overall === '該当') main.textContent = `口腔機能低下症の診断基準に該当（${j.hit}項目該当／測定済み${j.measured}項目）`;
+  else if (j.overall === '未確定') main.textContent = `判定未確定：該当${j.hit}項目・未測定${j.unmeasured}項目（未測定を除き3項目に達していません）`;
+  else main.textContent = `診断基準に非該当（該当${j.hit}項目／測定済み${j.measured}項目）`;
+  // 見出しの状態
+  const chip = oeEl('oe-status-chip');
+  if (!oeState.patient) oeChip(chip, 'none', '患者未選択');
+  else if (oeState.editing) oeChip(chip, '保留', `修正中 ${oeMD(oeState.editing.evalDate)}`);
+  else if (oeHasInput()) oeChip(chip, '保留', '入力中');
+  else if (oeState.historyStatus === 'loading') oeChip(chip, 'none', '確認中…');
+  else if (oeState.historyStatus === 'error') oeChip(chip, '保留', '履歴を取得できません');
+  else {
+    const cur = oeCurrentMonthEvals();
+    if (cur.length) oeChip(chip, 'done', `当月 評価済 ${oeMD(cur[cur.length - 1].evalDate)}`);
+    else oeChip(chip, 'none', '当月 未評価');
+  }
+  oeRenderContextBoxes();
+}
+function oeSummaryText(e) {
+  const parts = [];
+  if (e.tciPct) parts.push(`TCI ${e.tciPct}%`);
+  if (e.pa || e.ta || e.ka) parts.push(`パ${e.pa || '—'}/タ${e.ta || '—'}/カ${e.ka || '—'}`);
+  if (e.tongue) parts.push(`舌圧 ${e.tongue}`);
+  if (e.dry) parts.push(`ムーカス ${e.dry}`);
+  if (e.teeth) parts.push(`残存歯 ${e.teeth}本`);
+  if (e.chewScore) parts.push(`咀嚼 ${e.chewScore}`);
+  if (e.seirei && /[ABC]/.test(e.seirei)) parts.push(`聖隷式A ${e.seireiA || 0}個`);
+  return parts.join('・');
+}
+function oeOverallLabel(e) {
+  return e.overall === '該当' ? '該当' : e.overall === '非該当' ? '非該当' : e.overall === '未確定' ? '未確定' : (e.overall || '—');
+}
+function oeRenderContextBoxes() {
+  const info = oeEl('oe-current-info'), prev = oeEl('oe-prev-box'), banner = oeEl('oe-edit-banner');
+  if (!oeState.patient || oeState.historyStatus !== 'ok') {
+    info.style.display = 'none'; prev.style.display = 'none';
+  } else {
+    // 当月の評価
+    const cur = oeCurrentMonthEvals();
+    if (cur.length && !oeState.editing) {
+      info.innerHTML = cur.map(e =>
+        `当月は <b>${oeEsc(oeMD(e.evalDate))}</b> に評価済み（該当${oeEsc(e.hitCount)}／測定${oeEsc(e.measuredCount)}・${oeEsc(oeOverallLabel(e))}）` +
+        ` <button type="button" class="oe-link-btn" data-oe-edit="${oeEsc(e.evalId)}">この評価を開いて修正</button>`
+      ).join('<br>') + '<br><span style="font-size:11px">※新しく入力して保存すると、別の評価として追加されます。</span>';
+      info.style.display = 'block';
+    } else info.style.display = 'none';
+    // 前月（参考表示のみ・転記しない）
+    const pm = oePrevMonth(oeMonthOf(oeEvalDate()));
+    const pList = oeState.history.filter(e => e.evalMonth === pm);
+    if (pList.length) {
+      const e = pList[pList.length - 1];
+      prev.innerHTML = `<b>前月の結果（参考・入力欄には反映しません）</b><br>${oeEsc(oeMD(e.evalDate))}評価：${oeEsc(oeSummaryText(e)) || '—'}<br>該当${oeEsc(e.hitCount)}／測定${oeEsc(e.measuredCount)}・${oeEsc(oeOverallLabel(e))}`;
+      prev.style.display = 'block';
+    } else prev.style.display = 'none';
+  }
+  if (oeState.editing) {
+    banner.innerHTML = `✏️ ${oeEsc(oeMD(oeState.editing.evalDate))} の評価を修正中です（保存するとこの評価が更新されます）。 <button type="button" class="oe-link-btn" id="oe-cancel-edit">修正をやめる</button>`;
+    banner.style.display = 'block';
+  } else banner.style.display = 'none';
+}
+function oeRenderPending() {
+  const box = oeEl('oe-pending');
+  if (!oeState.pending) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.innerHTML = `⚠️ ${oeEsc(oeState.pending.label)} の口腔機能評価が保存できていません（通常の記録は保存済みです）。<br>` +
+    `<button type="button" class="oe-link-btn" id="oe-pending-retry">再送する</button>　<button type="button" class="oe-link-btn" id="oe-pending-discard">破棄する</button>`;
+  box.style.display = 'block';
+}
+function oeSetMsg(text, cls) { const m = oeEl('oe-msg'); if (m) { m.textContent = text || ''; m.className = 'oe-msg' + (cls ? ' ' + cls : ''); } }
+
+// ── 入力UIの組み立て ─────────────────────────
+function oeSyncButtons() {
+  document.querySelectorAll('#oe-tci-grid [data-oe-tci]').forEach(b => {
+    const [i, v] = b.dataset.oeTci.split(':').map(Number);
+    b.classList.toggle('on', oeState.tci[i] === v);
+  });
+  document.querySelectorAll('#oe-seirei-list [data-oe-sr]').forEach(b => {
+    const [i, v] = b.dataset.oeSr.split(':');
+    b.classList.toggle('on', oeState.seirei[+i] === v);
+  });
+}
+function oeBuildUI() {
+  oeEl('oe-tci-grid').innerHTML = OE_TCI_AREAS.map((name, i) =>
+    `<div class="oe-tci-cell"><div class="oe-tci-label">${name}</div><div class="oe-seg">` +
+    [0,1,2].map(v => `<button type="button" data-oe-tci="${i}:${v}">${v}</button>`).join('') + '</div></div>').join('');
+  oeEl('oe-seirei-list').innerHTML = OE_SEIREI_ITEMS.map((q, i) =>
+    `<div class="oe-q"><div class="oe-q-label">${i+1}. ${q}</div><div class="oe-seg">` +
+    ['A','B','C'].map(v => `<button type="button" class="${v === 'A' ? 'oe-a' : ''}" data-oe-sr="${i}:${v}">${v}</button>`).join('') + '</div></div>').join('');
+}
+
+// ── フォームの初期化 ─────────────────────────
+function oeClearInputs() {
+  oeState.tci = Array(9).fill(null);
+  oeState.seirei = Array(15).fill(null);
+  ['oe-pa','oe-ta','oe-ka','oe-teeth'].forEach(id => { const el = oeEl(id); if (el) el.value = ''; });
+  const ch = oeEl('oe-chew'); if (ch) ch.value = '';
+  oeState.editing = null;
+  oeSyncButtons();
+}
+function oeResetForPatient(patient) {
+  oeState.token++;
+  oeClearInputs();
+  oeState.patient = patient;
+  oeState.history = [];
+  oeState.measure = null;
+  oeState.historyStatus = patient ? 'loading' : 'none';
+  oeState.dateTouched = false;
+  const d = oeEl('oe-date'); if (d) d.value = oeEl('visit-date')?.value || '';
+  oeSetMsg('');
+  oeRender();
+  oeRenderHistory();
+}
+function oeCurrentPatientFromSelect() {
+  const sel = oeEl('pt-sel');
+  if (!sel || !sel.value) return null;
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt) return null;
+  const name = opt.dataset.name || '';
+  return { row: sel.value, id: opt.dataset.id || '', name, cleanName: oeCleanName(name), fac: currentFac };
+}
+
+// ── 通信 ────────────────────────────────────
+function oeConfigured() { return !/__ORAL_EVAL_DEPLOYMENT_ID__/.test(OE_GAS_URL); }
+async function oeFetchJSON(url, timeoutMs) {
+  const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs || 25000) : null;
+  try {
+    const resp = await fetch(url, ctrl ? { signal: ctrl.signal } : undefined);
+    if (!resp.ok) throw new Error('HTTPエラー ' + resp.status);
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch(e) { throw new Error('応答を読み取れませんでした'); }
+    if (data && data.error) throw new Error(data.error);
+    return data;
+  } finally { if (timer) clearTimeout(timer); }
+}
+async function oeList(params) {
+  if (!oeConfigured()) throw new Error('評価用GASのURLが未設定です');
+  const url = OE_GAS_URL + '?' + new URLSearchParams(Object.assign({ action:'list' }, params)).toString();
+  try { return (await oeFetchJSON(url)).evals || []; }
+  catch(e) { return (await oeFetchJSON(url)).evals || []; } // 読み取りは1回だけ再試行
+}
+async function oeLoadContext() {
+  const p = oeState.patient; if (!p) return;
+  const myToken = oeState.token;
+  // 評価履歴を先に取得し、その後で測定記録を読む（測定記録は既存の読み取り専用API。
+  //   患者選択時に既存の測定リマインドが同じURLを取得しキャッシュするため、後から読めば通信が重複しにくい）
+  const [hRes] = await Promise.allSettled([ oeList({ fac: p.fac, cleanName: p.cleanName }) ]);
+  if (myToken !== oeState.token) return; // 途中で患者が変わった
+  const [mRes] = await Promise.allSettled([ cachedFetch(GAS_URLS[p.fac] + '?action=measures') ]);
+  if (myToken !== oeState.token) return;
+  if (hRes.status === 'fulfilled') {
+    oeState.history = hRes.value.slice().sort((a, b) =>
+      (a.evalDate + a.createdAt).localeCompare(b.evalDate + b.createdAt));
+    oeState.historyStatus = 'ok';
+  } else {
+    console.warn('[口腔機能評価] 履歴取得失敗', hRes.reason);
+    oeState.historyStatus = 'error';
+  }
+  if (mRes.status === 'fulfilled' && mRes.value && !mRes.value.error) {
+    // 同じ患者の行（注記違い・重複行を含む）から、項目ごとに最も新しい測定を採用
+    const rows = (mRes.value.measures || []).filter(m => oeCleanName(m.name) === p.cleanName);
+    const pick = (dKey, vKey) => {
+      let best = null;
+      rows.forEach(m => {
+        const d = oeParseDate(m[dKey]), v = oeNumOrNull(m[vKey]);
+        if (d && v !== null && (!best || d > best.d)) best = { d, v };
+      });
+      return best;
+    };
+    const t = pick('tongueDate', 'tongueVal'), dr = pick('dryDate', 'dryVal');
+    oeState.measure = { tongue: t ? t.v : null, tongueDate: t ? oeIso(t.d) : '', dry: dr ? dr.v : null, dryDate: dr ? oeIso(dr.d) : '' };
+  }
+  oeRender();
+  oeRenderHistory();
+}
+
+// ── 保存 ────────────────────────────────────
+function oeBuildPayload(ctx) {
+  const { inp, tongue, dry, errors } = oeCollect();
+  if (errors.length) return { errors };
+  const j = oeJudge(inp);
+  const evalDate = oeEvalDate();
+  const st = s => s.status === '保留' ? '保留' : s.status;
+  const payload = {
+    action: 'save',
+    fac: ctx.fac,
+    evalId: oeState.editing ? oeState.editing.evalId : '',
+    patientId: ctx.patient.id || '',
+    patientName: ctx.patient.name,
+    cleanName: oeCleanName(ctx.patient.name),
+    evalDate,
+    evalMonth: oeMonthOf(evalDate),
+    tciScores: inp.tci.map(v => v === null ? '-' : String(v)).join(''),
+    tciPct: j.items.hygiene.tciPct === null ? '' : String(j.items.hygiene.tciPct),
+    pa: inp.pa === null ? '' : String(inp.pa),
+    ta: inp.ta === null ? '' : String(inp.ta),
+    ka: inp.ka === null ? '' : String(inp.ka),
+    seirei: inp.seirei.map(v => v || '-').join(''),
+    seireiA: String(j.items.swallow.aCount),
+    tongue: tongue.value === null ? '' : String(tongue.value),
+    tongueDate: tongue.value === null ? '' : tongue.date,
+    dry: dry.value === null ? '' : String(dry.value),
+    dryDate: dry.value === null ? '' : dry.date,
+    teeth: inp.teeth === null ? '' : String(inp.teeth),
+    chewScore: inp.chew === null ? '' : String(inp.chew),
+    j_hygiene: st(j.items.hygiene), j_dry: st(j.items.dry), j_bite: st(j.items.bite),
+    j_motor: st(j.items.motor), j_tongue: st(j.items.tongue), j_chew: st(j.items.chew), j_swallow: st(j.items.swallow),
+    hitCount: String(j.hit), measuredCount: String(j.measured), overall: j.overall,
+    staff: ctx.staff || '',
+    visitDate: ctx.visitDate || '',
+  };
+  return { payload };
+}
+async function oeSend(payload) {
+  if (!oeConfigured()) throw new Error('評価用GASのURLが未設定です');
+  const url = OE_GAS_URL + '?' + new URLSearchParams(payload).toString();
+  const data = await oeFetchJSON(url, 30000); // 書き込みは二重登録を避けるため自動再試行しない
+  if (!data.ok) throw new Error('保存結果を確認できませんでした');
+  return data;
+}
+function oeSamePatient(a, b) {
+  return a && b && String(a.row) === String(b.row) && a.name === b.name;
+}
+// 通常の記録保存が成功した後に saveRecord() から呼ばれる。例外は外へ出さない
+async function oeAfterRecordSaved(ctx) {
+  try {
+    if (!oeHasInput()) { oeResetForPatient(null); return; }
+    if (!oeSamePatient(oeState.patient, ctx.patient) || oeState.patient.fac !== ctx.fac) {
+      // 念のため: 評価欄の患者と保存した患者が一致しない場合は保存しない（取り違え防止）
+      console.warn('[口腔機能評価] 患者不一致のため評価を保存しませんでした', oeState.patient, ctx.patient);
+      if (ctx.msgEl) ctx.msgEl.textContent += ' ／⚠️口腔機能評価は保存していません（患者不一致）';
+      oeResetForPatient(null);
+      return;
+    }
+    const built = oeBuildPayload(ctx);
+    if (built.errors) {
+      // 入力値エラー: 評価欄はそのまま残し、修正して「この評価だけ保存」できるようにする
+      if (ctx.msgEl) ctx.msgEl.textContent += ' ／⚠️口腔機能評価は未保存（入力値を確認してください）';
+      oeSetMsg('評価は保存していません：' + built.errors.join('、'), 'err');
+      return 'keep';
+    }
+    try {
+      await oeSend(built.payload);
+      if (ctx.msgEl) ctx.msgEl.textContent += ' ／口腔機能評価も保存しました';
+      oeResetForPatient(null);
+    } catch(e) {
+      oeState.pending = { payload: built.payload, label: `${ctx.patient.name}様（${oeMD(built.payload.evalDate)}評価）` };
+      oeRenderPending();
+      if (ctx.msgEl) ctx.msgEl.textContent += ' ／⚠️口腔機能評価は未保存（評価欄から再送してください）';
+      oeResetForPatient(null);
+    }
+  } catch(e) {
+    console.warn('[口腔機能評価] 予期しないエラー', e);
+  }
+}
+// 評価だけを保存（修正・再送用）
+async function oeSaveOnly() {
+  const btn = oeEl('oe-save-only-btn');
+  if (typeof _saving !== 'undefined' && _saving) return;
+  const p = oeState.patient;
+  if (!p) { oeSetMsg('患者を選択してください', 'err'); return; }
+  if (!oeHasInput()) { oeSetMsg('評価の入力がありません', 'err'); return; }
+  const built = oeBuildPayload({ patient: p, fac: p.fac, staff: getSelectedStaff(), visitDate: '' });
+  if (built.errors) { oeSetMsg(built.errors.join('、'), 'err'); return; }
+  btn.disabled = true; oeSetMsg('保存中…');
+  try {
+    const res = await oeSend(built.payload);
+    const wasEdit = !!built.payload.evalId;
+    const cur = oeState.patient;
+    oeResetForPatient(cur);
+    oeSetMsg(`✅ ${p.name}様の口腔機能評価を${wasEdit ? '修正' : '保存'}しました`, 'ok');
+    await oeLoadContext();
+  } catch(e) {
+    oeSetMsg('❌ 評価を保存できませんでした：' + e.message, 'err');
+  } finally { btn.disabled = false; }
+}
+async function oeRetryPending() {
+  if (!oeState.pending) return;
+  oeSetMsg('再送中…');
+  try {
+    await oeSend(oeState.pending.payload);
+    oeSetMsg(`✅ ${oeState.pending.label} の評価を保存しました`, 'ok');
+    oeState.pending = null;
+    oeRenderPending();
+    if (oeState.patient) oeLoadContext();
+  } catch(e) { oeSetMsg('❌ 再送できませんでした：' + e.message, 'err'); }
+}
+
+// ── 修正（当月分のみ読み込み可）─────────────
+function oeStartEdit(evalId) {
+  const e = oeState.history.find(x => x.evalId === evalId);
+  if (!e) return;
+  if (e.evalMonth !== oeMonthOf(oeEvalDate())) { oeSetMsg('修正できるのは当月の評価だけです', 'err'); return; }
+  oeClearInputs();
+  oeState.editing = e;
+  const tci = String(e.tciScores || '');
+  oeState.tci = Array.from({ length: 9 }, (_, i) => /[0-2]/.test(tci[i] || '') ? Number(tci[i]) : null);
+  const sr = String(e.seirei || '');
+  oeState.seirei = Array.from({ length: 15 }, (_, i) => /[ABC]/.test(sr[i] || '') ? sr[i] : null);
+  oeEl('oe-pa').value = e.pa || ''; oeEl('oe-ta').value = e.ta || ''; oeEl('oe-ka').value = e.ka || '';
+  oeEl('oe-teeth').value = e.teeth || '';
+  oeEl('oe-chew').value = e.chewScore || '';
+  oeEl('oe-date').value = e.evalDate; oeState.dateTouched = true;
+  oeSyncButtons();
+  oeSetMsg('');
+  oeRender();
+}
+
+// ── 履歴・CSV ───────────────────────────────
+function oeRenderHistory() {
+  const box = oeEl('oe-history'); if (!box) return;
+  if (!oeState.patient) { box.textContent = '患者を選択してください'; return; }
+  if (oeState.historyStatus === 'loading') { box.textContent = '読み込み中…'; return; }
+  if (oeState.historyStatus === 'error') { box.textContent = '履歴を取得できませんでした'; return; }
+  if (!oeState.history.length) { box.textContent = 'まだ評価の記録はありません'; return; }
+  const list = oeState.history.slice().reverse();
+  const cell = (val, j) => `<td class="${j === '該当' ? 'hit' : ''}">${oeEsc(val || '—')}</td>`;
+  box.innerHTML = '<div class="oe-hist-wrap"><table class="oe-hist"><thead><tr>' +
+    '<th>評価月</th><th>評価日</th><th>TCI%</th><th>パ/タ/カ</th><th>舌圧</th><th>ムーカス</th><th>残存歯</th><th>咀嚼</th><th>聖隷式A</th><th>該当/測定</th><th>判定</th><th>担当</th>' +
+    '</tr></thead><tbody>' + list.map(e =>
+      `<tr><td>${oeEsc(oeYM(e.evalMonth))}</td><td>${oeEsc(oeMD(e.evalDate))}</td>` +
+      cell(e.tciPct, e.j_hygiene) +
+      cell((e.pa || e.ta || e.ka) ? `${e.pa || '—'}/${e.ta || '—'}/${e.ka || '—'}` : '', e.j_motor) +
+      cell(e.tongue, e.j_tongue) + cell(e.dry, e.j_dry) + cell(e.teeth, e.j_bite) + cell(e.chewScore, e.j_chew) +
+      cell(/[ABC]/.test(e.seirei || '') ? e.seireiA : '', e.j_swallow) +
+      `<td>${oeEsc(e.hitCount)}/${oeEsc(e.measuredCount)}</td>` + cell(oeOverallLabel(e), e.overall) +
+      `<td>${oeEsc(e.staff)}</td></tr>`).join('') +
+    '</tbody></table></div>';
+}
+const OE_CSV_COLS = [
+  ['施設','facility'],['患者ID','patientId'],['患者名','patientName'],['評価日','evalDate'],['評価月','evalMonth'],
+  ['TCI(%)','tciPct'],['TCI区画','tciScores'],['パ','pa'],['タ','ta'],['カ','ka'],
+  ['舌圧(kPa)','tongue'],['舌圧測定日','tongueDate'],['ムーカス','dry'],['ムーカス測定日','dryDate'],
+  ['残存歯数','teeth'],['咀嚼スコア','chewScore'],['聖隷式回答','seirei'],['聖隷式A数','seireiA'],
+  ['①口腔衛生','j_hygiene'],['②口腔乾燥','j_dry'],['③咬合力','j_bite'],['④舌口唇運動','j_motor'],
+  ['⑤舌圧','j_tongue'],['⑥咀嚼','j_chew'],['⑦嚥下','j_swallow'],
+  ['該当数','hitCount'],['測定済数','measuredCount'],['総合判定','overall'],['担当者','staff'],['保存日時','createdAt'],['更新日時','updatedAt'],
+];
+function oeDownloadCSV(rows, filename) {
+  const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+  const csv = [OE_CSV_COLS.map(c => q(c[0])).join(',')]
+    .concat(rows.map(r => OE_CSV_COLS.map(c => q(r[c[1]])).join(','))).join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+function oeCsvPatient() {
+  const p = oeState.patient;
+  if (!p) { oeSetMsg('患者を選択してください', 'err'); return; }
+  if (!oeState.history.length) { oeSetMsg('出力できる評価がありません', 'err'); return; }
+  oeDownloadCSV(oeState.history, `口腔機能評価_${FAC_CONFIG[p.fac].name}_${p.cleanName}_${oeIso(new Date())}.csv`);
+}
+async function oeCsvMonth() {
+  const ym = oeEl('oe-csv-month')?.value;
+  if (!ym) { oeSetMsg('出力する月を選んでください', 'err'); return; }
+  const fac = currentFac;
+  oeSetMsg('取得中…');
+  try {
+    const list = (await oeList({ fac, month: ym })).sort((a, b) => (a.evalDate + a.patientName).localeCompare(b.evalDate + b.patientName));
+    if (!list.length) { oeSetMsg(`${FAC_CONFIG[fac].name}の${oeYM(ym)}の評価はありません`, 'err'); return; }
+    oeDownloadCSV(list, `口腔機能評価_${FAC_CONFIG[fac].name}_${ym}.csv`);
+    oeSetMsg(`${list.length}件を出力しました`, 'ok');
+  } catch(e) { oeSetMsg('❌ 取得できませんでした：' + e.message, 'err'); }
+}
+
+// ── 日報への表示（loadReport から呼ばれる。待たずに後から描画）──
+let _oeReportToken = 0;
+async function oeRenderReportBlock(fac, isoDate) {
+  const box = oeEl('report-oral-eval-block'); if (!box) return;
+  box.innerHTML = '';
+  if (!oeConfigured()) return;
+  const myToken = ++_oeReportToken;
+  let list;
+  try { list = await oeList({ fac, date: isoDate }); }
+  catch(e) { console.warn('[口腔機能評価] 日報用の取得失敗', e); return; }
+  if (myToken !== _oeReportToken || !list.length) return;
+  const badge = (txt, hit) => `<span class="oe-report-badge" style="background:${hit ? '#fdf0ec' : '#eef3f1'};color:${hit ? '#c0613a' : '#55635d'};">${oeEsc(txt)}</span>`;
+  const rows = list.map(e => {
+    const hits = OE_ITEMS.filter(it => e['j_' + it.key] === '該当').map(it => it.short);
+    const ov = e.overall === '該当' ? badge('低下症 基準該当', true) : e.overall === '未確定' ? badge('判定未確定', false) : badge(oeOverallLabel(e), false);
+    return `<div style="padding:6px 10px;border-bottom:1px solid #eef3f1;">` +
+      `<div style="font-size:12px;font-weight:700;">${oeEsc(e.patientName)}様 <span style="font-weight:400;color:#8a9e96;font-size:10px;">${oeEsc(e.staff)}</span></div>` +
+      `<div>${ov}${badge(`該当${e.hitCount}／測定${e.measuredCount}`, false)}${hits.length ? badge('該当: ' + hits.join('・'), true) : ''}</div>` +
+      `<div style="font-size:10px;color:#6b7a74;margin-top:2px;">${oeEsc(oeSummaryText(e))}</div></div>`;
+  }).join('');
+  box.innerHTML = `<div style="margin-bottom:8px;border:1px solid #c8ddd5;border-radius:8px;overflow:hidden;">` +
+    `<div style="background:#5b8fa8;color:white;padding:5px 10px;font-size:12px;font-weight:700;">🩺 口腔機能評価（${list.length}名）</div>${rows}</div>`;
+}
+
+// ── イベント登録（既存の関数は書き換えず、リスナーを追加するだけ）──
+(function oeInit() {
+  if (!oeEl('oe-section')) return;
+  oeBuildUI();
+  const t = new Date();
+  oeEl('oe-csv-month').value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}`;
+  oeEl('oe-date').value = oeEl('visit-date')?.value || '';
+
+  oeEl('oe-tci-grid').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-oe-tci]'); if (!b || (typeof _saving !== 'undefined' && _saving)) return;
+    const [i, v] = b.dataset.oeTci.split(':').map(Number);
+    oeState.tci[i] = oeState.tci[i] === v ? null : v;
+    oeSyncButtons(); oeRender();
+  });
+  oeEl('oe-seirei-list').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-oe-sr]'); if (!b || (typeof _saving !== 'undefined' && _saving)) return;
+    const [i, v] = b.dataset.oeSr.split(':');
+    oeState.seirei[+i] = oeState.seirei[+i] === v ? null : v;
+    oeSyncButtons(); oeRender();
+  });
+  Object.keys(OE_NUM_FIELDS).forEach(id => {
+    const el = oeEl(id);
+    el.addEventListener('input', () => oeRender());
+    el.addEventListener('change', () => {
+      const r = oeReadNum(id);
+      if (r.error) { el.value = ''; oeSetMsg(r.error, 'err'); } else oeSetMsg('');
+      oeRender();
+    });
+  });
+  oeEl('oe-chew').addEventListener('change', () => oeRender());
+  oeEl('oe-date').addEventListener('change', () => {
+    oeState.dateTouched = true;
+    if (!oeEl('oe-date').value) { oeEl('oe-date').value = oeEl('visit-date')?.value || ''; oeState.dateTouched = false; }
+    oeRender();
+  });
+  // 既存の測定値欄の変化を判定に反映（既存の処理はそのまま）
+  ['tongue-val','dry-val'].forEach(id => oeEl(id)?.addEventListener('input', () => oeRender()));
+  ['tongue-check','dry-check'].forEach(id => oeEl(id)?.addEventListener('change', () => oeRender()));
+  oeEl('visit-date')?.addEventListener('change', () => {
+    if (!oeState.dateTouched) oeEl('oe-date').value = oeEl('visit-date').value;
+    oeRender();
+  });
+  // 患者切替・施設切替で評価欄を初期化（前の患者の評価を持ち越さない）
+  oeEl('pt-sel')?.addEventListener('change', () => {
+    const p = oeCurrentPatientFromSelect();
+    oeResetForPatient(p);
+    if (p) oeLoadContext();
+  });
+  document.querySelectorAll('.fac-btn').forEach(b => b.addEventListener('click', () => {
+    if (typeof _saving !== 'undefined' && _saving) return;
+    oeResetForPatient(null);
+  }));
+  // ボタン類
+  oeEl('oe-save-only-btn').addEventListener('click', oeSaveOnly);
+  oeEl('oe-clear-btn').addEventListener('click', () => { oeClearInputs(); oeSetMsg(''); oeRender(); });
+  oeEl('oe-csv-patient-btn').addEventListener('click', oeCsvPatient);
+  oeEl('oe-csv-month-btn').addEventListener('click', oeCsvMonth);
+  oeEl('oe-section').addEventListener('click', ev => {
+    const ed = ev.target.closest('[data-oe-edit]');
+    if (ed) { oeStartEdit(ed.dataset.oeEdit); return; }
+    if (ev.target.id === 'oe-cancel-edit') { oeClearInputs(); oeState.dateTouched = false; oeEl('oe-date').value = oeEl('visit-date')?.value || ''; oeRender(); return; }
+    if (ev.target.id === 'oe-pending-retry') { oeRetryPending(); return; }
+    if (ev.target.id === 'oe-pending-discard') { oeState.pending = null; oeRenderPending(); oeSetMsg(''); return; }
+  });
+  oeRender();
+})();
+</script>
 
 </body>
 </html>
