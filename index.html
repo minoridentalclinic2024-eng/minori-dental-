@@ -868,6 +868,8 @@ let currentFac   = 'izumi';
 let currentType  = 'kea';
 let patientCache = {};
 let _saving      = false; // 保存処理中フラグ（二重送信・保存中の患者切替を防止）
+// ★ この画面の版。古い画面を開いたままの端末を見つけて再読み込みを促すために使う（2026-10-22）
+const APP_BUILD  = '2026-10-22-overlap-measure';
 let csvRecords   = [];   // 最後に取得したCSV用データ
 let csvDateStr   = '';
 let csvFac       = '';
@@ -1248,6 +1250,61 @@ function findDuplicateProblem(records, patientName, type, newTimeStr, excludeRaw
   return null;
 }
 
+// ★ 保存「後」の再確認（2026-10-22）。
+//   保存前のチェックは「その時点の記録」しか見られないため、衛生士とドクターが
+//   ほぼ同時に別の端末から保存した場合などは、両方ともチェックを通ってしまう。
+//   保存後にもう一度その日の記録を読み直し、同じ患者で時間が重なる記録・
+//   同じ種別の記録が2件以上あれば、必ず警告を出す。
+//   戻り値: 問題なければ null、問題があれば警告メッセージ（取得失敗時も null。保存自体は済んでいるため）
+async function verifyAfterSave(patientName, dateStr, type, newTimeStr, fac) {
+  let records;
+  try {
+    records = await fetchDayRecordsForCheck(fac || currentFac, dateStr);
+  } catch (e) {
+    console.warn('[重複チェック] 保存後の再確認ができませんでした', e);
+    return null;
+  }
+  const target = normalizeNameForCompare(patientName);
+  const same = records.filter(r => normalizeNameForCompare(r.name) === target);
+  const typeName = type === 'kea' ? '口腔ケア' : '口腔リハ';
+  const newRange = parseTimeRange(newTimeStr);
+  const overlapping = newRange ? same.filter(r => isTimeOverlap(newRange, recordTimeRange(r))) : [];
+  const sameType = same.filter(r => r.type === typeName);
+  if (overlapping.length < 2 && sameType.length < 2) return null;
+  const list = Array.from(new Set(overlapping.concat(sameType)))
+    .map(r => '・' + [r.staff, r.type, r.timeStr].filter(Boolean).join(' ')).join('\n');
+  return `保存はされましたが、同じ患者さんの記録が重なっています\n` +
+         `（別の端末からほぼ同時に保存された可能性があります）\n` +
+         `${list}\n` +
+         `日報の✏️から時間を修正するか、不要な方を削除してください`;
+}
+
+// ★ 日報用: 同じ日の記録の中で、同じ患者の時間が重なっている／同じ種別が2件ある記録を探す（2026-10-22）
+//   戻り値: Map(記録 → その記録と重なっている他の記録の配列)
+function findReportConflicts(records) {
+  const byName = {};
+  records.forEach(r => {
+    const k = normalizeNameForCompare(r.name);
+    (byName[k] = byName[k] || []).push(r);
+  });
+  const conflicts = new Map();
+  Object.values(byName).forEach(list => {
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i], b = list[j];
+        const timeHit = isTimeOverlap(recordTimeRange(a), recordTimeRange(b));
+        const typeHit = a.type && a.type === b.type;
+        if (!timeHit && !typeHit) continue;
+        if (!conflicts.has(a)) conflicts.set(a, []);
+        if (!conflicts.has(b)) conflicts.set(b, []);
+        conflicts.get(a).push(b);
+        conflicts.get(b).push(a);
+      }
+    }
+  });
+  return conflicts;
+}
+
 async function checkDuplicate(patientName, dateStr, type, newTimeStr, fac, excludeRaw) {
   let records;
   try {
@@ -1377,6 +1434,14 @@ async function saveRecord() {
 
     // 口腔機能評価（入力がある場合のみ。失敗しても上の記録保存には影響しない）
     try { await oeAfterRecordSaved({ patient, fac: currentFac, visitDate: dateVal, staff, msgEl: msg }); } catch(e) { console.warn('[口腔機能評価] 保存処理エラー', e); }
+
+    // ★ 保存後の再確認: 同時保存などで時間が重なってしまった場合は必ず警告する
+    const afterWarn = await verifyAfterSave(patient.name, dateVal, recordType, timeStr, currentFac);
+    if (afterWarn) {
+      alert('⚠️ ' + afterWarn);
+      msg.textContent += ' ／⚠️ 時間が重なる記録があります（日報で確認してください）';
+      msg.className = 'err';
+    }
 
     // 保存完了後に日報を自動更新（測定日 = 訪問日 を使用）
     await _refreshDailyReport(dateVal, currentFac);
@@ -2002,8 +2067,8 @@ function openEditModal(idx) {
     document.getElementById('edit-time-to').value   = '10:20';
   }
 
-  // 実施内容
-  const currentContents = new Set(r.contents || []);
+  // 実施内容（「舌圧排 ／ムーカス:26.5」のように測定値が付いた項目も、測定値を除いて照合する）
+  const currentContents = new Set((r.contents || []).map(c => String(c).replace(/\s*／?(舌圧:[\d.]+kPa|ムーカス:[\d.]+)/g, '').trim()));
   document.querySelectorAll('#edit-content-checks .edit-check-item').forEach(el =>
     el.classList.toggle('checked', currentContents.has(el.dataset.value)));
 
@@ -2041,7 +2106,10 @@ async function saveEditRecord() {
   const timeStr    = (timeFrom && timeTo) ? timeFrom + '〜' + timeTo : '';
   const contents   = Array.from(document.querySelectorAll('#edit-content-checks .edit-check-item.checked'))
                          .map(el => el.dataset.value);
-  const contentStr = contents.join('・');
+  // ★ 元の記録にあった測定値（舌圧・ムーカス）は編集画面に出ないため、そのまま引き継ぐ。
+  //   以前は編集保存すると「／ムーカス:26.5」などの測定値の文字が消えていた（2026-10-22）
+  const _origMeasureParts = ((ctx.r.contents || []).join('・').match(/(舌圧:[\d.]+kPa|ムーカス:[\d.]+)/g)) || [];
+  const contentStr = contents.join('・') + (_origMeasureParts.length ? ' ／' + _origMeasureParts.join(' ') : '');
   const memo       = document.getElementById('edit-memo').value.trim();
 
   // ★ 編集時も同日・同患者の時間重複／同種別重複をチェック（編集中の記録自身は除外）
@@ -2072,6 +2140,9 @@ async function saveEditRecord() {
     clearCache(GAS_URLS[ctx.fac] + '?action=today');
     clearCache(GAS_URLS[ctx.fac] + '?action=monthCount');
     closeEditModal();
+    // ★ 保存後の再確認（同時保存などで重なってしまった場合は警告）
+    const afterWarn = await verifyAfterSave(ctx.patientName, ctx.isoDateStr, type, timeStr, ctx.fac);
+    if (afterWarn) alert('⚠️ ' + afterWarn);
     await loadReport();
   } catch(e) {
     alert('保存エラー: ' + e.message);
@@ -2162,6 +2233,27 @@ async function loadReport() {
       m._key=ik||nk;
     });
 
+    // ★ 測定記録の照合（2026-10-22）
+    //   従来は衛生士（DH）の行でしか測定値を照合しておらず、ドクターが口腔リハのときに
+    //   測定した患者は、本人の行があるのに下の「測定のみ」欄に出てしまっていた。
+    //   ・DHの行: 従来どおり（ID → 空白除去した氏名）。見つからない時だけ、番号・「2割」「入院」等を除いた氏名でも探す
+    //   ・IDで見つかった測定記録の氏名が明らかに別人なら、そのIDでは付けない（氏名で探す）
+    //   ・Drの行: 同じ方法で照合し、その患者の測定は「測定のみ」に出さない
+    const _mClean = s => (typeof oeCleanName === 'function') ? oeCleanName(s) : _normName(String(s||'').normalize('NFKC').replace(/^\s*\d+\s*/, ''));
+    const measureByClean = {};
+    dailyMeasures.forEach(m => { const ck = _mClean(m.name); if (ck && !measureByClean[ck]) measureByClean[ck] = m; });
+    function _findMeasure(patNum, nameText, fullName) {
+      const ck = _mClean(fullName);
+      const byId = patNum ? measureMap[patNum] : null;
+      // IDが一致しても氏名が明らかに別人なら使わない（測定記録のIDと名簿の番号がずれている行があるため）
+      const idOk = byId && !(ck && _mClean(byId.name) && _mClean(byId.name) !== ck);
+      return (idOk ? byId : null) || measureMap['n:'+_normName(nameText)] || (ck ? measureByClean[ck] : null) || null;
+    }
+    function _splitName(name) {
+      const nm = String(name||'').match(/^(\d+)\s+(.+)$/);
+      return nm ? { patNum: nm[1], nameText: nm[2] } : { patNum: '', nameText: String(name||'') };
+    }
+
     const records = (data.records || [])
       .filter(r => (r.content || r.raw || '').trim() !== '')
       .flatMap(r => {
@@ -2197,6 +2289,19 @@ async function loadReport() {
       ...STAFF_ORDER.filter(s => groups[s]),
       ...Object.keys(groups).filter(k => !STAFF_ORDER.includes(k))
     ];
+
+    // DHの行で表示される測定（DHの行が優先。Drの行には重ねて出さない）
+    const dhShownKeys = new Set();
+    records.forEach(r => {
+      if ((r.staff || '（担当者未記録）') === '佐藤Dr') return;
+      const sp = _splitName(r.name);
+      const m = _findMeasure(sp.patNum, sp.nameText, r.name);
+      if (m) dhShownKeys.add(m._key);
+    });
+    const drShownKeys = new Set();
+
+    // 同じ患者で時間が重なっている／同じ種別が2件ある記録（日報で目立つように表示する）
+    const _conflicts = findReportConflicts(records);
 
     const wrap = document.getElementById('report-staff-blocks');
     wrap.innerHTML = '';
@@ -2236,6 +2341,10 @@ async function loadReport() {
         const cont = rawCont.replace(/\s*／?(舌圧:[\d.]+kPa|ムーカス:[\d.]+)/g, '').replace(/\s*／\s*$/, '').trim();
         const memo = r.memo ? `<div style="font-size:10px;color:#e07b5a;margin-top:1px;">📝 ${r.memo}</div>` : '';
 
+        // ★ 時間重複・同じ種別の二重記録の警告（問題のある行だけ。ふだんの行は従来と同じ表示）
+        const _cf = _conflicts.get(r);
+        const conflictHtml = _cf ? `<div class="overlap-warn" style="margin-top:2px;padding:2px 6px;background:#fdecea;color:#c62828;border:1px solid #f5c2c0;border-radius:4px;font-size:11px;font-weight:700;">⚠️ 時間重複：${_cf.map(o => [o.staff, o.type, o.timeStr].filter(Boolean).join(' ')).join('／')}</div>` : '';
+
         // 患者番号＋時間コピーボタン
 
 
@@ -2251,15 +2360,29 @@ async function loadReport() {
         const copyBtn = (cont || oeTxt) ? `<button id="${copyId}" onclick="navigator.clipboard.writeText('${copyTxt}').then(()=>{const b=document.getElementById('${copyId}');b.textContent='✅';setTimeout(()=>b.textContent='📋',1500)})" style="margin-left:6px;padding:2px 6px;font-size:10px;background:#e8f5f0;border:1px solid #4a9b7f;border-radius:3px;cursor:pointer;color:#4a9b7f;vertical-align:middle;">📋</button>` : '';
 
         if (isDr) {
+          // ★ Drが測定した分: その患者の測定記録を「測定のみ」に出さず、この行に表示する。
+          //   実施内容に測定値の文字があればそれを表示（従来どおり）、無ければ測定記録から表示。
+          //   同じ患者のDHの行に表示される場合は、ここには重ねて出さない。
+          let drMeasureLine = measureLine;
+          const drM = _findMeasure(patNum, nameText, r.name);
+          if (drM) {
+            consumedKeys.add(drM._key);
+            if (!measureLine && !dhShownKeys.has(drM._key) && !drShownKeys.has(drM._key)) {
+              const tH = drM.tongue ? `<span style="background:#e8f5f0;color:#2e7d5e;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">舌圧 ${drM.tongue}kPa</span>` : '';
+              const dH = drM.dry ? `<span style="background:#fdf0ec;color:#c0613a;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">ムーカス ${drM.dry}</span>` : '';
+              if (tH || dH) drMeasureLine = `<div style="margin-top:3px;">${tH}${dH}</div>`;
+            }
+            drShownKeys.add(drM._key);
+          }
           // Dr：時間・患者名・実施内容（④種別列削除）
           return `<tr style="background:${rowBg};">
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${measureLine}${oeLine}${memo}${copyBtn}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;">${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}${conflictHtml}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;font-size:11px;color:#555;">${cont}${drMeasureLine}${oeLine}${memo}${copyBtn}</td>
           </tr>`;
         } else {
-          // DH：患者名 + 測定記録を統合表示（IDで照合、フォールバックは正規化名）
-          const mMatch=(patNum&&measureMap[patNum])||measureMap['n:'+_normName(nameText)]||null;
+          // DH：患者名 + 測定記録を統合表示（IDで照合、フォールバックは正規化名→注記を除いた氏名）
+          const mMatch=_findMeasure(patNum, nameText, r.name);
           if(mMatch) consumedKeys.add(mMatch._key);
           const mRowHtml=mMatch?(()=>{
             const tH=mMatch.tongue?`<span style="background:#e8f5f0;color:#2e7d5e;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:700;margin-right:4px;">舌圧 ${mMatch.tongue}kPa</span>`:'';
@@ -2268,7 +2391,7 @@ async function loadReport() {
           })():'';
           return `<tr style="background:${rowBg};">
             <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;white-space:nowrap;font-size:13px;font-weight:700;color:#4a9b7f;">${r.timeStr || '—'}</td>
-            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2"><div>${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</div>${mRowHtml}${oeTxt ? `<div style="font-size:11px;color:#555;">${oeLine}${copyBtn}</div>` : ''}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid #eef3f1;" colspan="2"><div>${numHtml}<span style="font-size:12px;font-weight:700;">${nameText}</span>${editBtn}</div>${conflictHtml}${mRowHtml}${oeTxt ? `<div style="font-size:11px;color:#555;">${oeLine}${copyBtn}</div>` : ''}</td>
           </tr>`;
         }
       }).join('');
@@ -2289,6 +2412,12 @@ async function loadReport() {
           </table>
         </div>`;
     });
+
+    // ★ 時間重複がある日は、日報の一番上にも件数を表示する
+    if (_conflicts.size > 0) {
+      const _cNames = Array.from(new Set(Array.from(_conflicts.keys()).map(r => r.name)));
+      wrap.insertAdjacentHTML('afterbegin', `<div class="overlap-summary" style="margin-bottom:8px;padding:8px 10px;background:#fdecea;color:#c62828;border:1px solid #f5c2c0;border-radius:8px;font-size:12px;font-weight:700;">⚠️ 同じ患者さんで時間が重なっている記録があります（${_cNames.length}名：${_cNames.join('、')}）。✏️から時間を修正するか、不要な記録を削除してください。</div>`);
+    }
 
     // 口腔ケアなし患者の測定のみ補足欄（統合できなかった分だけ表示）
     const umList=dailyMeasures.filter(m=>!consumedKeys.has(m._key));
@@ -2314,6 +2443,31 @@ async function loadReport() {
     document.getElementById('report-loading').style.display = 'none';
   }
 }
+
+// ★ 古い版の画面を開いたままの端末への案内（2026-10-22）
+//   スマホ・タブレットで画面を開きっぱなしにすると、修正を公開しても古い版のまま
+//   動き続ける（時間重複チェックが効かない古い版で保存されることがある）。
+//   定期的に公開中の版を確認し、新しい版があれば画面上部に再読み込みの案内を出す。
+async function checkAppUpdate() {
+  try {
+    const url = location.href.split('#')[0].split('?')[0] + '?v=' + Date.now();
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (!resp.ok) return;
+    const text = await resp.text();
+    const m = text.match(/const APP_BUILD\s*=\s*'([^']+)'/);
+    if (!m || m[1] === APP_BUILD) return;
+    if (document.getElementById('app-update-banner')) return;
+    const b = document.createElement('div');
+    b.id = 'app-update-banner';
+    b.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:9999;background:#c62828;color:#fff;padding:10px 12px;font-size:13px;font-weight:700;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2);';
+    b.textContent = '🔄 アプリが更新されています。入力中の記録を保存してから、ここをタップして再読み込みしてください';
+    b.onclick = () => { if (_saving) return; location.reload(); };
+    document.body.appendChild(b);
+  } catch (e) { /* 確認できなくても何もしない */ }
+}
+setTimeout(checkAppUpdate, 5000);
+setInterval(checkAppUpdate, 10 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkAppUpdate(); });
 </script>
 
 <!-- ===== 記録編集モーダル ===== -->
